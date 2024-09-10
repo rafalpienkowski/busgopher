@@ -3,8 +3,11 @@ package main
 type busMessage struct {
     body string
     subject string
+    customProperties map[string]any
 }
 
 func newMessage() busMessage {
-    return busMessage{ body: "testM", subject: "testl" }
+    props := make(map[string]any)
+    props["IsSynthetic"] = "false"
+    return busMessage{ body: "testM", subject: "testl", customProperties: props }
 }

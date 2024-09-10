@@ -7,13 +7,13 @@ import (
 	"github.com/Azure/azure-sdk-for-go/sdk/messaging/azservicebus"
 )
 
-func GetClient(namespace string) *azservicebus.Client {
+func GetClient(connection connection) *azservicebus.Client {
 	cred, err := azidentity.NewDefaultAzureCredential(nil)
 	if err != nil {
 		panic(err)
 	}
 
-	client, err := azservicebus.NewClient(namespace, cred, nil)
+	client, err := azservicebus.NewClient(connection.namespace, cred, nil)
 	if err != nil {
 		panic(err)
 	}
@@ -30,6 +30,7 @@ func SendMessage(queueName string, message busMessage, client *azservicebus.Clie
 	sbMessage := &azservicebus.Message{
 		Body: []byte(message.body),
         Subject: &message.subject,
+        ApplicationProperties: message.customProperties,
 	}
 	err = sender.SendMessage(context.TODO(), sbMessage, nil)
 	if err != nil {
