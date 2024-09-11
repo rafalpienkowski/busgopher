@@ -13,7 +13,7 @@ func GetClient(connection connection) *azservicebus.Client {
 		panic(err)
 	}
 
-	client, err := azservicebus.NewClient(connection.namespace, cred, nil)
+	client, err := azservicebus.NewClient(connection.Namespace, cred, nil)
 	if err != nil {
 		panic(err)
 	}
@@ -28,9 +28,9 @@ func SendMessage(queueName string, message busMessage, client *azservicebus.Clie
 	defer sender.Close(context.TODO())
 
 	sbMessage := &azservicebus.Message{
-		Body: []byte(message.body),
-        Subject: &message.subject,
-        ApplicationProperties: message.customProperties,
+		Body: []byte(message.Body),
+        Subject: &message.Subject,
+        ApplicationProperties: message.CustomProperties,
 	}
 	err = sender.SendMessage(context.TODO(), sbMessage, nil)
 	if err != nil {

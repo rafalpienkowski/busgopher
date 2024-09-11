@@ -2,22 +2,32 @@ package main
 
 import (
 	"fmt"
+
 )
 
 func main() {
-	connection := connection{
-		namespace:   "***",
-		name:        "test",
-		destination: "test-rpe",
-	}
-	message := newMessage()
+    connections, err := loadConnections()
+    if err != nil {
+        fmt.Println("Can't load connections")
+        fmt.Println(err.Error())
+        return
+    }
+    activeConnection := connections[0]
+
+    messages, err := loadMessages()
+    if err != nil {
+        fmt.Println("Can't load messages")
+        fmt.Println(err.Error())
+        return
+    }
+	message := messages[0]
 
 	fmt.Println("Hello from busgopher!")
-	fmt.Println("Connecting to '" + connection.name + "'")
-	client := GetClient(connection)
+	fmt.Println("Connecting to '" + activeConnection.Name + "'")
+	client := GetClient(activeConnection)
 
-	fmt.Println("Sending a message '" + message.body + "' to: '" + connection.destination + "'")
-	SendMessage(connection.destination, message, client)
+	fmt.Println("Sending a message '" + message.Body + "' to: '" + activeConnection.Destination + "'")
+	SendMessage(activeConnection.Destination, message, client)
 
 	fmt.Println("Done")
 }

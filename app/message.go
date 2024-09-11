@@ -1,13 +1,8 @@
 package main
 
 type busMessage struct {
-    body string
-    subject string
-    customProperties map[string]any
-}
-
-func newMessage() busMessage {
-    props := make(map[string]any)
-    props["IsSynthetic"] = "false"
-    return busMessage{ body: "testM", subject: "testl", customProperties: props }
+    Name             string         `json:"name"`
+	Body             string         `json:"body"`
+	Subject          string         `json:"subject"`
+	CustomProperties map[string]any `json:"customProperties"`
 }

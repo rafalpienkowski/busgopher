@@ -1,7 +1,7 @@
 package main
 
 type connection struct {
-    name string
-    namespace string
-    destination string
+	Name        string `json:"name"`
+	Namespace   string `json:"namespace"`
+	Destination string `json:"destination"`
 }
