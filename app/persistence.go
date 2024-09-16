@@ -25,8 +25,8 @@ func readFile(filePath string) ([]byte, error) {
 	return bytes, nil
 }
 
-func loadConnections() ([]connection, error) {
-	var connections []connection
+func loadConnections() ([]busConnection, error) {
+	var connections []busConnection
 
 	bytes, err := readFile(connectionFilename)
 	if err != nil {
