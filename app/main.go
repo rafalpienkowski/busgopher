@@ -6,6 +6,7 @@ import (
 )
 
 func main() {
+	fmt.Println("Hello from busgopher!")
     connections, err := loadConnections()
     if err != nil {
         fmt.Println("Can't load connections")
@@ -22,7 +23,6 @@ func main() {
     }
 	message := messages[0]
 
-	fmt.Println("Hello from busgopher!")
 	fmt.Println("Connecting to '" + activeConnection.Name + "'")
 	client := GetClient(activeConnection)
 

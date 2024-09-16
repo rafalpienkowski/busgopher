@@ -2,12 +2,16 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"io"
 	"os"
 )
 
+const connectionFilename = "connections.json"
+const messagesFilename = "messages.json"
+
 func readFile(filePath string) ([]byte, error) {
-	file, err := os.Open(filePath)
+	file, err := os.OpenFile(filePath, os.O_CREATE, 0644)
 	if err != nil {
 		return nil, err
 	}
@@ -23,7 +27,8 @@ func readFile(filePath string) ([]byte, error) {
 
 func loadConnections() ([]connection, error) {
 	var connections []connection
-	bytes, err := readFile("connections.json")
+
+	bytes, err := readFile(connectionFilename)
 	if err != nil {
 		return nil, err
 	}
@@ -38,16 +43,21 @@ func loadConnections() ([]connection, error) {
 
 func loadMessages() ([]busMessage, error) {
 	var messages []busMessage
-	bytes, err := readFile("messages.json")
+	bytes, err := readFile(messagesFilename)
 	if err != nil {
 		return nil, err
 	}
 
+    if len(bytes) == 0 {
+        bytes = []byte("[]")
+    }
+    
+    fmt.Println("Bytes: ", len(bytes))
 	err = json.Unmarshal(bytes, &messages)
 	if err != nil {
 		return nil, err
 	}
-
+    
 	return messages, nil
 
 }
