@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
 	"io"
 	"os"
 )
@@ -52,7 +51,6 @@ func loadMessages() ([]busMessage, error) {
         bytes = []byte("[]")
     }
     
-    fmt.Println("Bytes: ", len(bytes))
 	err = json.Unmarshal(bytes, &messages)
 	if err != nil {
 		return nil, err
