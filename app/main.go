@@ -45,10 +45,16 @@ func main() {
 	connectionsDropDown := tview.NewDropDown()
 	messagesDropDown := tview.NewDropDown()
 	messagePreview := tview.NewTextView()
+    sendButton := tview.NewButton("Send")
+    closeButton := tview.NewButton("Hit Enter to close").SetSelectedFunc(func() {
+		app.Stop()
+	})
 
 	inputs := []tview.Primitive{
 		connectionsDropDown,
 		messagesDropDown,
+        sendButton,
+        closeButton,
 	}
 
 	app.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
@@ -113,7 +119,9 @@ func main() {
 		AddItem(connectionsDropDown, 0, 1, true).
 		AddItem(messagesDropDown, 0, 2, false).
 		AddItem(messagePreview, 0, 3, false).
-		AddItem(logs, 0, 4, false)
+		AddItem(logs, 0, 4, false).
+        AddItem(closeButton, 1, 1, false).
+        AddItem(sendButton, 1, 2, false)
 
 	if err := app.SetRoot(flex, true).Run(); err != nil {
 		panic(err)
