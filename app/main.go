@@ -11,7 +11,12 @@ import (
 var activeConnection busConnection
 var activeMessage busMessage
 
-func cycleFocus(app *tview.Application, elements []tview.Primitive, reverse bool, logs *tview.TextView) {
+func cycleFocus(
+	app *tview.Application,
+	elements []tview.Primitive,
+	reverse bool,
+	logs *tview.TextView,
+) {
 	for i, el := range elements {
 		if !el.HasFocus() {
 			continue
@@ -26,7 +31,7 @@ func cycleFocus(app *tview.Application, elements []tview.Primitive, reverse bool
 			i = i + 1
 			i = i % len(elements)
 		}
-        fmt.Fprintln(logs, "Focus on: " + strconv.Itoa(i))
+		fmt.Fprintln(logs, "Focus on: "+strconv.Itoa(i))
 
 		app.SetFocus(elements[i])
 		return
@@ -39,6 +44,7 @@ func main() {
 	logs := tview.NewTextView()
 	connectionsDropDown := tview.NewDropDown()
 	messagesDropDown := tview.NewDropDown()
+	messagePreview := tview.NewTextView()
 
 	inputs := []tview.Primitive{
 		connectionsDropDown,
@@ -59,6 +65,12 @@ func main() {
 		SetWrap(true).
 		SetBorder(true).
 		SetTitle("Logs")
+
+	messagePreview.
+		SetDynamicColors(true).
+		SetWrap(true).
+		SetBorder(true).
+		SetTitle("Message")
 
 	connections, err := loadConnections()
 	if err != nil {
@@ -94,13 +106,14 @@ func main() {
 	messagesDropDown.SetOptions(messageNames, func(name string, index int) {
 		fmt.Fprintln(logs, "Selected "+name)
 		activeMessage = messages[index]
-	}).
-		SetLabel("Select message: ")
+		fmt.Fprintln(messagePreview, activeMessage.Body)
+	}).SetLabel("Select message: ")
 
 	flex := tview.NewFlex().
 		AddItem(connectionsDropDown, 0, 1, true).
 		AddItem(messagesDropDown, 0, 2, false).
-		AddItem(logs, 0, 3, false)
+		AddItem(messagePreview, 0, 3, false).
+		AddItem(logs, 0, 4, false)
 
 	if err := app.SetRoot(flex, true).Run(); err != nil {
 		panic(err)
