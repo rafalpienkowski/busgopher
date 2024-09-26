@@ -27,10 +27,8 @@ func cycleFocus(
 	reverse bool,
 	logs *tview.TextView,
 ) {
-	fmt.Fprintf(logs, "Here: %v\n", len(elements))
 	for i, el := range elements {
 		if !el.HasFocus() {
-			fmt.Fprintf(logs, "Here: %v\n", i)
 			continue
 		}
 
