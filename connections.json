@@ -1,7 +1,0 @@
-[
-  {
-    "name": "dev",
-    "namespace": "mk-payments-service-bus-dev-eu.servicebus.windows.net",
-    "destination": "test-rpe"
-  }
-]
