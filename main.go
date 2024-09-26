@@ -3,37 +3,9 @@ package main
 import (
 	"fmt"
 	"os"
-	"strconv"
 
 	"github.com/rafalpienkowski/busgopher/internal/ui"
-	"github.com/rivo/tview"
 )
-
-func cycleFocus(
-	app *tview.Application,
-	elements []tview.Primitive,
-	reverse bool,
-	logs *tview.TextView,
-) {
-	for i, el := range elements {
-		if !el.HasFocus() {
-			continue
-		}
-
-		if reverse {
-			i = i - 1
-			if i < 0 {
-				i = len(elements) - 1
-			}
-		} else {
-			i = i + 1
-			i = i % len(elements)
-		}
-		fmt.Fprintln(logs, "Focus on: "+strconv.Itoa(i))
-		app.SetFocus(elements[i])
-		return
-	}
-}
 
 func main() {
 
@@ -45,15 +17,6 @@ func main() {
 	}
 
     /*
-	app := tview.NewApplication()
-	logs := tview.NewTextView()
-	logs.SetBorder(true)
-	connectionsSelection := tview.NewList()
-	connectionsSelection.SetBorder(true).SetTitle("Connection")
-	messagesSelection := tview.NewList()
-	messagesSelection.SetBorder(true).SetTitle("Message")
-	messagePreview := tview.NewTextView()
-	messagePreview.SetBorder(true)
 	sendButton := tview.NewButton("Send")
 	sendButton.SetBorder(true)
 	closeButton := tview.NewButton("Exit").SetSelectedFunc(func() {
@@ -67,27 +30,6 @@ func main() {
 		sendButton,
 		closeButton,
 	}
-
-	app.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
-		if event.Key() == tcell.KeyTab {
-			cycleFocus(app, inputs, false, logs)
-		} else if event.Key() == tcell.KeyBacktab {
-			cycleFocus(app, inputs, true, logs)
-		}
-		return event
-	})
-
-	logs.
-		SetDynamicColors(true).
-		SetWrap(true).
-		SetBorder(true).
-		SetTitle("Logs")
-
-	messagePreview.
-		SetDynamicColors(true).
-		SetWrap(true).
-		SetBorder(true).
-		SetTitle("Message")
 
 	connections, err := loadConnections()
 	if err != nil {
@@ -118,21 +60,6 @@ func main() {
 		})
 	}
 
-	flex := tview.NewFlex().
-		AddItem(tview.NewFlex().SetDirection(tview.FlexRow).
-			AddItem(connectionsSelection, 0, 1, true).
-			AddItem(messagesSelection, 0, 1, false),
-			0, 2, true).
-		AddItem(tview.NewFlex().SetDirection(tview.FlexRow).
-			AddItem(tview.NewBox().SetBorder(true).SetTitle("Right "), 0, 5, false).
-			AddItem(logs, 10, 1, false),
-			0, 5, false)
-
-	if err := app.SetRoot(flex, true).Run(); err != nil {
-		panic(err)
-	}
-
-	return
 
 	fmt.Println("Connecting to '" + activeConnection.Name + "'")
 	client := GetClient(activeConnection)
