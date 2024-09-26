@@ -1,4 +1,4 @@
-package main
+package config
 
 import (
 	"encoding/json"
@@ -8,6 +8,10 @@ import (
 
 const connectionFilename = "connections.json"
 const messagesFilename = "messages.json"
+
+type Config struct {
+
+}
 
 func readFile(filePath string) ([]byte, error) {
 	file, err := os.OpenFile(filePath, os.O_CREATE, 0644)
