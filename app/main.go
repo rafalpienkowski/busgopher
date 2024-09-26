@@ -32,7 +32,6 @@ func cycleFocus(
 			i = i % len(elements)
 		}
 		fmt.Fprintln(logs, "Focus on: "+strconv.Itoa(i))
-
 		app.SetFocus(elements[i])
 		return
 	}
@@ -42,19 +41,25 @@ func main() {
 
 	app := tview.NewApplication()
 	logs := tview.NewTextView()
-	connectionsDropDown := tview.NewDropDown()
-	messagesDropDown := tview.NewDropDown()
+    logs.SetBorder(true)
+	connectionsSelection := tview.NewList()
+    connectionsSelection.SetBorder(true).SetTitle("Connection")
+	messagesSelection := tview.NewList()
+    messagesSelection.SetBorder(true).SetTitle("Message")
 	messagePreview := tview.NewTextView()
-    sendButton := tview.NewButton("Send")
-    closeButton := tview.NewButton("Hit Enter to close").SetSelectedFunc(func() {
+    messagePreview.SetBorder(true)
+	sendButton := tview.NewButton("Send")
+    sendButton.SetBorder(true)
+	closeButton := tview.NewButton("Exit").SetSelectedFunc(func() {
 		app.Stop()
 	})
+    closeButton.SetBorder(true)
 
 	inputs := []tview.Primitive{
-		connectionsDropDown,
-		messagesDropDown,
-        sendButton,
-        closeButton,
+		connectionsSelection,
+		messagesSelection,
+		sendButton,
+		closeButton,
 	}
 
 	app.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
@@ -85,16 +90,12 @@ func main() {
 		return
 	}
 
-	var connectionNames []string
 	for _, conn := range connections {
-		connectionNames = append(connectionNames, conn.Name)
+		connectionsSelection.AddItem(conn.Name, conn.Namespace, 'a', func() {
+			fmt.Fprintln(logs, "Selected "+conn.Name)
+			activeConnection = conn
+		})
 	}
-	connectionNames = append(connectionNames, "Add..")
-
-	connectionsDropDown.SetOptions(connectionNames, func(name string, index int) {
-		fmt.Fprintln(logs, "Selected "+name)
-		activeConnection = connections[index]
-	}).SetLabel("Select connection: ")
 
 	messages, err := loadMessages()
 	if err != nil {
@@ -103,25 +104,23 @@ func main() {
 		return
 	}
 
-	var messageNames []string
 	for _, msg := range messages {
-		messageNames = append(messageNames, msg.Name)
+		messagesSelection.AddItem(msg.Name, msg.Subject, 'a', func() {
+			fmt.Fprintln(logs, "Selected "+msg.Name)
+			activeMessage = msg
+			fmt.Fprintln(messagePreview, activeMessage.Body)
+		})
 	}
-	messageNames = append(messageNames, "Add..")
-
-	messagesDropDown.SetOptions(messageNames, func(name string, index int) {
-		fmt.Fprintln(logs, "Selected "+name)
-		activeMessage = messages[index]
-		fmt.Fprintln(messagePreview, activeMessage.Body)
-	}).SetLabel("Select message: ")
 
 	flex := tview.NewFlex().
-		AddItem(connectionsDropDown, 0, 1, true).
-		AddItem(messagesDropDown, 0, 2, false).
-		AddItem(messagePreview, 0, 3, false).
-		AddItem(logs, 0, 4, false).
-        AddItem(closeButton, 1, 1, false).
-        AddItem(sendButton, 1, 2, false)
+		AddItem(tview.NewFlex().SetDirection(tview.FlexRow).
+            AddItem(connectionsSelection, 0, 1, true).
+			AddItem(messagesSelection, 0, 1, false),
+			0, 2, true).
+		AddItem(tview.NewFlex().SetDirection(tview.FlexRow).
+			AddItem(tview.NewBox().SetBorder(true).SetTitle("Right "), 0, 5, false).
+			AddItem(logs, 10, 1, false),
+			0, 5, false)
 
 	if err := app.SetRoot(flex, true).Run(); err != nil {
 		panic(err)
