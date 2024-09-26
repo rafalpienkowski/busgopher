@@ -2,14 +2,12 @@ package main
 
 import (
 	"fmt"
+	"os"
 	"strconv"
 
-	"github.com/gdamore/tcell/v2"
+	"github.com/rafalpienkowski/busgopher/internal/ui"
 	"github.com/rivo/tview"
 )
-
-var activeConnection busConnection
-var activeMessage busMessage
 
 func cycleFocus(
 	app *tview.Application,
@@ -39,21 +37,29 @@ func cycleFocus(
 
 func main() {
 
+    ui := ui.NewUI()
+    err := ui.Start()
+	if err != nil {
+		fmt.Printf("failed to start: %v\n", err)
+		os.Exit(1)
+	}
+
+    /*
 	app := tview.NewApplication()
 	logs := tview.NewTextView()
-    logs.SetBorder(true)
+	logs.SetBorder(true)
 	connectionsSelection := tview.NewList()
-    connectionsSelection.SetBorder(true).SetTitle("Connection")
+	connectionsSelection.SetBorder(true).SetTitle("Connection")
 	messagesSelection := tview.NewList()
-    messagesSelection.SetBorder(true).SetTitle("Message")
+	messagesSelection.SetBorder(true).SetTitle("Message")
 	messagePreview := tview.NewTextView()
-    messagePreview.SetBorder(true)
+	messagePreview.SetBorder(true)
 	sendButton := tview.NewButton("Send")
-    sendButton.SetBorder(true)
+	sendButton.SetBorder(true)
 	closeButton := tview.NewButton("Exit").SetSelectedFunc(func() {
 		app.Stop()
 	})
-    closeButton.SetBorder(true)
+	closeButton.SetBorder(true)
 
 	inputs := []tview.Primitive{
 		connectionsSelection,
@@ -114,7 +120,7 @@ func main() {
 
 	flex := tview.NewFlex().
 		AddItem(tview.NewFlex().SetDirection(tview.FlexRow).
-            AddItem(connectionsSelection, 0, 1, true).
+			AddItem(connectionsSelection, 0, 1, true).
 			AddItem(messagesSelection, 0, 1, false),
 			0, 2, true).
 		AddItem(tview.NewFlex().SetDirection(tview.FlexRow).
@@ -131,10 +137,6 @@ func main() {
 	fmt.Println("Connecting to '" + activeConnection.Name + "'")
 	client := GetClient(activeConnection)
 
-	fmt.Println(
-		"Sending a message '" + activeMessage.Body + "' to: '" + activeConnection.Destination + "'",
-	)
 	SendMessage(activeConnection.Destination, activeMessage, client)
-
-	fmt.Println("Done")
+    */
 }
