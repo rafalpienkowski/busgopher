@@ -13,6 +13,11 @@ func main() {
 
     config := config.LoadConfig()
     controller, err := controller.NewController(config)
+	if err != nil {
+		fmt.Printf("Failed to start: %v\n", err)
+		os.Exit(1)
+	}
+
     ui := ui.NewUI(controller)
     err = ui.Start()
 	if err != nil {

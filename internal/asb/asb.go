@@ -8,19 +8,19 @@ import (
 )
 
 
-type busMessage struct {
+type Message struct {
     Name             string         `json:"name"`
 	Body             string         `json:"body"`
 	Subject          string         `json:"subject"`
 	CustomProperties map[string]any `json:"customProperties"`
 }
 
-type busConnection struct {
+type Connection struct {
 	Name        string `json:"name"`
 	Namespace   string `json:"namespace"`
 }
 
-func GetClient(connection busConnection) *azservicebus.Client {
+func GetClient(connection Connection) *azservicebus.Client {
 	cred, err := azidentity.NewDefaultAzureCredential(nil)
 	if err != nil {
 		panic(err)
@@ -33,7 +33,7 @@ func GetClient(connection busConnection) *azservicebus.Client {
 	return client
 }
 
-func SendMessage(queueName string, message busMessage, client *azservicebus.Client) {
+func SendMessage(queueName string, message Message, client *azservicebus.Client) {
 	sender, err := client.NewSender(queueName, nil)
 	if err != nil {
 		panic(err)
