@@ -33,9 +33,9 @@ func NewUI(controller *controller.Controller) *UI {
 
 	// Create UI elements
 	ui.App = tview.NewApplication()
-	ui.Connections = tview.NewList().ShowSecondaryText(false)
-	ui.Messages = tview.NewList().ShowSecondaryText(false)
-	ui.Destinations = tview.NewList().ShowSecondaryText(false)
+	ui.Connections = tview.NewList().ShowSecondaryText(false).SetWrapAround(true)
+	ui.Messages = tview.NewList().ShowSecondaryText(false).SetWrapAround(true)
+	ui.Destinations = tview.NewList().ShowSecondaryText(false).SetWrapAround(true)
 	ui.Content = tview.NewTextView()
 	ui.Logs = tview.NewTextView()
 
@@ -54,7 +54,9 @@ func NewUI(controller *controller.Controller) *UI {
 	ui.Content.SetTitle(" Content: ").SetBorder(true)
 	ui.Logs.SetTitle(" Logs: ").SetBorder(true)
 
-	//Set layouts
+    // Configure handlers
+
+	// Set layouts
 	left := tview.NewFlex().SetDirection(tview.FlexRow).
 		AddItem(ui.Connections, 0, 1, true).
 		AddItem(ui.Messages, 0, 1, false).
@@ -87,10 +89,11 @@ func (ui *UI) LoadData() {
 
 	for _, msg := range ui.controller.Messages {
 		ui.Messages.AddItem(msg.Name, msg.Subject, 'b', func(){
-            ui.printContent(msg.Body)
+            ui.printContent(msg.Print())
         })
 	}
 }
+
 
 func (ui *UI) Start() error {
 	return ui.App.SetRoot(ui.Flex, true).SetFocus(ui.Connections).EnableMouse(true).Run()
@@ -100,7 +103,7 @@ func (ui *UI) printLog(logMsg string) {
 	fmt.Fprintf(ui.Logs, "[%v]: %v\n", time.Now().Format("2006-01-02 15:04:05"), logMsg)
 }
 
-func (ui *UI) printContent(content string) {
+func (ui *UI) printContent(content string){
     ui.Content.Clear()
 	fmt.Fprintf(ui.Content, "%v", content)
 }

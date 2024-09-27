@@ -2,6 +2,7 @@ package asb
 
 import (
 	"context"
+	"encoding/json"
 
 	"github.com/Azure/azure-sdk-for-go/sdk/azidentity"
 	"github.com/Azure/azure-sdk-for-go/sdk/messaging/azservicebus"
@@ -13,6 +14,16 @@ type Message struct {
 	Body             string         `json:"body"`
 	Subject          string         `json:"subject"`
 	CustomProperties map[string]any `json:"customProperties"`
+}
+
+func (msg *Message) Print() string {
+
+	prettyMsgBytes, err := json.MarshalIndent(msg, "", "  ")
+	if err != nil {
+		panic(err)
+	}
+
+	return string(prettyMsgBytes)
 }
 
 type Connection struct {
