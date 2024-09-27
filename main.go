@@ -40,25 +40,12 @@ func main() {
 		closeButton,
 	}
 
-	connections, err := loadConnections()
-	if err != nil {
-		fmt.Fprintln(logs, "Can't load connections")
-		fmt.Fprintln(logs, err.Error())
-		return
-	}
 
 	for _, conn := range connections {
 		connectionsSelection.AddItem(conn.Name, conn.Namespace, 'a', func() {
 			fmt.Fprintln(logs, "Selected "+conn.Name)
 			activeConnection = conn
 		})
-	}
-
-	messages, err := loadMessages()
-	if err != nil {
-		fmt.Fprintln(logs, "Can't load messages")
-		fmt.Fprintln(logs, err.Error())
-		return
 	}
 
 	for _, msg := range messages {
@@ -68,7 +55,6 @@ func main() {
 			fmt.Fprintln(messagePreview, activeMessage.Body)
 		})
 	}
-
 
 	fmt.Println("Connecting to '" + activeConnection.Name + "'")
 	client := GetClient(activeConnection)

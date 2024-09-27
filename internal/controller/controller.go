@@ -1,8 +1,7 @@
 package controller
 
 import (
-
-    "github.com/rafalpienkowski/busgopher/internal/config"
+	"github.com/rafalpienkowski/busgopher/internal/config"
 )
 
 type Controller struct {
