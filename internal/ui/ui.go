@@ -2,6 +2,7 @@ package ui
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
@@ -21,6 +22,8 @@ type UI struct {
 	Destinations *tview.List
 	Content      *tview.TextView
 	Logs         *tview.TextView
+
+	Inputs []tview.Primitive
 }
 
 func NewUI(controller *controller.Controller) *UI {
@@ -35,6 +38,14 @@ func NewUI(controller *controller.Controller) *UI {
 	ui.Destinations = tview.NewList().ShowSecondaryText(false)
 	ui.Content = tview.NewTextView()
 	ui.Logs = tview.NewTextView()
+
+	ui.Inputs = []tview.Primitive{
+		ui.Connections,
+		ui.Messages,
+		ui.Destinations,
+		ui.Content,
+		ui.Logs,
+	}
 
 	// Configure appearence
 	ui.Connections.SetTitle(" Connections: ").SetBorder(true)
@@ -57,19 +68,11 @@ func NewUI(controller *controller.Controller) *UI {
 		AddItem(left, 0, 1, false).
 		AddItem(right, 0, 3, false)
 
-	inputs := []tview.Primitive{
-		ui.Connections,
-		ui.Messages,
-		ui.Destinations,
-		ui.Content,
-		ui.Logs,
-	}
-
 	ui.App.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
 		if event.Key() == tcell.KeyTab {
-			cycleFocus(ui.App, inputs, false, ui.Logs)
+			ui.cycleFocus(false)
 		} else if event.Key() == tcell.KeyBacktab {
-			cycleFocus(ui.App, inputs, true, ui.Logs)
+			ui.cycleFocus(true)
 		}
 		return event
 	})
@@ -79,26 +82,27 @@ func NewUI(controller *controller.Controller) *UI {
 
 func (ui *UI) LoadData() {
 	for _, conn := range ui.controller.Connections {
-        ui.Connections.AddItem(conn.Name, conn.Namespace, 'a', nil)
-    }
+		ui.Connections.AddItem(conn.Name, conn.Namespace, 'a', nil)
+	}
 
-    for _, msg := range ui.controller.Messages {
-        ui.Messages.AddItem(msg.Name, "sad", 'b', nil)
-    }
+	for _, msg := range ui.controller.Messages {
+		ui.Messages.AddItem(msg.Name, "sad", 'b', nil)
+	}
 }
 
 func (ui *UI) Start() error {
 	return ui.App.SetRoot(ui.Flex, true).SetFocus(ui.Connections).EnableMouse(true).Run()
 }
 
+func (ui *UI) printLog(logMsg string) {
+	fmt.Fprintf(ui.Logs, "[%v]: %v\n", time.Now().Format("2006-01-02 15:04:05"), logMsg)
+}
+
 // Changes focus on TAB pressed
-func cycleFocus(
-	app *tview.Application,
-	elements []tview.Primitive,
+func (ui *UI) cycleFocus(
 	reverse bool,
-	logs *tview.TextView,
 ) {
-	for i, el := range elements {
+	for i, el := range ui.Inputs {
 		if !el.HasFocus() {
 			continue
 		}
@@ -106,14 +110,15 @@ func cycleFocus(
 		if reverse {
 			i = i - 1
 			if i < 0 {
-				i = len(elements) - 1
+				i = len(ui.Inputs) - 1
 			}
 		} else {
 			i = i + 1
-			i = i % len(elements)
+			i = i % len(ui.Inputs)
 		}
-		fmt.Fprintf(logs, "Focus on: %v\n", i)
-		app.SetFocus(elements[i])
+		ui.printLog("Focus on: ")
+
+		ui.App.SetFocus(ui.Inputs[i])
 		return
 	}
 }
