@@ -5,12 +5,15 @@ import (
 
 	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
+
+	"github.com/rafalpienkowski/busgopher/internal/controller"
 )
 
 // UI implement terminal user interface features.
 type UI struct {
+	Controller *controller.Controller
 
-	// View components.
+	// View components
 	App          *tview.Application
 	Flex         *tview.Flex
 	Connections  *tview.List
@@ -20,35 +23,10 @@ type UI struct {
 	Logs         *tview.TextView
 }
 
-// Changes focus on TAB pressed
-func cycleFocus(
-	app *tview.Application,
-	elements []tview.Primitive,
-	reverse bool,
-	logs *tview.TextView,
-) {
-	for i, el := range elements {
-		if !el.HasFocus() {
-			continue
-		}
-
-		if reverse {
-			i = i - 1
-			if i < 0 {
-				i = len(elements) - 1
-			}
-		} else {
-			i = i + 1
-			i = i % len(elements)
-		}
-		fmt.Fprintf(logs, "Focus on: %v\n", i)
-		app.SetFocus(elements[i])
-		return
-	}
-}
-
-func NewUI() *UI {
+func NewUI(controller *controller.Controller) *UI {
 	ui := UI{}
+
+	ui.Controller = controller
 
 	// Create UI elements
 	ui.App = tview.NewApplication()
@@ -88,7 +66,6 @@ func NewUI() *UI {
 	}
 
 	ui.App.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
-		fmt.Fprintln(ui.Logs, "Focus changed")
 		if event.Key() == tcell.KeyTab {
 			cycleFocus(ui.App, inputs, false, ui.Logs)
 		} else if event.Key() == tcell.KeyBacktab {
@@ -102,4 +79,31 @@ func NewUI() *UI {
 
 func (ui *UI) Start() error {
 	return ui.App.SetRoot(ui.Flex, true).SetFocus(ui.Connections).EnableMouse(true).Run()
+}
+
+// Changes focus on TAB pressed
+func cycleFocus(
+	app *tview.Application,
+	elements []tview.Primitive,
+	reverse bool,
+	logs *tview.TextView,
+) {
+	for i, el := range elements {
+		if !el.HasFocus() {
+			continue
+		}
+
+		if reverse {
+			i = i - 1
+			if i < 0 {
+				i = len(elements) - 1
+			}
+		} else {
+			i = i + 1
+			i = i % len(elements)
+		}
+		fmt.Fprintf(logs, "Focus on: %v\n", i)
+		app.SetFocus(elements[i])
+		return
+	}
 }

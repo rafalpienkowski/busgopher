@@ -1,4 +1,4 @@
-package main
+package asb
 
 import (
 	"context"
@@ -6,6 +6,19 @@ import (
 	"github.com/Azure/azure-sdk-for-go/sdk/azidentity"
 	"github.com/Azure/azure-sdk-for-go/sdk/messaging/azservicebus"
 )
+
+
+type busMessage struct {
+    Name             string         `json:"name"`
+	Body             string         `json:"body"`
+	Subject          string         `json:"subject"`
+	CustomProperties map[string]any `json:"customProperties"`
+}
+
+type busConnection struct {
+	Name        string `json:"name"`
+	Namespace   string `json:"namespace"`
+}
 
 func GetClient(connection busConnection) *azservicebus.Client {
 	cred, err := azidentity.NewDefaultAzureCredential(nil)

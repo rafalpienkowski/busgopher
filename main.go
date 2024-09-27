@@ -4,13 +4,17 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/rafalpienkowski/busgopher/internal/ui"
+    "github.com/rafalpienkowski/busgopher/internal/ui"
+    "github.com/rafalpienkowski/busgopher/internal/config"
+    "github.com/rafalpienkowski/busgopher/internal/controller"
 )
 
 func main() {
 
-    ui := ui.NewUI()
-    err := ui.Start()
+    config := config.LoadConfig()
+    controller, err := controller.NewController(config)
+    ui := ui.NewUI(controller)
+    err = ui.Start()
 	if err != nil {
 		fmt.Printf("failed to start: %v\n", err)
 		os.Exit(1)

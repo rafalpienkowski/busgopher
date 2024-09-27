@@ -1,7 +1,6 @@
 package config
 
 import (
-	"encoding/json"
 	"io"
 	"os"
 )
@@ -11,6 +10,10 @@ const messagesFilename = "messages.json"
 
 type Config struct {
 
+}
+
+func LoadConfig() *Config {
+    return nil
 }
 
 func readFile(filePath string) ([]byte, error) {
@@ -27,7 +30,7 @@ func readFile(filePath string) ([]byte, error) {
 
 	return bytes, nil
 }
-
+/*
 func loadConnections() ([]busConnection, error) {
 	var connections []busConnection
 
@@ -63,3 +66,4 @@ func loadMessages() ([]busMessage, error) {
 	return messages, nil
 
 }
+*/
