@@ -11,7 +11,7 @@ import (
 
 // UI implement terminal user interface features.
 type UI struct {
-	Controller *controller.Controller
+	controller *controller.Controller
 
 	// View components
 	App          *tview.Application
@@ -26,7 +26,7 @@ type UI struct {
 func NewUI(controller *controller.Controller) *UI {
 	ui := UI{}
 
-	ui.Controller = controller
+	ui.controller = controller
 
 	// Create UI elements
 	ui.App = tview.NewApplication()
@@ -75,6 +75,16 @@ func NewUI(controller *controller.Controller) *UI {
 	})
 
 	return &ui
+}
+
+func (ui *UI) LoadData() {
+	for _, conn := range ui.controller.Connections {
+        ui.Connections.AddItem(conn.Name, conn.Namespace, 'a', nil)
+    }
+
+    for _, msg := range ui.controller.Messages {
+        ui.Messages.AddItem(msg.Name, "sad", 'b', nil)
+    }
 }
 
 func (ui *UI) Start() error {

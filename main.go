@@ -19,6 +19,7 @@ func main() {
 	}
 
     ui := ui.NewUI(controller)
+    ui.LoadData()
     err = ui.Start()
 	if err != nil {
 		fmt.Printf("failed to start: %v\n", err)
