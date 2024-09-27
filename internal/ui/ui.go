@@ -86,7 +86,9 @@ func (ui *UI) LoadData() {
 	}
 
 	for _, msg := range ui.controller.Messages {
-		ui.Messages.AddItem(msg.Name, "sad", 'b', nil)
+		ui.Messages.AddItem(msg.Name, msg.Subject, 'b', func(){
+            ui.printContent(msg.Body)
+        })
 	}
 }
 
@@ -96,6 +98,11 @@ func (ui *UI) Start() error {
 
 func (ui *UI) printLog(logMsg string) {
 	fmt.Fprintf(ui.Logs, "[%v]: %v\n", time.Now().Format("2006-01-02 15:04:05"), logMsg)
+}
+
+func (ui *UI) printContent(content string) {
+    ui.Content.Clear()
+	fmt.Fprintf(ui.Content, "%v", content)
 }
 
 // Changes focus on TAB pressed
@@ -116,8 +123,6 @@ func (ui *UI) cycleFocus(
 			i = i + 1
 			i = i % len(ui.Inputs)
 		}
-		ui.printLog("Focus on: ")
-
 		ui.App.SetFocus(ui.Inputs[i])
 		return
 	}
