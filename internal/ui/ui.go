@@ -33,9 +33,18 @@ func NewUI(controller *controller.Controller) *UI {
 
 	// Create UI elements
 	ui.App = tview.NewApplication()
-	ui.Connections = tview.NewList().ShowSecondaryText(false).SetWrapAround(true)
-	ui.Messages = tview.NewList().ShowSecondaryText(false).SetWrapAround(true)
-	ui.Destinations = tview.NewList().ShowSecondaryText(false).SetWrapAround(true)
+	ui.Connections = tview.NewList().
+		ShowSecondaryText(false).
+		SetWrapAround(true).
+		SetHighlightFullLine(true)
+	ui.Messages = tview.NewList().
+		ShowSecondaryText(false).
+		SetWrapAround(true).
+		SetHighlightFullLine(true)
+	ui.Destinations = tview.NewList().
+		ShowSecondaryText(false).
+		SetWrapAround(true).
+		SetHighlightFullLine(true)
 	ui.Content = tview.NewTextView()
 	ui.Logs = tview.NewTextView()
 
@@ -70,7 +79,7 @@ func NewUI(controller *controller.Controller) *UI {
 		AddItem(left, 0, 1, false).
 		AddItem(right, 0, 3, false)
 
-    ui.App.SetAfterDrawFunc(ui.setAfterDrawFunc)
+	ui.App.SetAfterDrawFunc(ui.setAfterDrawFunc)
 
 	ui.App.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
 		if event.Key() == tcell.KeyTab {
@@ -86,11 +95,11 @@ func NewUI(controller *controller.Controller) *UI {
 
 func (ui *UI) LoadData() {
 	for _, conn := range ui.controller.Connections {
-		ui.Connections.AddItem(conn.Name, conn.Namespace, 'a', nil)
+		ui.Connections.AddItem(conn.Name, conn.Namespace, 0, nil)
 	}
 
 	for _, msg := range ui.controller.Messages {
-		ui.Messages.AddItem(msg.Name, msg.Subject, 'b', func() {
+		ui.Messages.AddItem(msg.Name, msg.Subject, 0, func() {
 			ui.printContent(msg.Print())
 		})
 	}
