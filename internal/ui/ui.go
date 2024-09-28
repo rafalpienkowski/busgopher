@@ -54,7 +54,7 @@ func NewUI(controller *controller.Controller) *UI {
 	ui.Content.SetTitle(" Content: ").SetBorder(true)
 	ui.Logs.SetTitle(" Logs: ").SetBorder(true)
 
-    // Configure handlers
+	// Configure handlers
 
 	// Set layouts
 	left := tview.NewFlex().SetDirection(tview.FlexRow).
@@ -69,6 +69,8 @@ func NewUI(controller *controller.Controller) *UI {
 	ui.Flex = tview.NewFlex().
 		AddItem(left, 0, 1, false).
 		AddItem(right, 0, 3, false)
+
+    ui.App.SetAfterDrawFunc(ui.setAfterDrawFunc)
 
 	ui.App.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
 		if event.Key() == tcell.KeyTab {
@@ -88,12 +90,11 @@ func (ui *UI) LoadData() {
 	}
 
 	for _, msg := range ui.controller.Messages {
-		ui.Messages.AddItem(msg.Name, msg.Subject, 'b', func(){
-            ui.printContent(msg.Print())
-        })
+		ui.Messages.AddItem(msg.Name, msg.Subject, 'b', func() {
+			ui.printContent(msg.Print())
+		})
 	}
 }
-
 
 func (ui *UI) Start() error {
 	return ui.App.SetRoot(ui.Flex, true).SetFocus(ui.Connections).EnableMouse(true).Run()
@@ -103,8 +104,8 @@ func (ui *UI) printLog(logMsg string) {
 	fmt.Fprintf(ui.Logs, "[%v]: %v\n", time.Now().Format("2006-01-02 15:04:05"), logMsg)
 }
 
-func (ui *UI) printContent(content string){
-    ui.Content.Clear()
+func (ui *UI) printContent(content string) {
+	ui.Content.Clear()
 	fmt.Fprintf(ui.Content, "%v", content)
 }
 
@@ -129,4 +130,35 @@ func (ui *UI) cycleFocus(
 		ui.App.SetFocus(ui.Inputs[i])
 		return
 	}
+}
+
+func (ui *UI) queueUpdateDraw(f func()) {
+	go func() {
+		ui.App.QueueUpdateDraw(f)
+	}()
+}
+
+func (ui *UI) setAfterDrawFunc(screen tcell.Screen) {
+	ui.queueUpdateDraw(func() {
+		p := ui.App.GetFocus()
+
+		ui.Connections.SetBorderColor(tcell.ColorWhite)
+		ui.Messages.SetBorderColor(tcell.ColorWhite)
+		ui.Destinations.SetBorderColor(tcell.ColorWhite)
+		ui.Content.SetBorderColor(tcell.ColorWhite)
+		ui.Logs.SetBorderColor(tcell.ColorWhite)
+
+		switch p {
+		case ui.Connections:
+			ui.Connections.SetBorderColor(tcell.ColorBlue)
+		case ui.Messages:
+			ui.Messages.SetBorderColor(tcell.ColorBlue)
+		case ui.Destinations:
+			ui.Destinations.SetBorderColor(tcell.ColorBlue)
+		case ui.Content:
+			ui.Content.SetBorderColor(tcell.ColorBlue)
+		case ui.Logs:
+			ui.Logs.SetBorderColor(tcell.ColorBlue)
+		}
+	})
 }
