@@ -19,7 +19,6 @@ type UI struct {
 	Flex         *tview.Flex
 	Connections  *tview.List
 	Messages     *tview.List
-	Destinations *tview.List
 	Content      *tview.TextView
 	Logs         *tview.TextView
 
@@ -41,25 +40,18 @@ func NewUI(controller *controller.Controller) *UI {
 		ShowSecondaryText(false).
 		SetWrapAround(true).
 		SetHighlightFullLine(true)
-	ui.Destinations = tview.NewList().
-		ShowSecondaryText(false).
-		SetWrapAround(true).
-		SetHighlightFullLine(true)
 	ui.Content = tview.NewTextView()
 	ui.Logs = tview.NewTextView()
 
 	ui.Inputs = []tview.Primitive{
 		ui.Connections,
 		ui.Messages,
-		ui.Destinations,
 		ui.Content,
-		ui.Logs,
 	}
 
 	// Configure appearence
 	ui.Connections.SetTitle(" Connections: ").SetBorder(true)
 	ui.Messages.SetTitle(" Messages: ").SetBorder(true)
-	ui.Destinations.SetTitle(" Destinations: ").SetBorder(true)
 	ui.Content.SetTitle(" Content: ").SetBorder(true)
 	ui.Logs.SetTitle(" Logs: ").SetBorder(true)
 
@@ -68,8 +60,7 @@ func NewUI(controller *controller.Controller) *UI {
 	// Set layouts
 	left := tview.NewFlex().SetDirection(tview.FlexRow).
 		AddItem(ui.Connections, 0, 1, true).
-		AddItem(ui.Messages, 0, 1, false).
-		AddItem(ui.Destinations, 0, 1, false)
+		AddItem(ui.Messages, 0, 1, false)
 
 	right := tview.NewFlex().SetDirection(tview.FlexRow).
 		AddItem(ui.Content, 0, 3, false).
@@ -158,7 +149,6 @@ func (ui *UI) setAfterDrawFunc(screen tcell.Screen) {
 
 		ui.Connections.SetBorderColor(tcell.ColorWhite)
 		ui.Messages.SetBorderColor(tcell.ColorWhite)
-		ui.Destinations.SetBorderColor(tcell.ColorWhite)
 		ui.Content.SetBorderColor(tcell.ColorWhite)
 		ui.Logs.SetBorderColor(tcell.ColorWhite)
 
@@ -167,8 +157,6 @@ func (ui *UI) setAfterDrawFunc(screen tcell.Screen) {
 			ui.Connections.SetBorderColor(tcell.ColorBlue)
 		case ui.Messages:
 			ui.Messages.SetBorderColor(tcell.ColorBlue)
-		case ui.Destinations:
-			ui.Destinations.SetBorderColor(tcell.ColorBlue)
 		case ui.Content:
 			ui.Content.SetBorderColor(tcell.ColorBlue)
 		case ui.Logs:
