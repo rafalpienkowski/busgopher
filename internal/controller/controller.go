@@ -6,13 +6,11 @@ import (
 )
 
 type Controller struct {
-	Connections  []asb.Connection
-	Messages     []asb.Message
-	Destinations []string
+	Connections []asb.Connection
+	Messages    []asb.Message
 
-	selectedConnection  asb.Connection
-	selectedMessage     asb.Message
-	selectedDestination string
+	selectedConnection asb.Connection
+	selectedMessage    asb.Message
 }
 
 func NewController(config *config.Config) (*Controller, error) {
@@ -24,28 +22,14 @@ func NewController(config *config.Config) (*Controller, error) {
 	return &controller, nil
 }
 
-func (controller *Controller) SelectConnection(name string) {
-	for _, conn := range controller.Connections {
-		if conn.Name == name {
-			controller.selectedConnection = conn
-			controller.selectedDestination = ""
-			return
-		}
-	}
+func (controller *Controller) SelectConnection(connection asb.Connection) {
+	controller.selectedConnection = connection
 }
 
-func (controller *Controller) SelectMessage(name string) {
-	for _, msg := range controller.Messages {
-		if msg.Name == name {
-			controller.selectedMessage = msg
-			return
-		}
-	}
+func (controller *Controller) SelectMessage(message asb.Message) {
+	controller.selectedMessage = message
 }
 
-func (controller *Controller) SelectDestination(name string) {
-	controller.selectedDestination = name
-}
-
-func (controller *Controller) Send() {
+func (controller *Controller) Send(destination string) error {
+	return controller.selectedConnection.SendMessage(destination, controller.selectedMessage)
 }

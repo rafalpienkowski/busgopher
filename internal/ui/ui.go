@@ -95,12 +95,17 @@ func NewUI(controller *controller.Controller) *UI {
 
 func (ui *UI) LoadData() {
 	for _, conn := range ui.controller.Connections {
-		ui.Connections.AddItem(conn.Name, conn.Namespace, 0, nil)
+		ui.Connections.AddItem(conn.Name, conn.Namespace, 0, func(){
+            ui.controller.SelectConnection(conn)
+            ui.printLog("Selected connection: " + conn.Name + " (" + conn.Namespace + ")")
+        })
 	}
 
 	for _, msg := range ui.controller.Messages {
 		ui.Messages.AddItem(msg.Name, msg.Subject, 0, func() {
+            ui.controller.SelectMessage(msg)
 			ui.printContent(msg.Print())
+            ui.printLog("Selected message: " + msg.Name)
 		})
 	}
 }
