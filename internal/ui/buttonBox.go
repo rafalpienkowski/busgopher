@@ -7,8 +7,9 @@ import (
 
 type BoxButton struct {
 	*tview.Box
-	label   string
-	focused bool
+	label    string
+	focused  bool
+	selected func()
 }
 
 func (bb *BoxButton) NewBoxButton(label string) *BoxButton {
@@ -24,6 +25,11 @@ func (bb *BoxButton) NewBoxButton(label string) *BoxButton {
 		Box:   box,
 		label: label,
 	}
+}
+
+func (b *BoxButton) SetSelectedFunc(handler func()) *BoxButton {
+    b.selected = handler
+    return b
 }
 
 func (b *BoxButton) Draw(screen tcell.Screen) {
@@ -48,15 +54,14 @@ func (b *BoxButton) Draw(screen tcell.Screen) {
 }
 
 func (b *BoxButton) GetWidth() int {
-    return len(b.label) + 4
+	return len(b.label) + 4
 }
 
 // InputHandler returns the handler for input events (e.g., simulating button clicks).
 func (b *BoxButton) InputHandler() func(*tcell.EventKey, func(tview.Primitive)) {
 	return func(event *tcell.EventKey, setFocus func(tview.Primitive)) {
 		if event.Key() == tcell.KeyEnter {
-			// Simulate a "click" by changing the label
-			b.label = "Clicked!"
+            b.selected()
 		}
 	}
 }

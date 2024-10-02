@@ -45,7 +45,9 @@ func NewUI(controller *controller.Controller) *UI {
 	ui.Content = tview.NewTextView()
 	ui.Logs = tview.NewTextView()
 	ui.Send = ui.Send.NewBoxButton("Send")
-	ui.Close = ui.Close.NewBoxButton("Close")
+	ui.Close = ui.Close.NewBoxButton("Close").SetSelectedFunc(func() {
+        ui.App.Stop()
+    })
 
 	ui.inputs = []tview.Primitive{
 		ui.Connections,
