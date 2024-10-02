@@ -15,14 +15,16 @@ type UI struct {
 	controller *controller.Controller
 
 	// View components
-	App          *tview.Application
-	Flex         *tview.Flex
-	Connections  *tview.List
-	Messages     *tview.List
-	Content      *tview.TextView
-	Logs         *tview.TextView
+	App         *tview.Application
+	Flex        *tview.Flex
+	Connections *tview.List
+	Messages    *tview.List
+	Content     *tview.TextView
+	Logs        *tview.TextView
+	Send        *BoxButton
+	Close       *BoxButton
 
-	Inputs []tview.Primitive
+	inputs []tview.Primitive
 }
 
 func NewUI(controller *controller.Controller) *UI {
@@ -42,28 +44,44 @@ func NewUI(controller *controller.Controller) *UI {
 		SetHighlightFullLine(true)
 	ui.Content = tview.NewTextView()
 	ui.Logs = tview.NewTextView()
+	ui.Send = ui.Send.NewBoxButton("Send")
+	ui.Close = ui.Close.NewBoxButton("Close")
 
-	ui.Inputs = []tview.Primitive{
+	ui.inputs = []tview.Primitive{
 		ui.Connections,
 		ui.Messages,
 		ui.Content,
+		ui.Send,
+		ui.Close,
 	}
 
 	// Configure appearence
 	ui.Connections.SetTitle(" Connections: ").SetBorder(true)
-	ui.Messages.SetTitle(" Messages: ").SetBorder(true)
-	ui.Content.SetTitle(" Content: ").SetBorder(true)
-	ui.Logs.SetTitle(" Logs: ").SetBorder(true)
+	ui.Connections.Box.SetBackgroundColor(tcell.ColorGray)
 
-	// Configure handlers
+	ui.Messages.SetTitle(" Messages: ").SetBorder(true)
+	ui.Messages.Box.SetBackgroundColor(tcell.ColorGray)
+
+	ui.Content.SetTitle(" Content: ").SetBorder(true)
+	ui.Content.SetBackgroundColor(tcell.ColorGray)
+
+	ui.Logs.SetTitle(" Logs: ").SetBorder(true)
+	ui.Logs.SetBackgroundColor(tcell.ColorGray)
 
 	// Set layouts
 	left := tview.NewFlex().SetDirection(tview.FlexRow).
 		AddItem(ui.Connections, 0, 1, true).
 		AddItem(ui.Messages, 0, 1, false)
 
+	actions := tview.NewFlex()
+	actions.
+		AddItem(tview.NewBox().SetBackgroundColor(tcell.ColorGray), 0, 1, false).
+		AddItem(ui.Send, ui.Send.GetWidth(), 0, false).
+		AddItem(ui.Close, ui.Close.GetWidth(), 0, false)
+
 	right := tview.NewFlex().SetDirection(tview.FlexRow).
 		AddItem(ui.Content, 0, 3, false).
+		AddItem(actions, 3, 0, false).
 		AddItem(ui.Logs, 0, 1, false)
 
 	ui.Flex = tview.NewFlex().
@@ -86,17 +104,17 @@ func NewUI(controller *controller.Controller) *UI {
 
 func (ui *UI) LoadData() {
 	for _, conn := range ui.controller.Connections {
-		ui.Connections.AddItem(conn.Name, conn.Namespace, 0, func(){
-            ui.controller.SelectConnection(conn)
-            ui.printLog("Selected connection: " + conn.Name + " (" + conn.Namespace + ")")
-        })
+		ui.Connections.AddItem(conn.Name, conn.Namespace, 0, func() {
+			ui.controller.SelectConnection(conn)
+			ui.printLog("Selected connection: " + conn.Name + " (" + conn.Namespace + ")")
+		})
 	}
 
 	for _, msg := range ui.controller.Messages {
 		ui.Messages.AddItem(msg.Name, msg.Subject, 0, func() {
-            ui.controller.SelectMessage(msg)
+			ui.controller.SelectMessage(msg)
 			ui.printContent(msg.Print())
-            ui.printLog("Selected message: " + msg.Name)
+			ui.printLog("Selected message: " + msg.Name)
 		})
 	}
 }
@@ -118,7 +136,7 @@ func (ui *UI) printContent(content string) {
 func (ui *UI) cycleFocus(
 	reverse bool,
 ) {
-	for i, el := range ui.Inputs {
+	for i, el := range ui.inputs {
 		if !el.HasFocus() {
 			continue
 		}
@@ -126,13 +144,13 @@ func (ui *UI) cycleFocus(
 		if reverse {
 			i = i - 1
 			if i < 0 {
-				i = len(ui.Inputs) - 1
+				i = len(ui.inputs) - 1
 			}
 		} else {
 			i = i + 1
-			i = i % len(ui.Inputs)
+			i = i % len(ui.inputs)
 		}
-		ui.App.SetFocus(ui.Inputs[i])
+		ui.App.SetFocus(ui.inputs[i])
 		return
 	}
 }
@@ -151,6 +169,8 @@ func (ui *UI) setAfterDrawFunc(screen tcell.Screen) {
 		ui.Messages.SetBorderColor(tcell.ColorWhite)
 		ui.Content.SetBorderColor(tcell.ColorWhite)
 		ui.Logs.SetBorderColor(tcell.ColorWhite)
+		ui.Send.SetBorderColor(tcell.ColorWhite)
+		ui.Close.SetBorderColor(tcell.ColorWhite)
 
 		switch p {
 		case ui.Connections:
@@ -161,6 +181,10 @@ func (ui *UI) setAfterDrawFunc(screen tcell.Screen) {
 			ui.Content.SetBorderColor(tcell.ColorBlue)
 		case ui.Logs:
 			ui.Logs.SetBorderColor(tcell.ColorBlue)
+		case ui.Send:
+			ui.Send.SetBorderColor(tcell.ColorBlue)
+		case ui.Close:
+			ui.Close.SetBorderColor(tcell.ColorBlue)
 		}
 	})
 }
