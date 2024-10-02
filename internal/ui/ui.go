@@ -58,9 +58,11 @@ func NewUI(controller *controller.Controller) *UI {
 	// Configure appearence
 	ui.Connections.SetTitle(" Connections: ").SetBorder(true)
 	ui.Connections.Box.SetBackgroundColor(tcell.ColorGray)
+    ui.Connections.SetMainTextStyle(tcell.StyleDefault.Background(tcell.ColorGray).Foreground(tcell.ColorWhite))
 
 	ui.Messages.SetTitle(" Messages: ").SetBorder(true)
 	ui.Messages.Box.SetBackgroundColor(tcell.ColorGray)
+    ui.Messages.SetMainTextStyle(tcell.StyleDefault.Background(tcell.ColorGray).Foreground(tcell.ColorWhite))
 
 	ui.Content.SetTitle(" Content: ").SetBorder(true)
 	ui.Content.SetBackgroundColor(tcell.ColorGray)
