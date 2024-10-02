@@ -58,11 +58,15 @@ func NewUI(controller *controller.Controller) *UI {
 	// Configure appearence
 	ui.Connections.SetTitle(" Connections: ").SetBorder(true)
 	ui.Connections.Box.SetBackgroundColor(tcell.ColorGray)
-    ui.Connections.SetMainTextStyle(tcell.StyleDefault.Background(tcell.ColorGray).Foreground(tcell.ColorWhite))
+	ui.Connections.SetMainTextStyle(
+		tcell.StyleDefault.Background(tcell.ColorGray).Foreground(tcell.ColorWhite),
+	)
 
 	ui.Messages.SetTitle(" Messages: ").SetBorder(true)
 	ui.Messages.Box.SetBackgroundColor(tcell.ColorGray)
-    ui.Messages.SetMainTextStyle(tcell.StyleDefault.Background(tcell.ColorGray).Foreground(tcell.ColorWhite))
+	ui.Messages.SetMainTextStyle(
+		tcell.StyleDefault.Background(tcell.ColorGray).Foreground(tcell.ColorWhite),
+	)
 
 	ui.Content.SetTitle(" Content: ").SetBorder(true)
 	ui.Content.SetBackgroundColor(tcell.ColorGray)
@@ -122,11 +126,19 @@ func (ui *UI) LoadData() {
 }
 
 func (ui *UI) Start() error {
-	return ui.App.SetRoot(ui.Flex, true).SetFocus(ui.Connections).EnableMouse(true).Run()
+	return ui.App.SetRoot(ui.Flex, true).SetFocus(ui.Connections).EnableMouse(false).Run()
 }
 
 func (ui *UI) printLog(logMsg string) {
 	fmt.Fprintf(ui.Logs, "[%v]: %v\n", time.Now().Format("2006-01-02 15:04:05"), logMsg)
+
+	getAvailableRows := func(tv *tview.TextView) int {
+		_, _, _, height := tv.GetRect()
+
+		return height - 2 // Minus border
+	}
+
+    ui.Logs.SetMaxLines(getAvailableRows(ui.Logs))
 }
 
 func (ui *UI) printContent(content string) {
