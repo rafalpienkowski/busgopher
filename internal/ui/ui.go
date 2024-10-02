@@ -23,6 +23,7 @@ type UI struct {
 	Logs        *tview.TextView
 	Send        *BoxButton
 	Close       *BoxButton
+    Modal       *tview.Modal
 
 	inputs []tview.Primitive
 }
@@ -44,7 +45,15 @@ func NewUI(controller *controller.Controller) *UI {
 		SetHighlightFullLine(true)
 	ui.Content = tview.NewTextView()
 	ui.Logs = tview.NewTextView()
-	ui.Send = ui.Send.NewBoxButton("Send")
+    ui.Modal = tview.NewModal()
+	ui.Send = ui.Send.NewBoxButton("Send").SetSelectedFunc(func(){
+        ui.printLog("Sending message...")
+        err := ui.controller.Send("test")
+        if err != nil {
+            ui.printLog("[Error] " + err.Error())
+        }
+        ui.printLog("Message send")
+    })
 	ui.Close = ui.Close.NewBoxButton("Close").SetSelectedFunc(func() {
         ui.App.Stop()
     })
