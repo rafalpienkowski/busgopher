@@ -132,13 +132,13 @@ func (ui *UI) Start() error {
 func (ui *UI) printLog(logMsg string) {
 	fmt.Fprintf(ui.Logs, "[%v]: %v\n", time.Now().Format("2006-01-02 15:04:05"), logMsg)
 
-	getAvailableRows := func(tv *tview.TextView) int {
-		_, _, _, height := tv.GetRect()
+	getAvailableRows := func() int {
+		_, _, _, height := ui.Logs.GetRect()
 
 		return height - 2 // Minus border
 	}
 
-    ui.Logs.SetMaxLines(getAvailableRows(ui.Logs))
+    ui.Logs.SetMaxLines(getAvailableRows())
 }
 
 func (ui *UI) printContent(content string) {
