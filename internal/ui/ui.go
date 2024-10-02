@@ -15,6 +15,7 @@ type UI struct {
 	controller *controller.Controller
 
 	// View components
+    theme       Theme
 	App         *tview.Application
 	Flex        *tview.Flex
 	Connections *tview.List
@@ -34,6 +35,7 @@ func NewUI(controller *controller.Controller) *UI {
 	ui.controller = controller
 
 	// Create UI elements
+    ui.theme = Dark()
 	ui.App = tview.NewApplication()
 	ui.Connections = tview.NewList().
 		ShowSecondaryText(false).
@@ -68,22 +70,18 @@ func NewUI(controller *controller.Controller) *UI {
 
 	// Configure appearence
 	ui.Connections.SetTitle(" Connections: ").SetBorder(true)
-	ui.Connections.Box.SetBackgroundColor(tcell.ColorGray)
-	ui.Connections.SetMainTextStyle(
-		tcell.StyleDefault.Background(tcell.ColorGray).Foreground(tcell.ColorWhite),
-	)
+	ui.Connections.Box.SetBackgroundColor(ui.theme.backgroundColor)
+	ui.Connections.SetMainTextStyle(ui.theme.style)
 
 	ui.Messages.SetTitle(" Messages: ").SetBorder(true)
-	ui.Messages.Box.SetBackgroundColor(tcell.ColorGray)
-	ui.Messages.SetMainTextStyle(
-		tcell.StyleDefault.Background(tcell.ColorGray).Foreground(tcell.ColorWhite),
-	)
+	ui.Messages.Box.SetBackgroundColor(ui.theme.backgroundColor)
+	ui.Messages.SetMainTextStyle(ui.theme.style)
 
 	ui.Content.SetTitle(" Content: ").SetBorder(true)
-	ui.Content.SetBackgroundColor(tcell.ColorGray)
+	ui.Content.SetBackgroundColor(ui.theme.backgroundColor)
 
 	ui.Logs.SetTitle(" Logs: ").SetBorder(true)
-	ui.Logs.SetBackgroundColor(tcell.ColorGray)
+	ui.Logs.SetBackgroundColor(ui.theme.backgroundColor)
 
 	// Set layouts
 	left := tview.NewFlex().SetDirection(tview.FlexRow).
