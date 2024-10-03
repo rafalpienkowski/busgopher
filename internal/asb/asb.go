@@ -9,9 +9,15 @@ import (
 )
 
 type Message struct {
-	Name             string         `json:"name"`
-	Body             string         `json:"body"`
-	Subject          string         `json:"subject"`
+	Name string `json:"name"`
+	Body string `json:"body"`
+
+	//Broker properties
+	CorrelationID string `json:"correlationId"`
+	MessageID     string `json:"messageId"`
+	ReplayTo      string `json:"replyTo"`
+	Subject       string `json:"subject"`
+
 	CustomProperties map[string]any `json:"customProperties"`
 }
 
@@ -74,9 +80,28 @@ func (connection *Connection) SendMessage(destination string, message Message) e
 
 	sbMessage := &azservicebus.Message{
 		Body:                  []byte(message.Body),
-		Subject:               &message.Subject,
-		ApplicationProperties: message.CustomProperties,
 	}
+    
+    if message.CorrelationID != "" {
+        sbMessage.CorrelationID = &message.CorrelationID
+    }
+
+    if message.MessageID != "" {
+        sbMessage.MessageID = &message.MessageID
+    }
+
+    if message.ReplayTo != "" {
+        sbMessage.ReplyTo = &message.ReplayTo
+    }
+
+    if message.Subject != "" {
+        sbMessage.Subject = &message.Subject
+    }
+
+    if len(message.CustomProperties) > 0 {
+        sbMessage.ApplicationProperties = message.CustomProperties
+    }
+
 	err = sender.SendMessage(context.TODO(), sbMessage, nil)
 
 	return err
