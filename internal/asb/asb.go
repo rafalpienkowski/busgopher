@@ -32,9 +32,9 @@ func (msg *Message) Print() string {
 }
 
 type Connection struct {
-	Name      string   `json:"name"`
-	Namespace string   `json:"namespace"`
-	Entities  []string `json:"entities"`
+	Name         string   `json:"name"`
+	Namespace    string   `json:"namespace"`
+	Destinations []string `json:"destinations"`
 
 	credentials *azidentity.DefaultAzureCredential
 	client      *azservicebus.Client
@@ -79,28 +79,28 @@ func (connection *Connection) SendMessage(destination string, message Message) e
 	defer sender.Close(context.TODO())
 
 	sbMessage := &azservicebus.Message{
-		Body:                  []byte(message.Body),
+		Body: []byte(message.Body),
 	}
-    
-    if message.CorrelationID != "" {
-        sbMessage.CorrelationID = &message.CorrelationID
-    }
 
-    if message.MessageID != "" {
-        sbMessage.MessageID = &message.MessageID
-    }
+	if message.CorrelationID != "" {
+		sbMessage.CorrelationID = &message.CorrelationID
+	}
 
-    if message.ReplayTo != "" {
-        sbMessage.ReplyTo = &message.ReplayTo
-    }
+	if message.MessageID != "" {
+		sbMessage.MessageID = &message.MessageID
+	}
 
-    if message.Subject != "" {
-        sbMessage.Subject = &message.Subject
-    }
+	if message.ReplayTo != "" {
+		sbMessage.ReplyTo = &message.ReplayTo
+	}
 
-    if len(message.CustomProperties) > 0 {
-        sbMessage.ApplicationProperties = message.CustomProperties
-    }
+	if message.Subject != "" {
+		sbMessage.Subject = &message.Subject
+	}
+
+	if len(message.CustomProperties) > 0 {
+		sbMessage.ApplicationProperties = message.CustomProperties
+	}
 
 	err = sender.SendMessage(context.TODO(), sbMessage, nil)
 

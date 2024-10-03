@@ -52,7 +52,7 @@ func NewUI(controller *controller.Controller) *UI {
 	ui.Content = tview.NewTextView()
 	ui.Logs = tview.NewTextView()
 	ui.Send = ui.Send.NewBoxButton("Send").SetSelectedFunc(func() {
-		destination := controller.SelectedConnection.Entities[ui.Destinations.GetCurrentItem()]
+		destination := controller.SelectedConnection.Destinations[ui.Destinations.GetCurrentItem()]
 		ui.printLog("Sending message to: " + destination)
 
 		err := ui.controller.Send(destination)
@@ -130,7 +130,7 @@ func NewUI(controller *controller.Controller) *UI {
 
 func (ui *UI) refreshDestinations() {
 	ui.Destinations.Clear()
-	for _, entity := range ui.controller.SelectedConnection.Entities {
+	for _, entity := range ui.controller.SelectedConnection.Destinations {
 		ui.Destinations.AddItem(entity, entity, 0, func() {
 			ui.printLog("Selected destination: " + entity)
 		})

@@ -37,7 +37,7 @@ func (controller *Controller) SelectConnectionByName(name string) error {
 }
 
 func (controller *Controller) SelectDestinationByName(name string) error {
-	for _, dest := range controller.SelectedConnection.Entities {
+	for _, dest := range controller.SelectedConnection.Destinations {
 		if strings.EqualFold(dest, name) {
 			controller.selectedDestination = dest
 			return nil
