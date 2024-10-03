@@ -26,8 +26,9 @@ func (msg *Message) Print() string {
 }
 
 type Connection struct {
-	Name      string `json:"name"`
-	Namespace string `json:"namespace"`
+	Name      string   `json:"name"`
+	Namespace string   `json:"namespace"`
+	Entities  []string `json:"entities"`
 
 	credentials *azidentity.DefaultAzureCredential
 	client      *azservicebus.Client

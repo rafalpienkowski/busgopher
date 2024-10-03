@@ -15,16 +15,16 @@ type UI struct {
 	controller *controller.Controller
 
 	// View components
-    theme       Theme
-	App         *tview.Application
-	Flex        *tview.Flex
-	Connections *tview.List
-	Messages    *tview.List
-	Content     *tview.TextView
-	Logs        *tview.TextView
-	Send        *BoxButton
-	Close       *BoxButton
-    Modal       *tview.Modal
+	theme        Theme
+	App          *tview.Application
+	Flex         *tview.Flex
+	Connections  *tview.List
+	Destinations *tview.List
+	Messages     *tview.List
+	Content      *tview.TextView
+	Logs         *tview.TextView
+	Send         *BoxButton
+	Close        *BoxButton
 
 	inputs []tview.Primitive
 }
@@ -35,9 +35,13 @@ func NewUI(controller *controller.Controller) *UI {
 	ui.controller = controller
 
 	// Create UI elements
-    ui.theme = Dark()
+	ui.theme = Dark()
 	ui.App = tview.NewApplication()
 	ui.Connections = tview.NewList().
+		ShowSecondaryText(false).
+		SetWrapAround(true).
+		SetHighlightFullLine(true)
+	ui.Destinations = tview.NewList().
 		ShowSecondaryText(false).
 		SetWrapAround(true).
 		SetHighlightFullLine(true)
@@ -47,21 +51,23 @@ func NewUI(controller *controller.Controller) *UI {
 		SetHighlightFullLine(true)
 	ui.Content = tview.NewTextView()
 	ui.Logs = tview.NewTextView()
-    ui.Modal = tview.NewModal()
-	ui.Send = ui.Send.NewBoxButton("Send").SetSelectedFunc(func(){
-        ui.printLog("Sending message...")
-        err := ui.controller.Send("test")
-        if err != nil {
-            ui.printLog("[Error] " + err.Error())
-        }
-        ui.printLog("Message send")
-    })
+	ui.Send = ui.Send.NewBoxButton("Send").SetSelectedFunc(func() {
+		destination := controller.SelectedConnection.Entities[ui.Destinations.GetCurrentItem()]
+		ui.printLog("Sending message to: " + destination)
+
+		err := ui.controller.Send(destination)
+		if err != nil {
+			ui.printLog("[Error] " + err.Error())
+		}
+		ui.printLog("Message send")
+	})
 	ui.Close = ui.Close.NewBoxButton("Close").SetSelectedFunc(func() {
-        ui.App.Stop()
-    })
+		ui.App.Stop()
+	})
 
 	ui.inputs = []tview.Primitive{
 		ui.Connections,
+		ui.Destinations,
 		ui.Messages,
 		ui.Content,
 		ui.Send,
@@ -72,6 +78,10 @@ func NewUI(controller *controller.Controller) *UI {
 	ui.Connections.SetTitle(" Connections: ").SetBorder(true)
 	ui.Connections.Box.SetBackgroundColor(ui.theme.backgroundColor)
 	ui.Connections.SetMainTextStyle(ui.theme.style)
+
+	ui.Destinations.SetTitle(" Destinations: ").SetBorder(true)
+	ui.Destinations.Box.SetBackgroundColor(ui.theme.backgroundColor)
+	ui.Destinations.SetMainTextStyle(ui.theme.style)
 
 	ui.Messages.SetTitle(" Messages: ").SetBorder(true)
 	ui.Messages.Box.SetBackgroundColor(ui.theme.backgroundColor)
@@ -86,6 +96,7 @@ func NewUI(controller *controller.Controller) *UI {
 	// Set layouts
 	left := tview.NewFlex().SetDirection(tview.FlexRow).
 		AddItem(ui.Connections, 0, 1, true).
+		AddItem(ui.Destinations, 0, 1, false).
 		AddItem(ui.Messages, 0, 1, false)
 
 	actions := tview.NewFlex()
@@ -117,10 +128,20 @@ func NewUI(controller *controller.Controller) *UI {
 	return &ui
 }
 
+func (ui *UI) refreshDestinations() {
+	ui.Destinations.Clear()
+	for _, entity := range ui.controller.SelectedConnection.Entities {
+		ui.Destinations.AddItem(entity, entity, 0, func() {
+			ui.printLog("Selected destination: " + entity)
+		})
+	}
+}
+
 func (ui *UI) LoadData() {
 	for _, conn := range ui.controller.Connections {
 		ui.Connections.AddItem(conn.Name, conn.Namespace, 0, func() {
-			ui.controller.SelectConnection(conn)
+			ui.controller.SelectedConnection = conn
+			ui.refreshDestinations()
 			ui.printLog("Selected connection: " + conn.Name + " (" + conn.Namespace + ")")
 		})
 	}
@@ -147,7 +168,7 @@ func (ui *UI) printLog(logMsg string) {
 		return height - 2 // Minus border
 	}
 
-    ui.Logs.SetMaxLines(getAvailableRows())
+	ui.Logs.SetMaxLines(getAvailableRows())
 }
 
 func (ui *UI) printContent(content string) {
@@ -189,6 +210,7 @@ func (ui *UI) setAfterDrawFunc(screen tcell.Screen) {
 		p := ui.App.GetFocus()
 
 		ui.Connections.SetBorderColor(tcell.ColorWhite)
+		ui.Destinations.SetBorderColor(tcell.ColorWhite)
 		ui.Messages.SetBorderColor(tcell.ColorWhite)
 		ui.Content.SetBorderColor(tcell.ColorWhite)
 		ui.Logs.SetBorderColor(tcell.ColorWhite)
@@ -198,6 +220,8 @@ func (ui *UI) setAfterDrawFunc(screen tcell.Screen) {
 		switch p {
 		case ui.Connections:
 			ui.Connections.SetBorderColor(tcell.ColorBlue)
+		case ui.Destinations:
+			ui.Destinations.SetBorderColor(tcell.ColorBlue)
 		case ui.Messages:
 			ui.Messages.SetBorderColor(tcell.ColorBlue)
 		case ui.Content:

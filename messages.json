@@ -4,7 +4,7 @@
         "body": "test json body",
         "subject": "json subject",
         "customProperties": { 
-            "IsSynthetic": "true" 
+            "custom": "true" 
         }
     },
     {
@@ -12,7 +12,7 @@
         "body": "another test",
         "subject": "json subject",
         "customProperties": { 
-            "IsSynthetic": "true" 
+            "another": "false" 
         }
     }
 ]

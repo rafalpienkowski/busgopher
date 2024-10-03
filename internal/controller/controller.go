@@ -9,7 +9,7 @@ type Controller struct {
 	Connections []asb.Connection
 	Messages    []asb.Message
 
-	selectedConnection asb.Connection
+	SelectedConnection asb.Connection
 	selectedMessage    asb.Message
 }
 
@@ -22,14 +22,10 @@ func NewController(config *config.Config) (*Controller, error) {
 	return &controller, nil
 }
 
-func (controller *Controller) SelectConnection(connection asb.Connection) {
-	controller.selectedConnection = connection
-}
-
 func (controller *Controller) SelectMessage(message asb.Message) {
 	controller.selectedMessage = message
 }
 
 func (controller *Controller) Send(destination string) error {
-	return controller.selectedConnection.SendMessage(destination, controller.selectedMessage)
+	return controller.SelectedConnection.SendMessage(destination, controller.selectedMessage)
 }
