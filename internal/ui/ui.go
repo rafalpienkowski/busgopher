@@ -52,14 +52,7 @@ func NewUI(controller *controller.Controller) *UI {
 	ui.Content = tview.NewTextView()
 	ui.Logs = tview.NewTextView()
 	ui.Send = ui.Send.NewBoxButton("Send").SetSelectedFunc(func() {
-		destination := controller.SelectedConnection.Destinations[ui.Destinations.GetCurrentItem()]
-		ui.printLog("Sending message to: " + destination)
-
-		err := ui.controller.Send(destination)
-		if err != nil {
-			ui.printLog("[Error] " + err.Error())
-		}
-		ui.printLog("Message send")
+		ui.controller.Send()
 	})
 	ui.Close = ui.Close.NewBoxButton("Close").SetSelectedFunc(func() {
 		ui.App.Stop()
@@ -125,6 +118,8 @@ func NewUI(controller *controller.Controller) *UI {
 		return event
 	})
 
+    ui.controller.SetLogsWriter(ui.Logs)
+
 	return &ui
 }
 
@@ -132,7 +127,7 @@ func (ui *UI) refreshDestinations() {
 	ui.Destinations.Clear()
 	for _, entity := range ui.controller.SelectedConnection.Destinations {
 		ui.Destinations.AddItem(entity, entity, 0, func() {
-			ui.printLog("Selected destination: " + entity)
+            ui.controller.SelectDestinationByName(entity)
 		})
 	}
 }
@@ -140,17 +135,15 @@ func (ui *UI) refreshDestinations() {
 func (ui *UI) LoadData() {
 	for _, conn := range ui.controller.Connections {
 		ui.Connections.AddItem(conn.Name, conn.Namespace, 0, func() {
-			ui.controller.SelectedConnection = conn
+			ui.controller.SelectConnectionByName(conn.Name)
 			ui.refreshDestinations()
-			ui.printLog("Selected connection: " + conn.Name + " (" + conn.Namespace + ")")
 		})
 	}
 
 	for _, msg := range ui.controller.Messages {
 		ui.Messages.AddItem(msg.Name, msg.Subject, 0, func() {
-			ui.controller.SelectMessage(msg)
+			ui.controller.SelectMessageByName(msg.Name)
 			ui.printContent(msg.Print())
-			ui.printLog("Selected message: " + msg.Name)
 		})
 	}
 }

@@ -14,5 +14,11 @@
         "customProperties": { 
             "another": "false" 
         }
+    },
+    {
+        "name": "prop test",
+        "body": "another test",
+        "subject": "json subject",
+        "replyTo": "nothing"
     }
 ]

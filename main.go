@@ -27,28 +27,21 @@ func main() {
 	}
 
 	// Check if used with params
-	if len(*connection) > 0 && len(*destination) > 0 && len(*message) > 0 {
+	if len(*connection) > 0 || len(*destination) > 0 || len(*message) > 0 {
+
 		fmt.Printf(
 			"Started headless mode with connection: %v, destination: %v, message: %v\n",
 			*connection,
 			*destination,
 			*message,
 		)
-        err := controller.SelectConnectionByName(*connection)
-        if err != nil {
-            fmt.Printf("%v\n", err.Error())
-            os.Exit(1)
-        }
-        err = controller.SelectDestinationByName(*destination)
-        if err != nil {
-            fmt.Printf("%v\n", err.Error())
-            os.Exit(1)
-        }
-        err = controller.SelectMessageByName(*message)
-        if err != nil {
-            fmt.Printf("%v\n", err.Error())
-            os.Exit(1)
-        }
+
+        controller.SetLogsWriter(os.Stdout)
+        controller.SelectConnectionByName(*connection)
+        controller.SelectMessageByName(*message)
+        controller.SelectDestinationByName(*destination)
+
+        controller.Send()
 	} else {
 		ui := ui.NewUI(controller)
 		ui.LoadData()
