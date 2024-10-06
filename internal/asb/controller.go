@@ -1,27 +1,24 @@
-package controller
+package asb
 
 import (
 	"fmt"
 	"io"
 	"strings"
 	"time"
-
-	"github.com/rafalpienkowski/busgopher/internal/asb"
-	"github.com/rafalpienkowski/busgopher/internal/config"
 )
 
 type Controller struct {
-	Connections []asb.Connection
-	Messages    []asb.Message
+	Connections []Connection
+	Messages    []Message
 
-	SelectedConnection  *asb.Connection
-	selectedMessage     *asb.Message
+	SelectedConnection  *Connection
+	selectedMessage     *Message
 	selectedDestination string
 
 	logsWriter io.Writer
 }
 
-func NewController(config *config.Config) (*Controller, error) {
+func NewController(config *Config) (*Controller, error) {
 
 	controller := Controller{}
 	controller.Connections = *config.Connections

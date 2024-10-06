@@ -1,20 +1,18 @@
-package config
+package asb
 
 import (
 	"encoding/json"
 	"fmt"
 	"io"
 	"os"
-
-	"github.com/rafalpienkowski/busgopher/internal/asb"
 )
 
 const connectionFilename = "connections.json"
 const messagesFilename = "messages.json"
 
 type Config struct {
-	Connections *[]asb.Connection
-	Messages    *[]asb.Message
+	Connections *[]Connection
+	Messages    *[]Message
 }
 
 func LoadConfig() *Config {
@@ -56,8 +54,8 @@ func readFile(filePath string) ([]byte, error) {
 	return bytes, nil
 }
 
-func loadConnections() ([]asb.Connection, error) {
-	var connections []asb.Connection
+func loadConnections() ([]Connection, error) {
+	var connections []Connection
 
 	bytes, err := readFile(connectionFilename)
 	if err != nil {
@@ -72,8 +70,8 @@ func loadConnections() ([]asb.Connection, error) {
 	return connections, nil
 }
 
-func loadMessages() ([]asb.Message, error) {
-	var messages []asb.Message
+func loadMessages() ([]Message, error) {
+	var messages []Message
 	bytes, err := readFile(messagesFilename)
 	if err != nil {
 		return nil, err

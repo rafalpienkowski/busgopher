@@ -5,8 +5,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/rafalpienkowski/busgopher/internal/config"
-	"github.com/rafalpienkowski/busgopher/internal/controller"
+	"github.com/rafalpienkowski/busgopher/internal/asb"
 	"github.com/rafalpienkowski/busgopher/internal/ui"
 )
 
@@ -19,8 +18,8 @@ func main() {
 
 	flag.Parse()
 
-	config := config.LoadConfig()
-	controller, err := controller.NewController(config)
+	config := asb.LoadConfig()
+	controller, err := asb.NewController(config)
 	if err != nil {
 		fmt.Printf("Failed to start controller: %v\n", err)
 		os.Exit(1)

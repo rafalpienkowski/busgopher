@@ -7,12 +7,12 @@ import (
 	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
 
-	"github.com/rafalpienkowski/busgopher/internal/controller"
+	"github.com/rafalpienkowski/busgopher/internal/asb"
 )
 
 // UI implement terminal user interface features.
 type UI struct {
-	controller *controller.Controller
+	controller *asb.Controller
 
 	// View components
 	theme        Theme
@@ -29,7 +29,7 @@ type UI struct {
 	inputs []tview.Primitive
 }
 
-func NewUI(controller *controller.Controller) *UI {
+func NewUI(controller *asb.Controller) *UI {
 	ui := UI{}
 
 	ui.controller = controller
