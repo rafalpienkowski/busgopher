@@ -35,9 +35,9 @@ func (controller *Controller) SelectConnectionByName(name string) {
 	for _, conn := range controller.Connections {
 		if strings.EqualFold(conn.Name, name) {
 			controller.SelectedConnection = &conn
-            controller.selectedDestination = ""
+			controller.selectedDestination = ""
 			controller.writeLog("Selected connection: " + conn.Name + " (" + conn.Namespace + ")")
-            return
+			return
 		}
 	}
 	controller.writeError("Can't find connection with name: " + name)
@@ -48,7 +48,7 @@ func (controller *Controller) SelectDestinationByName(name string) {
 		if strings.EqualFold(dest, name) {
 			controller.selectedDestination = dest
 			controller.writeLog("Selected destination: " + name)
-            return
+			return
 		}
 	}
 	controller.writeError("Can't find destination with name: " + name)
@@ -59,7 +59,7 @@ func (controller *Controller) SelectMessageByName(name string) {
 		if strings.EqualFold(msg.Name, name) {
 			controller.selectedMessage = &msg
 			controller.writeLog("Selected message: " + msg.Name)
-            return
+			return
 		}
 	}
 	controller.writeError("Can't find message with name: " + name)
@@ -95,7 +95,12 @@ func (controller *Controller) Send() {
 }
 
 func (controller *Controller) writeLog(log string) {
-	fmt.Fprintf(controller.logsWriter, "[%v]: %v\n", time.Now().Format("2006-01-02 15:04:05"), log)
+	fmt.Fprintf(
+		controller.logsWriter,
+		"[%v]: [Info] %v\n",
+		time.Now().Format("2006-01-02 15:04:05"),
+		log,
+	)
 }
 
 func (controller *Controller) writeError(log string) {
