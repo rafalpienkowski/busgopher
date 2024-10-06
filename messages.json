@@ -9,7 +9,7 @@
     },
     {
         "name": "another test",
-        "body": "another test",
+        "body": "another test {{utcNow}}, {{generateUUID}}",
         "subject": "json subject",
         "customProperties": { 
             "another": "false" 
