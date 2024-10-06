@@ -35,11 +35,14 @@ func (msg *Message) Print() string {
 func (msg *Message) TransformBody() (string, error) {
 
 	t := template.Must(template.New("example").Funcs(template.FuncMap{
-		"utcNow":       func() string { return time.Now().UTC().Format(time.RFC3339) },
+		"utcNow": func() string { return time.Now().UTC().Format(time.RFC3339) },
+		"utcNowPlus": func(minutes int) string {
+			return time.Now().UTC().Add(time.Duration(minutes) * time.Minute).Format(time.RFC3339)
+		},
 		"generateUUID": func() string { return uuid.New().String() },
 	}).Parse(msg.Body))
 
-    var output bytes.Buffer
+	var output bytes.Buffer
 	err := t.Execute(&output, nil)
 	if err != nil {
 		return "", err
