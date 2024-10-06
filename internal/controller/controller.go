@@ -38,6 +38,7 @@ func (controller *Controller) SelectConnectionByName(name string) {
 	for _, conn := range controller.Connections {
 		if strings.EqualFold(conn.Name, name) {
 			controller.SelectedConnection = &conn
+            controller.selectedDestination = ""
 			controller.writeLog("Selected connection: " + conn.Name + " (" + conn.Namespace + ")")
             return
 		}
