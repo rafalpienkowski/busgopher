@@ -22,7 +22,7 @@ The busgopher configuration is divided into two parts: connections & messages.
 
 ### Connections
 
-The first one is responsible for configuring the connection to Azure Service Bus (ASB). The connection uses (DefaultAzureCredentials)[https://learn.microsoft.com/en-gb/dotnet/azure/sdk/authentication/credential-chains?tabs=dac#usage-guidance-for-defaultazurecredential] feature to authorize access to ASB.
+The first one is responsible for configuring the connection to Azure Service Bus (ASB). The connection uses (DefaultAzureCredentials)[https://learn.microsoft.com/en-gb/dotnet/azure/sdk/authentication/credential-chains] feature to authorize access to ASB.
 
 Available properties:
 - Name - user friendly connection name. Will be used to select connection;
