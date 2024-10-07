@@ -6,7 +6,7 @@
 
 [![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-2.1-4baaaa.svg)](code_of_conduct.md)
 
-The tool currently has one responsibility: sending messages to (Azure Service Bus)[https://learn.microsoft.com/en-us/azure/service-bus-messaging/service-bus-messaging-overview].
+The tool currently has one responsibility: sending messages to (Azure Service Bus)[https://google.com] .
 
 ## Usage
 
@@ -22,7 +22,7 @@ The busgopher configuration is divided into two parts: connections & messages.
 
 ### Connections
 
-The first one is responsible for configuring the connection to Azure Service Bus (ASB). The connection uses (DefaultAzureCredentials)[https://learn.microsoft.com/en-gb/dotnet/azure/sdk/authentication/credential-chains] feature to authorize access to ASB.
+The first one is responsible for configuring the connection to Azure Service Bus (ASB). The connection uses (DefaultAzureCredentials)[https://learn.microsoft.com/en-gb/dotnet/azure/sdk/authentication/credential-chains?tabs=dac#usage-guidance-for-defaultazurecredential] feature to authorize access to ASB.
 
 Available properties:
 - Name - user friendly connection name. Will be used to select connection;
