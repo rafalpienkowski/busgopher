@@ -6,7 +6,7 @@
 
 [![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-2.1-4baaaa.svg)](code_of_conduct.md)
 
-The tool currently has one responsibility: sending messages to (Azure Service Bus)[https://google.com] .
+The tool currently has one responsibility: sending messages to [Azure Service Bus](https://learn.microsoft.com/en-us/azure/service-bus-messaging/service-bus-messaging-overview).
 
 ## Usage
 
@@ -22,7 +22,7 @@ The busgopher configuration is divided into two parts: connections & messages.
 
 ### Connections
 
-The first one is responsible for configuring the connection to Azure Service Bus (ASB). The connection uses (DefaultAzureCredentials)[https://learn.microsoft.com/en-gb/dotnet/azure/sdk/authentication/credential-chains?tabs=dac#usage-guidance-for-defaultazurecredential] feature to authorize access to ASB.
+The first one is responsible for configuring the connection to Azure Service Bus (ASB). The connection uses [DefaultAzureCredentials](https://learn.microsoft.com/en-gb/dotnet/azure/sdk/authentication/credential-chains?tabs=dac#usage-guidance-for-defaultazurecredential) feature to authorize access to ASB.
 
 Available properties:
 - Name - user friendly connection name. Will be used to select connection;
@@ -72,7 +72,7 @@ Sample message configuration:
 
 ### Message body templates engine
 
-Bustopher provides a simple template engine that enables message body generation according to a defined template. The built-in template engine is based on the Golang (text/templates package)[https://pkg.go.dev/text/template]. Bustopher provides a set of predefined functions. 
+Bustopher provides a simple template engine that enables message body generation according to a defined template. The built-in template engine is based on the Golang [text/templates package](https://pkg.go.dev/text/template). Bustopher provides a set of predefined functions. 
 
 To use the engine, embed a predefined function in the saved message body, like:
 
@@ -129,5 +129,5 @@ Add your issue here on GitHub. Feel free to get in touch if you have any questio
 
 ## Code of Conduct
 
-This project has adopted the code of conduct defined by the (Contributor Covenant)[https://www.contributor-covenant.org/] to clarify expected behavior in our community.
+This project has adopted the code of conduct defined by the [Contributor Covenant](https://www.contributor-covenant.org/) to clarify expected behavior in our community.
 
