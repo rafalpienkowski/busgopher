@@ -37,8 +37,8 @@ func main() {
 
         controller.SetLogsWriter(os.Stdout)
         controller.SelectConnectionByName(*connection)
-        controller.SelectMessageByName(*message)
         controller.SelectDestinationByName(*destination)
+        controller.SelectMessageByName(*message)
 
         controller.Send()
 	} else {

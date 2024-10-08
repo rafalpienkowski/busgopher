@@ -14,11 +14,28 @@ Busgopher may be run in two modes: CLI and GUI.
 
 ### CLI
 
+The CLi mode is dedicated to run fast the tool without UI. To use CLI mode run busgopher with arguments that will specify: connection, destination and message. Connection, destination and message are selected by providing their name.
+
+```sh
+./busgopher --msg="test-message" --conn="demo" --dest="test-queue"
+```
+
+Don't worry if you miss argument or pass a wrong name. Busgopher will provide an error message. 
+
+```sh
+./busgopher --msg="unknown" --conn=dev --dest=test-queue
+Started headless mode with connection: demo, destination: test-queue, message: unknown
+[2024-10-08 20:04:37]: [Info] Selected connection: dev (demo.servicebus.windows.net)
+[2024-10-08 20:04:37]: [Info] Selected destination: test-queue
+[2024-10-08 20:04:37]: [Error] Can't find message with name: unknown
+[2024-10-08 20:04:37]: [Error] Message not selected!
+```
+
 ### GUI
 
 ## Configuration
 
-The busgopher configuration is divided into two parts: connections & messages.
+The busgopher configuration is divided into two parts: connections & messages. At the moment to edit/set the configuration you have to manually edit config.json file located next to busgopher executable.
 
 ### Connections
 
@@ -29,9 +46,7 @@ Available properties:
 - Namespace - Azure Service Bus namespace;
 - Destinations - list of available entitites (both queues and topic) which may be select to send a message to;
 
-Connection configuration is stored in `connections.json` file as an array of objects. The config has to be located in the same directory as the busgopher program.
-
-Sample connection configuration:
+Sample connection section:
 ```json
 [
     {
@@ -51,9 +66,7 @@ The second part of the configuration - messages, define messages that will be se
 
 Besides properties user may define message body. Message body has no structure limitations. The body length is limited by your ASB configuration in Azure. You can benefit from message template engine while defining message's body. More about message body template engine in the Features section.
 
-Messages configuration is stored in `messages.json` file as an array of objects. The config has to be located in the same directory as the busgopher program.
-
-Sample message configuration:
+Sample message section:
 
 ```json
 [
