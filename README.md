@@ -14,7 +14,7 @@ Busgopher may be run in two modes: CLI and GUI.
 
 ### CLI
 
-The CLi mode is dedicated to run fast the tool without UI. To use CLI mode run busgopher with arguments that will specify: connection, destination and message. Connection, destination and message are selected by providing their name.
+The CLI mode is dedicated to run fast the tool without UI. To use CLI mode run busgopher with arguments that will specify: connection, destination and message. Connection, destination and message are selected by providing their name.
 
 ```sh
 ./busgopher --msg="test-message" --conn="demo" --dest="test-queue"
@@ -32,6 +32,14 @@ Started headless mode with connection: demo, destination: test-queue, message: u
 ```
 
 ### GUI
+
+The GUI mode provides a graphical interface to interact with Busgohper. At the moment it allows to select loaded from config file configuration. You can navigate between panels via TAB, select options by arrows and select them by ENTER.
+
+You can preview selected message body in the Preview section. Logs section provides diagnostic logs.
+
+In the future releases the GUI mode will be enhanced with config edit. At the moment the only option is to manually edit config.json file.
+
+![demo](./docs/demo.gif)
 
 ## Configuration
 
