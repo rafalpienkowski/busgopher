@@ -68,6 +68,33 @@ Sample message configuration:
 ]
 ```
 
+### Sample config
+
+```json
+{
+    "Connections": [
+        {
+            "name": "dev",
+            "namespace": "demo.servicebus.windows.net",
+            "destinations": [
+                "test-queue",
+                "test-topic"
+            ]
+        }
+    ],
+    "Messages": [
+        {
+            "name": "another test",
+            "body": "another test {{utcNow}}, {{generateUUID}}",
+            "subject": "json subject",
+            "customProperties": { 
+                "another": "false" 
+            }
+        }
+    ]
+}
+```
+
 ## Features
 
 ### Message body templates engine

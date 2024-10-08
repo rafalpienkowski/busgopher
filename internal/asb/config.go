@@ -7,36 +7,23 @@ import (
 	"os"
 )
 
-const connectionFilename = "connections.json"
-const messagesFilename = "messages.json"
+const configName = "config.json"
 
 type Config struct {
-	Connections *[]Connection
-	Messages    *[]Message
+	Connections *[]Connection `json:"connections"`
+	Messages    *[]Message    `json:"messages"`
 }
 
 func LoadConfig() *Config {
 
-	config := Config{}
-
-	connections, err := loadConnections()
+	config, err := loadConfig()
 	if err != nil {
-		fmt.Println("Can't load connections")
+		fmt.Println("Can't load configuration")
 		fmt.Println(err.Error())
 		return nil
 	}
 
-	messages, err := loadMessages()
-	if err != nil {
-		fmt.Println("Can't load messages")
-		fmt.Println(err.Error())
-		return nil
-	}
-
-	config.Connections = &connections
-	config.Messages = &messages
-
-	return &config
+	return config
 }
 
 func readFile(filePath string) ([]byte, error) {
@@ -54,38 +41,30 @@ func readFile(filePath string) ([]byte, error) {
 	return bytes, nil
 }
 
-func loadConnections() ([]Connection, error) {
-	var connections []Connection
+func loadConfig() (*Config, error) {
+	var config *Config
 
-	bytes, err := readFile(connectionFilename)
-	if err != nil {
-		return nil, err
-	}
-
-	err = json.Unmarshal(bytes, &connections)
-	if err != nil {
-		return nil, err
-	}
-
-	return connections, nil
-}
-
-func loadMessages() ([]Message, error) {
-	var messages []Message
-	bytes, err := readFile(messagesFilename)
+	bytes, err := readFile(configName)
 	if err != nil {
 		return nil, err
 	}
 
 	if len(bytes) == 0 {
-		bytes = []byte("[]")
+		bytes = createDefaultConfig()
 	}
 
-	err = json.Unmarshal(bytes, &messages)
+	err = json.Unmarshal(bytes, &config)
 	if err != nil {
 		return nil, err
 	}
 
-	return messages, nil
+	return config, nil
+}
 
+func createDefaultConfig() []byte {
+    return []byte(
+    `{
+        "Connections": [],
+        "Messages": []
+    }`)
 }
