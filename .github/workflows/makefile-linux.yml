@@ -1,0 +1,27 @@
+name: Makefile CI - Linux
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Install dependencies
+      run: make
+
+    - name: Setup Go environment
+      uses: actions/setup-go@v5.0.2
+
+    - name: Run tests
+      run: make test-cover
+
+    - name: Run build
+      run: make build
