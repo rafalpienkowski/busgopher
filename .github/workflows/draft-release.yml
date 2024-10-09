@@ -1,10 +1,16 @@
-name: Build and Release
+name: Draft/Prerelease - Build and Release
 
 on:
-
-  push:
-    tags:
-      - 'v*.*.*'  # Trigger only when a tag is pushed, e.g., v1.0.0
+  workflow_dispatch:
+    inputs:
+      draft_release:
+        description: 'Mark release as a draft'
+        required: true
+        default: 'true' 
+      prerelease:
+        description: 'Mark release as prerelease'
+        required: true
+        default: 'true' 
 
 jobs:
   build:
@@ -59,12 +65,12 @@ jobs:
       - name: Create GitHub Release
         uses: ncipollo/release-action@v1
         with:
-          tag: ${{ github.ref }}
+          tag: ${{ github.ref }}  
           artifacts: "./artifacts/**"
           token: ${{ secrets.GITHUB_TOKEN }}
           name: Release ${{ github.ref_name }}
           body: |
             Release notes for ${{ github.ref_name }}.
-          draft: true
-          prerelease: true
+          draft: ${{ github.event.inputs.draft_release }}
+          prerelease: ${{ github.event.inputs.prerelease }} 
 
