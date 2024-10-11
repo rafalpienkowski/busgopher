@@ -18,8 +18,9 @@ func LoadConfig() *Config {
 
 	config, err := loadConfig()
 	if err != nil {
+        tst := err.Error()
 		fmt.Println("Can't load configuration")
-		fmt.Println(err.Error())
+		fmt.Println(tst)
 		return nil
 	}
 
@@ -41,6 +42,20 @@ func readFile(filePath string) ([]byte, error) {
 	return bytes, nil
 }
 
+func writeFile(filePath string, content string) error {
+	file, err := os.OpenFile(filePath, os.O_RDWR, 0644)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
+	_, err = file.WriteString(content)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 func loadConfig() (*Config, error) {
 	var config *Config
 
@@ -50,7 +65,13 @@ func loadConfig() (*Config, error) {
 	}
 
 	if len(bytes) == 0 {
-		bytes = createDefaultConfig()
+		defaultFileContent := createDefaultConfigString()
+		err = writeFile(configName, defaultFileContent)
+		if err != nil {
+			return nil, err
+		}
+
+		bytes = []byte(defaultFileContent)
 	}
 
 	err = json.Unmarshal(bytes, &config)
@@ -61,10 +82,9 @@ func loadConfig() (*Config, error) {
 	return config, nil
 }
 
-func createDefaultConfig() []byte {
-    return []byte(
-    `{
+func createDefaultConfigString() string {
+	return `{
         "Connections": [],
         "Messages": []
-    }`)
+    }`
 }
