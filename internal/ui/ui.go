@@ -7,12 +7,12 @@ import (
 	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
 
-	"github.com/rafalpienkowski/busgopher/internal/asb"
+	"github.com/rafalpienkowski/busgopher/internal/controller"
 )
 
 // UI implement terminal user interface features.
 type UI struct {
-	controller *asb.Controller
+	controller *controller.Controller
 
 	// View components
 	theme        Theme
@@ -29,7 +29,7 @@ type UI struct {
 	inputs []tview.Primitive
 }
 
-func NewUI(controller *asb.Controller) *UI {
+func NewUI(controller *controller.Controller) *UI {
 	ui := UI{}
 
 	ui.controller = controller
@@ -118,7 +118,7 @@ func NewUI(controller *asb.Controller) *UI {
 		return event
 	})
 
-    ui.controller.SetLogsWriter(ui.Logs)
+	ui.controller.SetLogsWriter(ui.Logs)
 
 	return &ui
 }
@@ -127,7 +127,7 @@ func (ui *UI) refreshDestinations() {
 	ui.Destinations.Clear()
 	for _, entity := range ui.controller.SelectedConnection.Destinations {
 		ui.Destinations.AddItem(entity, entity, 0, func() {
-            ui.controller.SelectDestinationByName(entity)
+			ui.controller.SelectDestinationByName(entity)
 		})
 	}
 }

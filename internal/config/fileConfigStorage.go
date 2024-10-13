@@ -1,4 +1,4 @@
-package asb
+package config
 
 import (
 	"encoding/json"
