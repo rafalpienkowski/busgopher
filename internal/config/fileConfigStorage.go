@@ -2,7 +2,6 @@ package config
 
 import (
 	"encoding/json"
-	"errors"
 	"io"
 	"os"
 )
@@ -41,11 +40,8 @@ func (storage *FileConfigStorage) Load() (*Config, error) {
 	return config, nil
 }
 
-func (storage *FileConfigStorage) Save(config *Config) error {
-	if config == nil {
-		return errors.New("Can't save empty config")
-	}
-	json, err := json.Marshal(config.Default())
+func (storage *FileConfigStorage) Save(config Config) error {
+	json, err := json.Marshal(config)
 	if err != nil {
 		return err
 	}

@@ -21,5 +21,5 @@ func (config Config) Default() *Config {
 
 type ConfigStorage interface {
 	Load() (*Config, error)
-	Save(*Config) error
+	Save(Config) error
 }
