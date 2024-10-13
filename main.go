@@ -18,7 +18,14 @@ func main() {
 
 	flag.Parse()
 
-	config := asb.LoadConfig()
+    configStorage := &asb.FileConfigStorage{}
+
+	config, err := configStorage.Load()
+    if err != nil {
+		fmt.Printf("Failed to load config: %v\n", err)
+		os.Exit(1)
+    }
+
 	controller, err := asb.NewController(config)
 	if err != nil {
 		fmt.Printf("Failed to start controller: %v\n", err)
@@ -35,12 +42,12 @@ func main() {
 			*message,
 		)
 
-        controller.SetLogsWriter(os.Stdout)
-        controller.SelectConnectionByName(*connection)
-        controller.SelectDestinationByName(*destination)
-        controller.SelectMessageByName(*message)
+		controller.SetLogsWriter(os.Stdout)
+		controller.SelectConnectionByName(*connection)
+		controller.SelectDestinationByName(*destination)
+		controller.SelectMessageByName(*message)
 
-        controller.Send()
+		controller.Send()
 	} else {
 		ui := ui.NewUI(controller)
 		ui.LoadData()
