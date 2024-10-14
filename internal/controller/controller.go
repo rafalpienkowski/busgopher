@@ -17,10 +17,15 @@ type Controller struct {
 	selectedMessage     *asb.Message
 	selectedDestination string
 
-	logsWriter io.Writer
+	messageSender asb.MessageSender
+	logsWriter    io.Writer
 }
 
-func NewController(configStorage config.ConfigStorage, logsWriter io.Writer) (*Controller, error) {
+func NewController(
+	configStorage config.ConfigStorage,
+	messageSender asb.MessageSender,
+	logsWriter io.Writer,
+) (*Controller, error) {
 
 	config, err := configStorage.Load()
 	if err != nil {
@@ -29,6 +34,7 @@ func NewController(configStorage config.ConfigStorage, logsWriter io.Writer) (*C
 
 	controller := Controller{}
 	controller.Config = config
+	controller.messageSender = messageSender
 	controller.logsWriter = logsWriter
 
 	return &controller, nil
@@ -88,7 +94,8 @@ func (controller *Controller) Send() {
 	}
 
 	controller.writeLog("Sending message to: " + controller.selectedDestination)
-	err := controller.SelectedConnection.SendMessage(
+	err := controller.messageSender.Send(
+		controller.SelectedConnection.Namespace,
 		controller.selectedDestination,
 		*controller.selectedMessage,
 	)

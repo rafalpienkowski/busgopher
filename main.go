@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/rafalpienkowski/busgopher/internal/asb"
 	"github.com/rafalpienkowski/busgopher/internal/config"
 	"github.com/rafalpienkowski/busgopher/internal/controller"
 	"github.com/rafalpienkowski/busgopher/internal/ui"
@@ -20,6 +21,7 @@ func main() {
 	flag.Parse()
 
 	configStorage := &config.FileConfigStorage{}
+	messageSender := &asb.AsbMessageSender{}
 
 	// Check if used with params
 	if len(*connection) > 0 || len(*destination) > 0 || len(*message) > 0 {
@@ -31,7 +33,7 @@ func main() {
 			*message,
 		)
 
-		controller, err := controller.NewController(configStorage, os.Stdout)
+		controller, err := controller.NewController(configStorage, messageSender, os.Stdout)
 		if err != nil {
 			fmt.Printf("Failed to start controller: %v\n", err)
 			os.Exit(1)
@@ -43,7 +45,7 @@ func main() {
 		controller.Send()
 	} else {
 		ui := ui.NewUI()
-		controller, err := controller.NewController(configStorage, ui.Logs)
+		controller, err := controller.NewController(configStorage, messageSender, ui.Logs)
 		if err != nil {
 			fmt.Printf("Failed to start controller: %v\n", err)
 			os.Exit(1)

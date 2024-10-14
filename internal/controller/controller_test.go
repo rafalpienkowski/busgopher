@@ -12,7 +12,7 @@ import (
 	"github.com/rafalpienkowski/busgopher/internal/config"
 )
 
-func getTestConfig() *config.InMemoryConfigStorage {
+func getInMemoryConfig() *config.InMemoryConfigStorage {
 
 	return &config.InMemoryConfigStorage{
 		Config: config.Config{
@@ -52,37 +52,37 @@ func trimDatePart(log string) string {
 	return log[23:]
 }
 
-func TestControllerShouldSetLoadedConfig(t *testing.T) {
-	testConfig := getTestConfig()
-	var givenConfig config.ConfigStorage = testConfig
+func createTestController() (*Controller, *config.InMemoryConfigStorage, *asb.InMemoryMessageSender, *bytes.Buffer) {
+	inMemoryConfig := getInMemoryConfig()
+	var testConfig config.ConfigStorage = inMemoryConfig
+	inMemoryMessageSender := &asb.InMemoryMessageSender{}
+	var testMessageSender asb.MessageSender = inMemoryMessageSender
 	var buffer bytes.Buffer
 	var writer io.Writer = &buffer
 
-	sut, _ := NewController(givenConfig, writer)
+	controller, _ := NewController(testConfig, testMessageSender, writer)
 
-	assert.Equal(t, testConfig.Config, sut.Config)
+	return controller, inMemoryConfig, inMemoryMessageSender, &buffer
+}
+
+func TestControllerShouldSetLoadedConfig(t *testing.T) {
+	controller, inMemoryConfig, _, _ := createTestController()
+
+	assert.Equal(t, inMemoryConfig.Config, controller.Config)
 }
 
 func TestControllerShouldSelectExistingConnectionByName(t *testing.T) {
-	testConfig := getTestConfig()
-	var givenConfig config.ConfigStorage = testConfig
-	var buffer bytes.Buffer
-	var writer io.Writer = &buffer
-	sut, _ := NewController(givenConfig, writer)
+	controller, inMemoryConfig, _, _ := createTestController()
 
-	sut.SelectConnectionByName("test")
+	controller.SelectConnectionByName("test")
 
-	assert.Equal(t, &(testConfig.Config.Connections)[0], sut.SelectedConnection)
+	assert.Equal(t, &(inMemoryConfig.Config.Connections)[0], controller.SelectedConnection)
 }
 
 func TestControllerShouldWriteErrorWhenSelectingNonExistingConnectionByName(t *testing.T) {
-	testConfig := getTestConfig()
-	var givenConfig config.ConfigStorage = testConfig
-	var buffer bytes.Buffer
-	var writer io.Writer = &buffer
-	sut, _ := NewController(givenConfig, writer)
+	controller, _, _, buffer := createTestController()
 
-	sut.SelectConnectionByName("non-existing")
+	controller.SelectConnectionByName("non-existing")
 
 	assert.Equal(
 		t,
@@ -92,27 +92,19 @@ func TestControllerShouldWriteErrorWhenSelectingNonExistingConnectionByName(t *t
 }
 
 func TestControllerShouldSelectDestinationByName(t *testing.T) {
-	testConfig := getTestConfig()
-	var givenConfig config.ConfigStorage = testConfig
-	var buffer bytes.Buffer
-	var writer io.Writer = &buffer
-	sut, _ := NewController(givenConfig, writer)
-	sut.SelectConnectionByName("test")
+	controller, _, _, _ := createTestController()
+	controller.SelectConnectionByName("test")
 
-	sut.SelectDestinationByName("queue")
+	controller.SelectDestinationByName("queue")
 
-	assert.Equal(t, "queue", sut.selectedDestination)
+	assert.Equal(t, "queue", controller.selectedDestination)
 }
 
 func TestControllerShouldWriteErrorWhenSelectingNontExistingQueueName(t *testing.T) {
-	testConfig := getTestConfig()
-	var givenConfig config.ConfigStorage = testConfig
-	var buffer bytes.Buffer
-	var writer io.Writer = &buffer
-	sut, _ := NewController(givenConfig, writer)
-	sut.SelectConnectionByName("test")
+	controller, _, _, buffer := createTestController()
+	controller.SelectConnectionByName("test")
 
-	sut.SelectDestinationByName("non-existing")
+	controller.SelectDestinationByName("non-existing")
 
 	assert.Equal(
 		t,
@@ -122,13 +114,9 @@ func TestControllerShouldWriteErrorWhenSelectingNontExistingQueueName(t *testing
 }
 
 func TestControllerShouldWriteErrorWhenSelectingQueueWithoutSelectedConnection(t *testing.T) {
-	testConfig := getTestConfig()
-	var givenConfig config.ConfigStorage = testConfig
-	var buffer bytes.Buffer
-	var writer io.Writer = &buffer
-	sut, _ := NewController(givenConfig, writer)
+	controller, _, _, buffer := createTestController()
 
-	sut.SelectDestinationByName("queue")
+	controller.SelectDestinationByName("queue")
 
 	assert.Equal(
 		t,
@@ -138,25 +126,17 @@ func TestControllerShouldWriteErrorWhenSelectingQueueWithoutSelectedConnection(t
 }
 
 func TestControllerShouldSetMessageByName(t *testing.T) {
-	testConfig := getTestConfig()
-	var givenConfig config.ConfigStorage = testConfig
-	var buffer bytes.Buffer
-	var writer io.Writer = &buffer
-	sut, _ := NewController(givenConfig, writer)
+	controller, inMemoryConfig, _, _ := createTestController()
 
-	sut.SelectMessageByName("test")
+	controller.SelectMessageByName("test")
 
-	assert.Equal(t, &(testConfig.Config.Messages)[0], sut.selectedMessage)
+	assert.Equal(t, &(inMemoryConfig.Config.Messages)[0], controller.selectedMessage)
 }
 
 func TestControllerShouldWriteErrorWhenSelectingNonExistingMessage(t *testing.T) {
-	testConfig := getTestConfig()
-	var givenConfig config.ConfigStorage = testConfig
-	var buffer bytes.Buffer
-	var writer io.Writer = &buffer
-	sut, _ := NewController(givenConfig, writer)
+	controller, _, _, buffer := createTestController()
 
-	sut.SelectMessageByName("non-existing")
+	controller.SelectMessageByName("non-existing")
 
 	assert.Equal(
 		t,
@@ -165,14 +145,10 @@ func TestControllerShouldWriteErrorWhenSelectingNonExistingMessage(t *testing.T)
 	)
 }
 
-func TestControllerShouldNotSendWhenConnectionNotSelected(t *testing.T){
-	testConfig := getTestConfig()
-	var givenConfig config.ConfigStorage = testConfig
-	var buffer bytes.Buffer
-	var writer io.Writer = &buffer
-	sut, _ := NewController(givenConfig, writer)
+func TestControllerShouldNotSendWhenConnectionNotSelected(t *testing.T) {
+	controller, _, _, buffer := createTestController()
 
-    sut.Send()
+	controller.Send()
 
 	assert.Equal(
 		t,
@@ -181,16 +157,12 @@ func TestControllerShouldNotSendWhenConnectionNotSelected(t *testing.T){
 	)
 }
 
-func TestControllerShouldNotSendWhenDestinationNotSelected(t *testing.T){
-	testConfig := getTestConfig()
-	var givenConfig config.ConfigStorage = testConfig
-	var buffer bytes.Buffer
-	var writer io.Writer = &buffer
-	sut, _ := NewController(givenConfig, writer)
-    sut.SelectConnectionByName("test")
-    sut.SelectMessageByName("test")
+func TestControllerShouldNotSendWhenDestinationNotSelected(t *testing.T) {
+	controller, _, _, buffer := createTestController()
+	controller.SelectConnectionByName("test")
+	controller.SelectMessageByName("test")
 
-    sut.Send()
+	controller.Send()
 
 	assert.Equal(
 		t,
@@ -199,16 +171,12 @@ func TestControllerShouldNotSendWhenDestinationNotSelected(t *testing.T){
 	)
 }
 
-func TestControllerShouldNotSendWhenMessageNotSelected(t *testing.T){
-	testConfig := getTestConfig()
-	var givenConfig config.ConfigStorage = testConfig
-	var buffer bytes.Buffer
-	var writer io.Writer = &buffer
-	sut, _ := NewController(givenConfig, writer)
-    sut.SelectConnectionByName("test")
-    sut.SelectDestinationByName("queue")
+func TestControllerShouldNotSendWhenMessageNotSelected(t *testing.T) {
+	controller, _, _, buffer := createTestController()
+	controller.SelectConnectionByName("test")
+	controller.SelectDestinationByName("queue")
 
-    sut.Send()
+	controller.Send()
 
 	assert.Equal(
 		t,
