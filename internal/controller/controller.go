@@ -20,7 +20,7 @@ type Controller struct {
 	logsWriter io.Writer
 }
 
-func NewController(configStorage config.ConfigStorage) (*Controller, error) {
+func NewController(configStorage config.ConfigStorage, logsWriter io.Writer) (*Controller, error) {
 
 	config, err := configStorage.Load()
 	if err != nil {
@@ -29,12 +29,9 @@ func NewController(configStorage config.ConfigStorage) (*Controller, error) {
 
 	controller := Controller{}
 	controller.Config = config
+	controller.logsWriter = logsWriter
 
 	return &controller, nil
-}
-
-func (controller *Controller) SetLogsWriter(writer io.Writer) {
-	controller.logsWriter = writer
 }
 
 func (controller *Controller) SelectConnectionByName(name string) {
@@ -50,11 +47,13 @@ func (controller *Controller) SelectConnectionByName(name string) {
 }
 
 func (controller *Controller) SelectDestinationByName(name string) {
-	for _, dest := range controller.SelectedConnection.Destinations {
-		if strings.EqualFold(dest, name) {
-			controller.selectedDestination = dest
-			controller.writeLog("Selected destination: " + name)
-			return
+	if controller.SelectedConnection != nil {
+		for _, dest := range controller.SelectedConnection.Destinations {
+			if strings.EqualFold(dest, name) {
+				controller.selectedDestination = dest
+				controller.writeLog("Selected destination: " + name)
+				return
+			}
 		}
 	}
 	controller.writeError("Can't find destination with name: " + name)

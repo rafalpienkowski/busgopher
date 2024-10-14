@@ -29,10 +29,8 @@ type UI struct {
 	inputs []tview.Primitive
 }
 
-func NewUI(controller *controller.Controller) *UI {
+func NewUI() *UI {
 	ui := UI{}
-
-	ui.controller = controller
 
 	// Create UI elements
 	ui.theme = Dark()
@@ -118,8 +116,6 @@ func NewUI(controller *controller.Controller) *UI {
 		return event
 	})
 
-	ui.controller.SetLogsWriter(ui.Logs)
-
 	return &ui
 }
 
@@ -132,7 +128,10 @@ func (ui *UI) refreshDestinations() {
 	}
 }
 
-func (ui *UI) LoadData() {
+func (ui *UI) LoadData(controller *controller.Controller) {
+
+	ui.controller = controller
+
 	for _, conn := range ui.controller.Config.Connections {
 		ui.Connections.AddItem(conn.Name, conn.Namespace, 0, func() {
 			ui.controller.SelectConnectionByName(conn.Name)

@@ -19,13 +19,7 @@ func main() {
 
 	flag.Parse()
 
-    configStorage := &config.FileConfigStorage{}
-
-	controller, err := controller.NewController(configStorage)
-	if err != nil {
-		fmt.Printf("Failed to start controller: %v\n", err)
-		os.Exit(1)
-	}
+	configStorage := &config.FileConfigStorage{}
 
 	// Check if used with params
 	if len(*connection) > 0 || len(*destination) > 0 || len(*message) > 0 {
@@ -37,15 +31,24 @@ func main() {
 			*message,
 		)
 
-		controller.SetLogsWriter(os.Stdout)
+		controller, err := controller.NewController(configStorage, os.Stdout)
+		if err != nil {
+			fmt.Printf("Failed to start controller: %v\n", err)
+			os.Exit(1)
+		}
 		controller.SelectConnectionByName(*connection)
 		controller.SelectDestinationByName(*destination)
 		controller.SelectMessageByName(*message)
 
 		controller.Send()
 	} else {
-		ui := ui.NewUI(controller)
-		ui.LoadData()
+		ui := ui.NewUI()
+		controller, err := controller.NewController(configStorage, ui.Logs)
+		if err != nil {
+			fmt.Printf("Failed to start controller: %v\n", err)
+			os.Exit(1)
+		}
+		ui.LoadData(controller)
 		err = ui.Start()
 		if err != nil {
 			fmt.Printf("Failed to start UI: %v\n", err)
