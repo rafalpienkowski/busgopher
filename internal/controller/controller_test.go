@@ -1,16 +1,21 @@
 package controller
 
-import ( "testing"
-    "github.com/stretchr/testify/assert"
+import (
+	"bytes"
+	"io"
+	"testing"
+
+	"github.com/stretchr/testify/assert"
 
 	"github.com/rafalpienkowski/busgopher/internal/asb"
 	"github.com/rafalpienkowski/busgopher/internal/config"
 )
 
-func TestControllerShouldSetLoadedConnection(t *testing.T) {
-    givenConfig := &config.InMemoryConfigStorage{
+func getTestConfig() *config.InMemoryConfigStorage {
+
+	return &config.InMemoryConfigStorage{
 		Config: config.Config{
-			Connections: &[]asb.Connection{
+			Connections: []asb.Connection{
 				{
 					Name:      "test",
 					Namespace: "test.azure.com",
@@ -20,7 +25,7 @@ func TestControllerShouldSetLoadedConnection(t *testing.T) {
 					},
 				},
 			},
-			Messages: &[]asb.Message{
+			Messages: []asb.Message{
 				{
 					Name: "test",
 					Body: "test msg body",
@@ -28,13 +33,26 @@ func TestControllerShouldSetLoadedConnection(t *testing.T) {
 			},
 		},
 	}
-    var gc config.ConfigStorage = givenConfig
+}
 
-    sut,err := NewController(gc)
-    if err != nil {
-        t.Errorf("Can't create controller: %v", err.Error())
-    }
+func TestControllerShouldSetLoadedConfig(t *testing.T) {
+    testConfig := getTestConfig()
+	var givenConfig config.ConfigStorage = testConfig
 
-    assert.Equal(t, givenConfig.Config.Connections, &sut.Connections)
-    assert.Equal(t, givenConfig.Config.Messages, &sut.Messages)
+	sut, _ := NewController(givenConfig)
+
+	assert.Equal(t, testConfig.Config, sut.Config)
+}
+
+func TestControllerShouldSetConnectionByName(t *testing.T) {
+    testConfig := getTestConfig()
+	var givenConfig config.ConfigStorage = testConfig
+    var buffer bytes.Buffer
+	var writer io.Writer = &buffer
+
+	sut, _ := NewController(givenConfig)
+    sut.SetLogsWriter(writer)
+    sut.SelectConnectionByName("test")
+
+	assert.Equal(t, &(testConfig.Config.Connections)[0], sut.SelectedConnection)
 }

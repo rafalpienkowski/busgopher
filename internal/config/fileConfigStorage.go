@@ -10,23 +10,23 @@ const configName = "config.json"
 
 type FileConfigStorage struct{}
 
-func (storage *FileConfigStorage) Load() (*Config, error) {
+func (storage *FileConfigStorage) Load() (Config, error) {
 	var config *Config
 
 	bytes, err := readFile(configName)
 	if err != nil {
-		return nil, err
+		return Config{}, err
 	}
 
 	if len(bytes) == 0 {
 		json, err := json.Marshal(config.Default())
 		if err != nil {
-			return nil, err
+			return Config{}, err
 		}
 
 		err = writeFile(configName, string(json))
 		if err != nil {
-			return nil, err
+			return Config{}, err
 		}
 
 		bytes = []byte(json)
@@ -34,10 +34,10 @@ func (storage *FileConfigStorage) Load() (*Config, error) {
 
 	err = json.Unmarshal(bytes, &config)
 	if err != nil {
-		return nil, err
+		return Config{}, err
 	}
 
-	return config, nil
+	return *config, nil
 }
 
 func (storage *FileConfigStorage) Save(config Config) error {

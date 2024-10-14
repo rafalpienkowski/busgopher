@@ -11,8 +11,7 @@ import (
 )
 
 type Controller struct {
-	Connections []asb.Connection
-	Messages    []asb.Message
+	Config config.Config
 
 	SelectedConnection  *asb.Connection
 	selectedMessage     *asb.Message
@@ -24,13 +23,12 @@ type Controller struct {
 func NewController(configStorage config.ConfigStorage) (*Controller, error) {
 
 	config, err := configStorage.Load()
-    if err != nil {
-        return nil, err
-    }
+	if err != nil {
+		return nil, err
+	}
 
 	controller := Controller{}
-	controller.Connections = *config.Connections
-	controller.Messages = *config.Messages
+	controller.Config = config
 
 	return &controller, nil
 }
@@ -40,7 +38,7 @@ func (controller *Controller) SetLogsWriter(writer io.Writer) {
 }
 
 func (controller *Controller) SelectConnectionByName(name string) {
-	for _, conn := range controller.Connections {
+	for _, conn := range controller.Config.Connections {
 		if strings.EqualFold(conn.Name, name) {
 			controller.SelectedConnection = &conn
 			controller.selectedDestination = ""
@@ -63,7 +61,7 @@ func (controller *Controller) SelectDestinationByName(name string) {
 }
 
 func (controller *Controller) SelectMessageByName(name string) {
-	for _, msg := range controller.Messages {
+	for _, msg := range controller.Config.Messages {
 		if strings.EqualFold(msg.Name, name) {
 			controller.selectedMessage = &msg
 			controller.writeLog("Selected message: " + msg.Name)

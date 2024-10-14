@@ -133,14 +133,14 @@ func (ui *UI) refreshDestinations() {
 }
 
 func (ui *UI) LoadData() {
-	for _, conn := range ui.controller.Connections {
+	for _, conn := range ui.controller.Config.Connections {
 		ui.Connections.AddItem(conn.Name, conn.Namespace, 0, func() {
 			ui.controller.SelectConnectionByName(conn.Name)
 			ui.refreshDestinations()
 		})
 	}
 
-	for _, msg := range ui.controller.Messages {
+	for _, msg := range ui.controller.Config.Messages {
 		ui.Messages.AddItem(msg.Name, msg.Subject, 0, func() {
 			ui.controller.SelectMessageByName(msg.Name)
 			ui.printContent(msg.Print())
