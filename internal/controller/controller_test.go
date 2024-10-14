@@ -184,3 +184,16 @@ func TestControllerShouldNotSendWhenMessageNotSelected(t *testing.T) {
 		(trimDatePart(getLastLine(buffer.String()))),
 	)
 }
+
+func TestControllerShouldSendMessage(t *testing.T) {
+	controller, inMemoryConfig, messageSender, _ := createTestController()
+	controller.SelectConnectionByName("test")
+	controller.SelectDestinationByName("queue")
+	controller.SelectMessageByName("test")
+
+	controller.Send()
+
+	assert.Equal(t, "test.azure.com", messageSender.Namespace)
+	assert.Equal(t, "queue", messageSender.Destination)
+	assert.Equal(t, &(inMemoryConfig.Config.Messages)[0], &messageSender.Message)
+}
