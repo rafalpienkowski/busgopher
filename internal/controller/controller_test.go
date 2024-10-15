@@ -197,3 +197,44 @@ func TestControllerShouldSendMessage(t *testing.T) {
 	assert.Equal(t, "queue", messageSender.Destination)
 	assert.Equal(t, &(inMemoryConfig.Config.Messages)[0], &messageSender.Message)
 }
+
+func TestControllerShouldNotAddDestinationWhenConnectionNotSelected(t *testing.T) {
+	controller, _, _, buffer := createTestController()
+
+	controller.AddDestination("newDestination")
+
+	assert.Equal(
+		t,
+		"[Error] Connection not selected!",
+		(trimDatePart(getLastLine(buffer.String()))),
+	)
+}
+
+func TestControllerShouldAddDestinationWhenConnectionSelected(t *testing.T) {
+	controller, inMemoryConfig, _, _ := createTestController()
+	controller.SelectConnectionByName("test")
+
+	controller.AddDestination("newDestination")
+
+	assert.Equal(t, inMemoryConfig.Config,
+		config.Config{
+			Connections: []asb.Connection{
+				{
+					Name:      "test",
+					Namespace: "test.azure.com",
+					Destinations: []string{
+						"queue",
+						"topic",
+						"newDestination",
+					},
+				},
+			},
+			Messages: []asb.Message{
+				{
+					Name: "test",
+					Body: "test msg body",
+				},
+			},
+		})
+    assert.Equal(t, []string { "queue", "topic", "newDestination" }, controller.SelectedConnection.Destinations)
+}

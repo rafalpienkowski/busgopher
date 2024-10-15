@@ -11,7 +11,8 @@ import (
 )
 
 type Controller struct {
-	Config config.Config
+	Config        config.Config
+	configStorage config.ConfigStorage
 
 	SelectedConnection  *asb.Connection
 	selectedMessage     *asb.Message
@@ -36,6 +37,7 @@ func NewController(
 	controller.Config = config
 	controller.messageSender = messageSender
 	controller.logsWriter = logsWriter
+	controller.configStorage = configStorage
 
 	return &controller, nil
 }
@@ -74,6 +76,34 @@ func (controller *Controller) SelectMessageByName(name string) {
 		}
 	}
 	controller.writeError("Can't find message with name: " + name)
+}
+
+func (controller *Controller) AddDestination(newDestination string) {
+	if controller.SelectedConnection == nil {
+		controller.writeError("Connection not selected!")
+		return
+	}
+
+	for i, conn := range controller.Config.Connections {
+		if conn.Name == controller.SelectedConnection.Name {
+			(controller.Config.Connections)[i].Destinations = append(
+				conn.Destinations,
+				newDestination,
+			)
+
+			err := controller.configStorage.Save(controller.Config)
+			if err != nil {
+				controller.writeError("Can't save config changes: " + err.Error())
+			}
+			controller.SelectConnectionByName(controller.SelectedConnection.Name)
+		}
+	}
+}
+
+func (controller *Controller) RemoveDestination(oldDestination string) {
+}
+
+func (controller *Controller) UpdateDestination(oldDestination string, newDestination string) {
 }
 
 func (controller *Controller) Send() {
