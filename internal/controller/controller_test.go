@@ -333,3 +333,84 @@ func TestControllerShouldRemoveDestinationWhenConnectionSelected(t *testing.T) {
 		controller.SelectedConnection.Destinations,
 	)
 }
+
+func TestControllerShouldNotUpdateDestinationWhenConnectionNotSelected(t *testing.T){
+	controller, _, _, buffer := createTestController()
+
+	controller.UpdateDestination("queue", "new-queue")
+
+	assert.Equal(
+		t,
+		"[Error] Connection not selected!",
+		(trimDatePart(getLastLine(buffer.String()))),
+	)
+}
+
+func TestControllerShouldNotUpdateDestinationWhenDestinationNotFound(t *testing.T){
+	controller, inMemoryConfig, _, _ := createTestController()
+    controller.SelectConnectionByName("test")
+
+	controller.UpdateDestination("non-existing-queue", "new-queue")
+
+	assert.Equal(t,
+		config.Config{
+			Connections: []asb.Connection{
+				{
+					Name:      "test",
+					Namespace: "test.azure.com",
+					Destinations: []string{
+                        "queue", 
+						"topic",
+					},
+				},
+			},
+			Messages: []asb.Message{
+				{
+					Name: "test",
+					Body: "test msg body",
+				},
+			},
+		},
+		inMemoryConfig.Config)
+
+	assert.Equal(
+		t,
+		[]string{"queue", "topic"},
+		controller.SelectedConnection.Destinations,
+	)
+}
+
+func TestControllerShouldUpdateDestination(t *testing.T){
+    controller, inMemoryConfig, _, _ := createTestController()
+    controller.SelectConnectionByName("test")
+
+    controller.UpdateDestination("queue", "new-queue")
+
+    assert.Equal(t,
+        config.Config{
+            Connections: []asb.Connection{
+                {
+                    Name:      "test",
+                    Namespace: "test.azure.com",
+                    Destinations: []string{
+                        "new-queue", 
+                        "topic",
+                    },
+                },
+            },
+            Messages: []asb.Message{
+                {
+                    Name: "test",
+                    Body: "test msg body",
+                },
+            },
+        },
+        inMemoryConfig.Config)
+
+    assert.Equal(
+        t,
+        []string{"new-queue", "topic"},
+        controller.SelectedConnection.Destinations,
+    )
+}
+

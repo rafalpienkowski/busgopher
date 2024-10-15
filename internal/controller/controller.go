@@ -132,6 +132,31 @@ func (controller *Controller) RemoveDestination(destination string) {
 }
 
 func (controller *Controller) UpdateDestination(oldDestination string, newDestination string) {
+	if controller.SelectedConnection == nil {
+		controller.writeError("Connection not selected!")
+		return
+	}
+
+	for i, conn := range controller.Config.Connections {
+		if conn.Name == controller.SelectedConnection.Name {
+			newDestinations := []string{}
+			for _, d := range conn.Destinations {
+				if d == oldDestination {
+					newDestinations = append(newDestinations, newDestination)
+				} else {
+					newDestinations = append(newDestinations, d)
+                }
+			}
+
+			controller.Config.Connections[i].Destinations = newDestinations
+
+			err := controller.configStorage.Save(controller.Config)
+			if err != nil {
+				controller.writeError("Can't save config changes: " + err.Error())
+			}
+			controller.SelectConnectionByName(controller.SelectedConnection.Name)
+		}
+	}
 }
 
 func (controller *Controller) Send() {
