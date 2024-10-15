@@ -236,5 +236,100 @@ func TestControllerShouldAddDestinationWhenConnectionSelected(t *testing.T) {
 				},
 			},
 		})
-    assert.Equal(t, []string { "queue", "topic", "newDestination" }, controller.SelectedConnection.Destinations)
+	assert.Equal(
+		t,
+		[]string{"queue", "topic", "newDestination"},
+		controller.SelectedConnection.Destinations,
+	)
+}
+
+func TestControllerShouldNotRemoveDestinationWhenConnectionNotSelected(t *testing.T) {
+	controller, inMemoryConfig, _, _ := createTestController()
+
+	controller.RemoveDestination("quque")
+
+	assert.Equal(t, inMemoryConfig.Config,
+		config.Config{
+			Connections: []asb.Connection{
+				{
+					Name:      "test",
+					Namespace: "test.azure.com",
+					Destinations: []string{
+						"queue",
+						"topic",
+					},
+				},
+			},
+			Messages: []asb.Message{
+				{
+					Name: "test",
+					Body: "test msg body",
+				},
+			},
+		})
+}
+
+func TestControllerShouldNotRemoveDestinationWhenDestinationNotFound(t *testing.T) {
+	controller, inMemoryConfig, _, _ := createTestController()
+	controller.SelectConnectionByName("test")
+
+	controller.RemoveDestination("notExisting")
+
+	assert.Equal(t, inMemoryConfig.Config,
+		config.Config{
+			Connections: []asb.Connection{
+				{
+					Name:      "test",
+					Namespace: "test.azure.com",
+					Destinations: []string{
+						"queue",
+						"topic",
+					},
+				},
+			},
+			Messages: []asb.Message{
+				{
+					Name: "test",
+					Body: "test msg body",
+				},
+			},
+		})
+	assert.Equal(
+		t,
+		[]string{"queue", "topic"},
+		controller.SelectedConnection.Destinations,
+	)
+}
+
+func TestControllerShouldRemoveDestinationWhenConnectionSelected(t *testing.T) {
+	controller, inMemoryConfig, _, _ := createTestController()
+	controller.SelectConnectionByName("test")
+
+	controller.RemoveDestination("queue")
+
+	assert.Equal(t,
+		config.Config{
+			Connections: []asb.Connection{
+				{
+					Name:      "test",
+					Namespace: "test.azure.com",
+					Destinations: []string{
+						"topic",
+					},
+				},
+			},
+			Messages: []asb.Message{
+				{
+					Name: "test",
+					Body: "test msg body",
+				},
+			},
+		},
+		inMemoryConfig.Config)
+
+	assert.Equal(
+		t,
+		[]string{"topic"},
+		controller.SelectedConnection.Destinations,
+	)
 }

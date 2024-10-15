@@ -100,7 +100,35 @@ func (controller *Controller) AddDestination(newDestination string) {
 	}
 }
 
-func (controller *Controller) RemoveDestination(oldDestination string) {
+func (controller *Controller) RemoveDestination(destination string) {
+	if controller.SelectedConnection == nil {
+		controller.writeError("Connection not selected!")
+		return
+	}
+
+	for i, conn := range controller.Config.Connections {
+		if conn.Name == controller.SelectedConnection.Name {
+			newDestinations := []string{}
+			for _, d := range conn.Destinations {
+				if d != destination {
+					newDestinations = append(newDestinations, d)
+				}
+			}
+
+            if len(newDestinations) == len(conn.Destinations) {
+				controller.writeError("Nothing to remove!" )
+                return
+            }
+
+			controller.Config.Connections[i].Destinations = newDestinations
+
+			err := controller.configStorage.Save(controller.Config)
+			if err != nil {
+				controller.writeError("Can't save config changes: " + err.Error())
+			}
+			controller.SelectConnectionByName(controller.SelectedConnection.Name)
+		}
+	}
 }
 
 func (controller *Controller) UpdateDestination(oldDestination string, newDestination string) {
