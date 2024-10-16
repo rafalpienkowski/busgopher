@@ -517,13 +517,13 @@ func TestControllerShouldNotAddNewMessageWhenNameIsNotUnique(t *testing.T) {
 	)
 }
 
-func TestControllerShouldUpdateMessage(t *testing.T){
+func TestControllerShouldUpdateMessage(t *testing.T) {
 	controller, inMemoryConfig, _, _ := createTestController()
 	newMsg := asb.Message{
 		Name: "test",
-        Body: "new msg body",
+		Body: "new msg body",
 	}
-    controller.SelectMessageByName("test")
+	controller.SelectMessageByName("test")
 
 	controller.UpdateMessage(newMsg)
 
@@ -549,11 +549,11 @@ func TestControllerShouldUpdateMessage(t *testing.T){
 		inMemoryConfig.Config)
 }
 
-func TestControllerShouldNotUpdateMessageWhenNoMessageSelected(t *testing.T){
+func TestControllerShouldNotUpdateMessageWhenNoMessageSelected(t *testing.T) {
 	controller, _, _, buffer := createTestController()
 	newMsg := asb.Message{
 		Name: "test",
-        Body: "new msg body",
+		Body: "new msg body",
 	}
 
 	controller.UpdateMessage(newMsg)
@@ -563,4 +563,130 @@ func TestControllerShouldNotUpdateMessageWhenNoMessageSelected(t *testing.T){
 		"[Error] Message not selected!",
 		(trimDatePart(getLastLine(buffer.String()))),
 	)
+}
+
+func TestControllerShouldRemoveSelectedConnection(t *testing.T) {
+	controller, inMemoryConfig, _, _ := createTestController()
+	controller.SelectConnectionByName("test")
+
+	controller.RemoveSelectedConnection()
+
+	assert.Equal(t,
+		config.Config{
+			Connections: []asb.Connection{},
+			Messages: []asb.Message{
+				{
+					Name: "test",
+					Body: "test msg body",
+				},
+			},
+		},
+		inMemoryConfig.Config)
+}
+
+func TestControllerShouldNotRemoveWhenConnectionNotSelected(t *testing.T) {
+	controller, _, _, buffer := createTestController()
+
+	controller.RemoveSelectedConnection()
+
+	assert.Equal(
+		t,
+		"[Error] Connection not selected!",
+		(trimDatePart(getLastLine(buffer.String()))),
+	)
+}
+
+func TestControllerShouldAddNewConnection(t *testing.T) {
+	controller, inMemoryConfig, _, _ := createTestController()
+	newConn := asb.Connection{
+		Name:      "new connection",
+		Namespace: "newtest.azure.com",
+	}
+
+	controller.AddConnection(&newConn)
+
+	assert.Equal(t,
+		config.Config{
+			Connections: []asb.Connection{
+				{
+					Name:      "test",
+					Namespace: "test.azure.com",
+					Destinations: []string{
+						"queue",
+						"topic",
+					},
+				},
+				{
+					Name:      "new connection",
+					Namespace: "newtest.azure.com",
+				},
+			},
+			Messages: []asb.Message{
+				{
+					Name: "test",
+					Body: "test msg body",
+				},
+			},
+		},
+		inMemoryConfig.Config)
+}
+
+func TestControllerShouldNotAddNewConnectionWhenNameExist(t *testing.T) {
+	controller, _, _, buffer := createTestController()
+	newConn := asb.Connection{
+		Name:      "test",
+		Namespace: "newtest.azure.com",
+	}
+
+	controller.AddConnection(&newConn)
+
+	assert.Equal(
+		t,
+		"[Error] Connection 'test' exist",
+		(trimDatePart(getLastLine(buffer.String()))),
+	)
+}
+
+func TestControllerShouldNotUpdateConnectionWhenNoConnectionSelected(t *testing.T){
+	controller, _, _, buffer := createTestController()
+	newConn := asb.Connection{
+		Name:      "test",
+		Namespace: "newtest.azure.com",
+	}
+
+	controller.UpdateSelectedConnection(newConn)
+
+	assert.Equal(
+		t,
+		"[Error] Connection not selected!",
+		(trimDatePart(getLastLine(buffer.String()))),
+	)
+}
+
+func TestControllerShouldUpdateSelectedConnection(t *testing.T){
+	controller, inMemoryConfig, _, _ := createTestController()
+	newConn := asb.Connection{
+		Name:      "new connection",
+		Namespace: "newtest.azure.com",
+	}
+    controller.SelectConnectionByName("test")
+
+	controller.UpdateSelectedConnection(newConn)
+
+	assert.Equal(t,
+		config.Config{
+			Connections: []asb.Connection{
+				{
+					Name:      "new connection",
+					Namespace: "newtest.azure.com",
+				},
+			},
+			Messages: []asb.Message{
+				{
+					Name: "test",
+					Body: "test msg body",
+				},
+			},
+		},
+		inMemoryConfig.Config)
 }
