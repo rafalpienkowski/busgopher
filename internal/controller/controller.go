@@ -91,10 +91,7 @@ func (controller *Controller) AddDestination(newDestination string) {
 				newDestination,
 			)
 
-			err := controller.configStorage.Save(controller.Config)
-			if err != nil {
-				controller.writeError("Can't save config changes: " + err.Error())
-			}
+			controller.saveConfig()
 			controller.SelectConnectionByName(controller.SelectedConnection.Name)
 		}
 	}
@@ -115,17 +112,14 @@ func (controller *Controller) RemoveDestination(destination string) {
 				}
 			}
 
-            if len(newDestinations) == len(conn.Destinations) {
-				controller.writeError("Nothing to remove!" )
-                return
-            }
+			if len(newDestinations) == len(conn.Destinations) {
+				controller.writeError("Nothing to remove!")
+				return
+			}
 
 			controller.Config.Connections[i].Destinations = newDestinations
 
-			err := controller.configStorage.Save(controller.Config)
-			if err != nil {
-				controller.writeError("Can't save config changes: " + err.Error())
-			}
+			controller.saveConfig()
 			controller.SelectConnectionByName(controller.SelectedConnection.Name)
 		}
 	}
@@ -145,18 +139,68 @@ func (controller *Controller) UpdateDestination(oldDestination string, newDestin
 					newDestinations = append(newDestinations, newDestination)
 				} else {
 					newDestinations = append(newDestinations, d)
-                }
+				}
 			}
 
 			controller.Config.Connections[i].Destinations = newDestinations
 
-			err := controller.configStorage.Save(controller.Config)
-			if err != nil {
-				controller.writeError("Can't save config changes: " + err.Error())
-			}
+			controller.saveConfig()
 			controller.SelectConnectionByName(controller.SelectedConnection.Name)
 		}
 	}
+}
+
+func (controller *Controller) AddMessage(message asb.Message) {
+
+	for _, msg := range controller.Config.Messages {
+		if msg.Name == message.Name {
+			controller.writeError("Message with name " + message.Name + " already exist")
+			return
+		}
+	}
+
+	controller.Config.Messages = append(controller.Config.Messages, message)
+    
+    controller.saveConfig()
+}
+
+func (controller *Controller) RemoveMessage(name string) {
+
+    newMessages := []asb.Message{}
+	for _, msg := range controller.Config.Messages {
+		if msg.Name != name {
+            newMessages = append(newMessages, msg)
+        }
+	}
+    if len(newMessages) == len(controller.Config.Messages) {
+        controller.writeError("No message to remove")
+        return
+    }
+
+	controller.Config.Messages = newMessages;
+
+    controller.saveConfig()
+}
+
+func (controller *Controller) UpdateMessage(message asb.Message) {
+	if controller.selectedMessage == nil {
+		controller.writeError("Message not selected!")
+		return
+	}
+
+    newMessages := []asb.Message{}
+	for _, msg := range controller.Config.Messages {
+		if msg.Name != controller.selectedMessage.Name {
+            newMessages = append(newMessages, msg)
+		} else {
+            newMessages = append(newMessages, message)
+        }
+	}
+
+	controller.Config.Messages = newMessages;
+
+    controller.saveConfig()
+    controller.SelectMessageByName(message.Name)
 }
 
 func (controller *Controller) Send() {
@@ -205,4 +249,11 @@ func (controller *Controller) writeError(log string) {
 		time.Now().Format("2006-01-02 15:04:05"),
 		log,
 	)
+}
+
+func (controller *Controller) saveConfig() {
+	err := controller.configStorage.Save(controller.Config)
+	if err != nil {
+		controller.writeError("Can't save config changes: " + err.Error())
+	}
 }
