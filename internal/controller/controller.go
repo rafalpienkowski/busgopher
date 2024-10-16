@@ -259,6 +259,7 @@ func (controller *Controller) UpdateSelectedConnection(newConnection asb.Connect
 
     controller.Config.Connections = newConnections
     controller.saveConfig()
+    controller.SelectConnectionByName(newConnection.Name)
 }
 
 func (controller *Controller) Send() {
