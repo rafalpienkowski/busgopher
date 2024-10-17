@@ -18,6 +18,8 @@ type Controller struct {
 	selectedMessage     *asb.Message
 	selectedDestination string
 
+    selectedConnectionName string
+
 	messageSender asb.MessageSender
 	logsWriter    io.Writer
 }
@@ -43,14 +45,15 @@ func NewController(
 }
 
 func (controller *Controller) SelectConnectionByName(name string) {
-	for _, conn := range controller.Config.Connections {
-		if strings.EqualFold(conn.Name, name) {
-			controller.SelectedConnection = &conn
-			controller.selectedDestination = ""
-			controller.writeLog("Selected connection: " + conn.Name + " (" + conn.Namespace + ")")
-			return
-		}
+
+	conn, ok := controller.Config.NConnections[name]
+	if ok {
+		controller.selectedConnectionName = name
+		controller.selectedDestination = ""
+		controller.writeLog("Selected connection: " + conn.Name + " (" + conn.Namespace + ")")
+		return
 	}
+
 	controller.writeError("Can't find connection with name: " + name)
 }
 
@@ -209,37 +212,37 @@ func (controller *Controller) RemoveSelectedConnection() {
 		return
 	}
 
-    newConnections := []asb.Connection{}
-    for _, conn := range controller.Config.Connections {
-        if conn.Name != controller.SelectedConnection.Name {
-            newConnections = append(newConnections, conn)
-        }
-    }
+	newConnections := []asb.Connection{}
+	for _, conn := range controller.Config.Connections {
+		if conn.Name != controller.SelectedConnection.Name {
+			newConnections = append(newConnections, conn)
+		}
+	}
 
-    if len(newConnections) == len(controller.Config.Connections) {
-        controller.writeError("No connection to remove")
-        return
-    }
+	if len(newConnections) == len(controller.Config.Connections) {
+		controller.writeError("No connection to remove")
+		return
+	}
 
-    controller.Config.Connections = newConnections
-    controller.saveConfig()
-    controller.SelectedConnection = nil
+	controller.Config.Connections = newConnections
+	controller.saveConfig()
+	controller.SelectedConnection = nil
 }
 
 func (controller *Controller) AddConnection(newConnection *asb.Connection) {
-    newConnections := []asb.Connection{}
-    for _, conn := range controller.Config.Connections {
-        if conn.Name == newConnection.Name {
-            controller.writeError("Connection '" + newConnection.Name + "' exist")
-            return
-        } else {
-            newConnections = append(newConnections, conn)
-        }
-    }
-    newConnections = append(newConnections, *newConnection)
+	newConnections := []asb.Connection{}
+	for _, conn := range controller.Config.Connections {
+		if conn.Name == newConnection.Name {
+			controller.writeError("Connection '" + newConnection.Name + "' exist")
+			return
+		} else {
+			newConnections = append(newConnections, conn)
+		}
+	}
+	newConnections = append(newConnections, *newConnection)
 
-    controller.Config.Connections = newConnections
-    controller.saveConfig()
+	controller.Config.Connections = newConnections
+	controller.saveConfig()
 }
 
 func (controller *Controller) UpdateSelectedConnection(newConnection asb.Connection) {
@@ -248,18 +251,18 @@ func (controller *Controller) UpdateSelectedConnection(newConnection asb.Connect
 		return
 	}
 
-    newConnections := []asb.Connection{}
-    for _, conn := range controller.Config.Connections {
-        if conn.Name == controller.SelectedConnection.Name {
-            newConnections = append(newConnections, newConnection)
-        } else {
-            newConnections = append(newConnections, conn)
-        }
-    }
+	newConnections := []asb.Connection{}
+	for _, conn := range controller.Config.Connections {
+		if conn.Name == controller.SelectedConnection.Name {
+			newConnections = append(newConnections, newConnection)
+		} else {
+			newConnections = append(newConnections, conn)
+		}
+	}
 
-    controller.Config.Connections = newConnections
-    controller.saveConfig()
-    controller.SelectConnectionByName(newConnection.Name)
+	controller.Config.Connections = newConnections
+	controller.saveConfig()
+	controller.SelectConnectionByName(newConnection.Name)
 }
 
 func (controller *Controller) Send() {
