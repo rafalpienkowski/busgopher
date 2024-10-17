@@ -59,8 +59,9 @@ func (controller *Controller) SelectConnectionByName(name string) {
 }
 
 func (controller *Controller) SelectDestinationByName(name string) {
-	if controller.SelectedConnection != nil {
-		for _, dest := range controller.SelectedConnection.Destinations {
+	conn, ok := controller.Config.NConnections[controller.selectedConnectionName]
+	if ok {
+		for _, dest := range conn.Destinations {
 			if strings.EqualFold(dest, name) {
 				controller.selectedDestination = dest
 				controller.writeLog("Selected destination: " + name)
@@ -82,22 +83,25 @@ func (controller *Controller) SelectMessageByName(name string) {
 }
 
 func (controller *Controller) AddDestination(newDestination string) {
-	if controller.SelectedConnection == nil {
+	if len(controller.selectedConnectionName) == 0 {
 		controller.writeError("Connection not selected!")
 		return
 	}
 
-	for i, conn := range controller.Config.Connections {
-		if conn.Name == controller.SelectedConnection.Name {
-			(controller.Config.Connections)[i].Destinations = append(
-				conn.Destinations,
-				newDestination,
-			)
+	conn, ok := controller.Config.NConnections[controller.selectedConnectionName]
+	if ok {
 
-			controller.saveConfig()
-			controller.SelectConnectionByName(controller.SelectedConnection.Name)
-		}
+		conn.Destinations = append(
+			conn.Destinations,
+			newDestination,
+		)
+
+		controller.Config.NConnections[controller.selectedConnectionName] = conn
+		controller.saveConfig()
+		return
 	}
+
+	controller.writeError("Can't find selected connection" + controller.selectedConnectionName)
 }
 
 func (controller *Controller) RemoveDestination(destination string) {
@@ -267,12 +271,12 @@ func (controller *Controller) UpdateSelectedConnection(newConnection asb.Connect
 
 func (controller *Controller) Send() {
 
-	if controller.SelectedConnection == nil {
+	if len(controller.selectedConnectionName) == 0 {
 		controller.writeError("Connection not selected!")
 		return
 	}
 
-	if controller.selectedMessage == nil {
+	if len(controller.selectedMessageName) == 0 {
 		controller.writeError("Message not selected!")
 		return
 	}
@@ -283,10 +287,14 @@ func (controller *Controller) Send() {
 	}
 
 	controller.writeLog("Sending message to: " + controller.selectedDestination)
+	controller.writeLog(
+		"Sending message to: " + controller.Config.NConnections[controller.selectedConnectionName].Namespace,
+	)
+
 	err := controller.messageSender.Send(
-		controller.SelectedConnection.Namespace,
+		controller.Config.NConnections[controller.selectedConnectionName].Namespace,
 		controller.selectedDestination,
-		*controller.selectedMessage,
+		controller.Config.NMessages[controller.selectedMessageName],
 	)
 
 	if err != nil {

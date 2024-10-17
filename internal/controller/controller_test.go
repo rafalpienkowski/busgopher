@@ -109,19 +109,18 @@ func Test_Controller_Should_Write_Error_When_Selecting_NonExisting_Connection(t 
 	)
 }
 
-/*
-func TestControllerShouldSelectDestinationByName(t *testing.T) {
+func Test_Controller_Should_Select_Destination(t *testing.T) {
 	controller, _, _, _ := createTestController()
-	controller.SelectConnectionByName("test")
+	controller.SelectConnectionByName("test-connection")
 
 	controller.SelectDestinationByName("queue")
 
 	assert.Equal(t, "queue", controller.selectedDestination)
 }
 
-func TestControllerShouldWriteErrorWhenSelectingNontExistingQueueName(t *testing.T) {
+func Test_Controller_Should_Write_Error_When_Selecting_Non_Existing_Destination(t *testing.T) {
 	controller, _, _, buffer := createTestController()
-	controller.SelectConnectionByName("test")
+	controller.SelectConnectionByName("test-connection")
 
 	controller.SelectDestinationByName("non-existing")
 
@@ -132,7 +131,7 @@ func TestControllerShouldWriteErrorWhenSelectingNontExistingQueueName(t *testing
 	)
 }
 
-func TestControllerShouldWriteErrorWhenSelectingQueueWithoutSelectedConnection(t *testing.T) {
+func Test_Controller_Should_Write_Error_When_Selecting_Queue_Without_Connection(t *testing.T) {
 	controller, _, _, buffer := createTestController()
 
 	controller.SelectDestinationByName("queue")
@@ -143,7 +142,6 @@ func TestControllerShouldWriteErrorWhenSelectingQueueWithoutSelectedConnection(t
 		(trimDatePart(getLastLine(buffer.String()))),
 	)
 }
-*/
 
 func Test_Controller_Should_Select_Message(t *testing.T) {
 	controller, _, _, _ := createTestController()
@@ -165,8 +163,7 @@ func Test_Controller_Should_Write_Error_When_Selecting_NonExisting_Message(t *te
 	)
 }
 
-/*
-func TestControllerShouldNotSendWhenConnectionNotSelected(t *testing.T) {
+func Test_Controller_Should_Not_Send_When_Connection_Not_Selected(t *testing.T) {
 	controller, _, _, buffer := createTestController()
 
 	controller.Send()
@@ -178,10 +175,10 @@ func TestControllerShouldNotSendWhenConnectionNotSelected(t *testing.T) {
 	)
 }
 
-func TestControllerShouldNotSendWhenDestinationNotSelected(t *testing.T) {
+func Test_Controller_Should_Not_Send_When_Destination_Not_Selected(t *testing.T) {
 	controller, _, _, buffer := createTestController()
-	controller.SelectConnectionByName("test")
-	controller.SelectMessageByName("test")
+	controller.SelectConnectionByName("test-connection")
+	controller.SelectMessageByName("test-message")
 
 	controller.Send()
 
@@ -192,9 +189,9 @@ func TestControllerShouldNotSendWhenDestinationNotSelected(t *testing.T) {
 	)
 }
 
-func TestControllerShouldNotSendWhenMessageNotSelected(t *testing.T) {
+func Test_Controller_Should_Not_Send_When_Message_Not_Selected(t *testing.T) {
 	controller, _, _, buffer := createTestController()
-	controller.SelectConnectionByName("test")
+	controller.SelectConnectionByName("test-connection")
 	controller.SelectDestinationByName("queue")
 
 	controller.Send()
@@ -206,20 +203,20 @@ func TestControllerShouldNotSendWhenMessageNotSelected(t *testing.T) {
 	)
 }
 
-func TestControllerShouldSendMessage(t *testing.T) {
+func Test_Controller_Should_Send_Message(t *testing.T) {
 	controller, inMemoryConfig, messageSender, _ := createTestController()
-	controller.SelectConnectionByName("test")
+	controller.SelectConnectionByName("test-connection")
 	controller.SelectDestinationByName("queue")
-	controller.SelectMessageByName("test")
+	controller.SelectMessageByName("test-message")
 
 	controller.Send()
 
 	assert.Equal(t, "test.azure.com", messageSender.Namespace)
 	assert.Equal(t, "queue", messageSender.Destination)
-	assert.Equal(t, &(inMemoryConfig.Config.Messages)[0], &messageSender.Message)
+	assert.Equal(t, inMemoryConfig.Config.NMessages["test-message"], messageSender.Message)
 }
 
-func TestControllerShouldNotAddDestinationWhenConnectionNotSelected(t *testing.T) {
+func Test_Controller_Should_Not_Add_Destination_When_Connection_Not_Selected(t *testing.T) {
 	controller, _, _, buffer := createTestController()
 
 	controller.AddDestination("newDestination")
@@ -231,39 +228,23 @@ func TestControllerShouldNotAddDestinationWhenConnectionNotSelected(t *testing.T
 	)
 }
 
-func TestControllerShouldAddDestinationWhenConnectionSelected(t *testing.T) {
-	controller, inMemoryConfig, _, _ := createTestController()
-	controller.SelectConnectionByName("test")
+func Test_Controller_Should_Add_Destination_When_Connection_Selected(t *testing.T) {
+	controller, _, _, _ := createTestController()
+	controller.SelectConnectionByName("test-connection")
 
 	controller.AddDestination("newDestination")
 
-	assert.Equal(t, inMemoryConfig.Config,
-		config.Config{
-			Connections: []asb.Connection{
-				{
-					Name:      "test",
-					Namespace: "test.azure.com",
-					Destinations: []string{
-						"queue",
-						"topic",
-						"newDestination",
-					},
-				},
-			},
-			Messages: []asb.Message{
-				{
-					Name: "test",
-					Body: "test msg body",
-				},
-			},
-		})
 	assert.Equal(
 		t,
 		[]string{"queue", "topic", "newDestination"},
-		controller.SelectedConnection.Destinations,
+		controller.Config.NConnections["test-connection"].Destinations,
 	)
 }
 
+func Test_Controller_Should_Save_Config_After_Adding_Destination(t *testing.T) {
+}
+
+/*
 func TestControllerShouldNotRemoveDestinationWhenConnectionNotSelected(t *testing.T) {
 	controller, inMemoryConfig, _, _ := createTestController()
 
