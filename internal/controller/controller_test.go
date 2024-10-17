@@ -145,15 +145,15 @@ func TestControllerShouldWriteErrorWhenSelectingQueueWithoutSelectedConnection(t
 }
 */
 
-func TestControllerShouldSetMessageByName(t *testing.T) {
-	controller, inMemoryConfig, _, _ := createTestController()
+func Test_Controller_Should_Select_Message(t *testing.T) {
+	controller, _, _, _ := createTestController()
 
-	controller.SelectMessageByName("test")
+	controller.SelectMessageByName("test-message")
 
-	assert.Equal(t, &(inMemoryConfig.Config.Messages)[0], controller.selectedMessage)
+	assert.Equal(t, "test-message", controller.selectedMessageName)
 }
 
-func TestControllerShouldWriteErrorWhenSelectingNonExistingMessage(t *testing.T) {
+func Test_Controller_Should_Write_Error_When_Selecting_NonExisting_Message(t *testing.T) {
 	controller, _, _, buffer := createTestController()
 
 	controller.SelectMessageByName("non-existing")

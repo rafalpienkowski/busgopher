@@ -18,7 +18,8 @@ type Controller struct {
 	selectedMessage     *asb.Message
 	selectedDestination string
 
-    selectedConnectionName string
+	selectedConnectionName string
+	selectedMessageName    string
 
 	messageSender asb.MessageSender
 	logsWriter    io.Writer
@@ -71,12 +72,11 @@ func (controller *Controller) SelectDestinationByName(name string) {
 }
 
 func (controller *Controller) SelectMessageByName(name string) {
-	for _, msg := range controller.Config.Messages {
-		if strings.EqualFold(msg.Name, name) {
-			controller.selectedMessage = &msg
-			controller.writeLog("Selected message: " + msg.Name)
-			return
-		}
+	_, ok := controller.Config.NMessages[name]
+	if ok {
+		controller.selectedMessageName = name
+		controller.writeLog("Selected message: " + name)
+		return
 	}
 	controller.writeError("Can't find message with name: " + name)
 }
