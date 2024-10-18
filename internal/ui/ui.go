@@ -121,9 +121,9 @@ func NewUI() *UI {
 
 func (ui *UI) refreshDestinations() {
 	ui.Destinations.Clear()
-	for _, entity := range ui.controller.SelectedConnection.Destinations {
-		ui.Destinations.AddItem(entity, entity, 0, func() {
-			ui.controller.SelectDestinationByName(entity)
+	for _, name := range ui.controller.GetDestiationNamesForSelectedConnection() {
+		ui.Destinations.AddItem(name, name, 0, func() {
+			ui.controller.SelectDestinationByName(name)
 		})
 	}
 }
