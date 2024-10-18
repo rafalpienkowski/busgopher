@@ -5,20 +5,12 @@ import (
 )
 
 type Config struct {
-	Connections []asb.Connection `json:"connections"`
-	Messages    []asb.Message    `json:"messages"`
-
-	NConnections map[string]asb.Connection `json:"nconnections"`
-	NMessages    map[string]asb.Message    `json:"nmessages"`
+	NConnections map[string]asb.Connection `json:"connections"`
+	NMessages    map[string]asb.Message    `json:"messages"`
 }
 
 func (config Config) Default() *Config {
-	messages := []asb.Message{}
-	connections := []asb.Connection{}
-
 	return &Config{
-		Connections:  connections,
-		Messages:     messages,
 		NConnections: make(map[string]asb.Connection),
 		NMessages:    make(map[string]asb.Message),
 	}

@@ -67,15 +67,15 @@ func NewUI() *UI {
 
 	// Configure appearence
 	ui.Connections.SetTitle(" Connections: ").SetBorder(true)
-	ui.Connections.Box.SetBackgroundColor(ui.theme.backgroundColor)
+	ui.Connections.SetBackgroundColor(ui.theme.backgroundColor)
 	ui.Connections.SetMainTextStyle(ui.theme.style)
 
 	ui.Destinations.SetTitle(" Destinations: ").SetBorder(true)
-	ui.Destinations.Box.SetBackgroundColor(ui.theme.backgroundColor)
+	ui.Destinations.SetBackgroundColor(ui.theme.backgroundColor)
 	ui.Destinations.SetMainTextStyle(ui.theme.style)
 
 	ui.Messages.SetTitle(" Messages: ").SetBorder(true)
-	ui.Messages.Box.SetBackgroundColor(ui.theme.backgroundColor)
+	ui.Messages.SetBackgroundColor(ui.theme.backgroundColor)
 	ui.Messages.SetMainTextStyle(ui.theme.style)
 
 	ui.Content.SetTitle(" Content: ").SetBorder(true)
@@ -132,14 +132,14 @@ func (ui *UI) LoadData(controller *controller.Controller) {
 
 	ui.controller = controller
 
-	for _, conn := range ui.controller.Config.Connections {
+	for _, conn := range ui.controller.Config.NConnections {
 		ui.Connections.AddItem(conn.Name, conn.Namespace, 0, func() {
 			ui.controller.SelectConnectionByName(conn.Name)
 			ui.refreshDestinations()
 		})
 	}
 
-	for _, msg := range ui.controller.Config.Messages {
+	for _, msg := range ui.controller.Config.NMessages {
 		ui.Messages.AddItem(msg.Name, msg.Subject, 0, func() {
 			ui.controller.SelectMessageByName(msg.Name)
 			ui.printContent(msg.Print())

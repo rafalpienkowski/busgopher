@@ -30,23 +30,7 @@ func getInMemoryConfig() *config.InMemoryConfigStorage {
 
 	return &config.InMemoryConfigStorage{
 		Config: config.Config{
-			Connections: []asb.Connection{
-				{
-					Name:      "test",
-					Namespace: "test.azure.com",
-					Destinations: []string{
-						"queue",
-						"topic",
-					},
-				},
-			},
 			NConnections: nconnections,
-			Messages: []asb.Message{
-				{
-					Name: "test",
-					Body: "test msg body",
-				},
-			},
 			NMessages: nmessages,
 		},
 	}
