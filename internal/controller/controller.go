@@ -105,166 +105,128 @@ func (controller *Controller) AddDestination(newDestination string) {
 }
 
 func (controller *Controller) RemoveDestination(destination string) {
-	if controller.SelectedConnection == nil {
+	if len(controller.selectedConnectionName) == 0 {
 		controller.writeError("Connection not selected!")
 		return
 	}
 
-	for i, conn := range controller.Config.Connections {
-		if conn.Name == controller.SelectedConnection.Name {
-			newDestinations := []string{}
-			for _, d := range conn.Destinations {
-				if d != destination {
-					newDestinations = append(newDestinations, d)
-				}
-			}
+	conn, ok := controller.Config.NConnections[controller.selectedConnectionName]
+	if !ok {
+		controller.writeError("Connection not found!")
+		return
+	}
 
-			if len(newDestinations) == len(conn.Destinations) {
-				controller.writeError("Nothing to remove!")
-				return
-			}
-
-			controller.Config.Connections[i].Destinations = newDestinations
-
-			controller.saveConfig()
-			controller.SelectConnectionByName(controller.SelectedConnection.Name)
+	newDestinations := []string{}
+	for _, d := range conn.Destinations {
+		if d != destination {
+			newDestinations = append(newDestinations, d)
 		}
 	}
+
+	if len(newDestinations) == len(conn.Destinations) {
+		controller.writeError("Nothing to remove!")
+		return
+	}
+
+	controller.Config.NConnections[controller.selectedConnectionName] = conn
+
+	controller.saveConfig()
 }
 
 func (controller *Controller) UpdateDestination(oldDestination string, newDestination string) {
-	if controller.SelectedConnection == nil {
+	if len(controller.selectedConnectionName) == 0 {
 		controller.writeError("Connection not selected!")
 		return
 	}
 
-	for i, conn := range controller.Config.Connections {
-		if conn.Name == controller.SelectedConnection.Name {
-			newDestinations := []string{}
-			for _, d := range conn.Destinations {
-				if d == oldDestination {
-					newDestinations = append(newDestinations, newDestination)
-				} else {
-					newDestinations = append(newDestinations, d)
-				}
-			}
+	conn, ok := controller.Config.NConnections[controller.selectedConnectionName]
+	if !ok {
+		controller.writeError("Connection not found!")
+		return
+	}
 
-			controller.Config.Connections[i].Destinations = newDestinations
-
-			controller.saveConfig()
-			controller.SelectConnectionByName(controller.SelectedConnection.Name)
+	newDestinations := []string{}
+	for _, d := range conn.Destinations {
+		if d == oldDestination {
+			newDestinations = append(newDestinations, newDestination)
+		} else {
+			newDestinations = append(newDestinations, d)
 		}
 	}
+	conn.Destinations = newDestinations
+
+	controller.Config.NConnections[controller.selectedConnectionName] = conn
+
+	controller.saveConfig()
 }
 
 func (controller *Controller) AddMessage(message asb.Message) {
-
-	for _, msg := range controller.Config.Messages {
-		if msg.Name == message.Name {
-			controller.writeError("Message with name " + message.Name + " already exist")
-			return
-		}
+	_, ok := controller.Config.NMessages[message.Name]
+	if ok {
+		controller.writeError("Message with name " + message.Name + " already exist")
+		return
 	}
-
-	controller.Config.Messages = append(controller.Config.Messages, message)
+	controller.Config.NMessages[message.Name] = message
 
 	controller.saveConfig()
 }
 
 func (controller *Controller) RemoveMessage(name string) {
+	delete(controller.Config.NMessages, name)
 
-	newMessages := []asb.Message{}
-	for _, msg := range controller.Config.Messages {
-		if msg.Name != name {
-			newMessages = append(newMessages, msg)
-		}
-	}
-	if len(newMessages) == len(controller.Config.Messages) {
-		controller.writeError("No message to remove")
-		return
-	}
-
-	controller.Config.Messages = newMessages
+	controller.selectedMessageName = ""
 
 	controller.saveConfig()
 }
 
 func (controller *Controller) UpdateMessage(message asb.Message) {
-	if controller.selectedMessage == nil {
-		controller.writeError("Message not selected!")
+	_, ok := controller.Config.NMessages[message.Name]
+	if !ok {
+		controller.writeError("Message with name " + message.Name + " not found")
 		return
 	}
-
-	newMessages := []asb.Message{}
-	for _, msg := range controller.Config.Messages {
-		if msg.Name != controller.selectedMessage.Name {
-			newMessages = append(newMessages, msg)
-		} else {
-			newMessages = append(newMessages, message)
-		}
-	}
-
-	controller.Config.Messages = newMessages
+	controller.Config.NMessages[message.Name] = message
 
 	controller.saveConfig()
-	controller.SelectMessageByName(message.Name)
 }
 
-func (controller *Controller) RemoveSelectedConnection() {
-	if controller.SelectedConnection == nil {
-		controller.writeError("Connection not selected!")
+func (controller *Controller) RemoveConnection(name string) {
+
+	_, ok := controller.Config.NConnections[name]
+	if !ok {
+		controller.writeError("Connection not found")
 		return
 	}
 
-	newConnections := []asb.Connection{}
-	for _, conn := range controller.Config.Connections {
-		if conn.Name != controller.SelectedConnection.Name {
-			newConnections = append(newConnections, conn)
-		}
-	}
+	delete(controller.Config.NConnections, name)
 
-	if len(newConnections) == len(controller.Config.Connections) {
-		controller.writeError("No connection to remove")
-		return
-	}
-
-	controller.Config.Connections = newConnections
 	controller.saveConfig()
-	controller.SelectedConnection = nil
+	if controller.selectedConnectionName == name {
+		controller.selectedConnectionName = ""
+	}
 }
 
 func (controller *Controller) AddConnection(newConnection *asb.Connection) {
-	newConnections := []asb.Connection{}
-	for _, conn := range controller.Config.Connections {
-		if conn.Name == newConnection.Name {
-			controller.writeError("Connection '" + newConnection.Name + "' exist")
-			return
-		} else {
-			newConnections = append(newConnections, conn)
-		}
-	}
-	newConnections = append(newConnections, *newConnection)
 
-	controller.Config.Connections = newConnections
+	_, ok := controller.Config.NConnections[newConnection.Name]
+	if ok {
+		controller.writeError("Connection '" + newConnection.Name + "' exist")
+        return
+	}
+
+    controller.Config.NConnections[newConnection.Name] = *newConnection
 	controller.saveConfig()
 }
 
 func (controller *Controller) UpdateSelectedConnection(newConnection asb.Connection) {
-	if controller.SelectedConnection == nil {
-		controller.writeError("Connection not selected!")
-		return
+	_, ok := controller.Config.NConnections[controller.selectedConnectionName]
+	if !ok {
+		controller.writeError("Connection '" + controller.selectedConnectionName + "' not exist")
+        return
 	}
+    delete(controller.Config.NConnections, controller.selectedConnectionName)
 
-	newConnections := []asb.Connection{}
-	for _, conn := range controller.Config.Connections {
-		if conn.Name == controller.SelectedConnection.Name {
-			newConnections = append(newConnections, newConnection)
-		} else {
-			newConnections = append(newConnections, conn)
-		}
-	}
-
-	controller.Config.Connections = newConnections
+    controller.Config.NConnections[newConnection.Name] = newConnection
 	controller.saveConfig()
 	controller.SelectConnectionByName(newConnection.Name)
 }
