@@ -608,3 +608,37 @@ func Test_Controller_Should_Update_Connection(t *testing.T) {
 	}
 	assert.Equal(t, nconnections, inMemoryConfig.Config.NConnections)
 }
+
+func Test_Controller_Should_Select_New_Connection(t *testing.T) {
+	controller, _, _, _ := createTestController()
+	newConn := asb.Connection{
+		Name:      "new-connection",
+		Namespace: "newtest.azure.com",
+		Destinations: []string{
+			"new-queue",
+		},
+	}
+	controller.SelectConnectionByName("test-connection")
+	controller.UpdateSelectedConnection(newConn)
+
+	assert.Equal(t, "new-connection", controller.selectedConnectionName)
+}
+
+func Test_Controller_Should_Write_Error_When_Connection_For_Update_Not_Selected(t *testing.T){
+	controller, _, _, buffer := createTestController()
+	newConn := asb.Connection{
+		Name:      "new-connection",
+		Namespace: "newtest.azure.com",
+		Destinations: []string{
+			"new-queue",
+		},
+	}
+
+	controller.UpdateSelectedConnection(newConn)
+
+	assert.Equal(
+		t,
+		"[Error] Connection not selected",
+		(trimDatePart(getLastLine(buffer.String()))),
+	)
+}

@@ -219,6 +219,12 @@ func (controller *Controller) AddConnection(newConnection *asb.Connection) {
 }
 
 func (controller *Controller) UpdateSelectedConnection(newConnection asb.Connection) {
+
+    if len(controller.selectedConnectionName) == 0 {
+		controller.writeError("Connection not selected")
+        return
+    }
+
 	_, ok := controller.Config.NConnections[controller.selectedConnectionName]
 	if !ok {
 		controller.writeError("Connection '" + controller.selectedConnectionName + "' not exist")
