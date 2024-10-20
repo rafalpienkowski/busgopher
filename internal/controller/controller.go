@@ -20,12 +20,15 @@ type Controller struct {
 
 	messageSender asb.MessageSender
 	logsWriter    io.Writer
+	print         Print
 }
+
+type Print func(string)
 
 func NewController(
 	configStorage config.ConfigStorage,
 	messageSender asb.MessageSender,
-	logsWriter io.Writer,
+	print Print,
 ) (*Controller, error) {
 
 	config, err := configStorage.Load()
@@ -36,8 +39,8 @@ func NewController(
 	controller := Controller{}
 	controller.Config = config
 	controller.messageSender = messageSender
-	controller.logsWriter = logsWriter
 	controller.configStorage = configStorage
+	controller.print = print
 
 	return &controller, nil
 }
@@ -80,11 +83,11 @@ func (controller *Controller) SelectMessageByName(name string) {
 }
 
 func (controller *Controller) GetDestiationNamesForSelectedConnection() []string {
-    if len(controller.selectedConnectionName) == 0 {
-        return []string{}
-    }
+	if len(controller.selectedConnectionName) == 0 {
+		return []string{}
+	}
 
-    return controller.Config.NConnections[controller.selectedConnectionName].Destinations
+	return controller.Config.NConnections[controller.selectedConnectionName].Destinations
 }
 
 func (controller *Controller) AddDestination(newDestination string) {
@@ -277,21 +280,19 @@ func (controller *Controller) Send() {
 }
 
 func (controller *Controller) writeLog(log string) {
-	fmt.Fprintf(
-		controller.logsWriter,
+	controller.print(fmt.Sprintf(
 		"[%v]: [Info] %v\n",
 		time.Now().Format("2006-01-02 15:04:05"),
 		log,
-	)
+	))
 }
 
 func (controller *Controller) writeError(log string) {
-	fmt.Fprintf(
-		controller.logsWriter,
+	controller.print(fmt.Sprintf(
 		"[%v]: [Error] %v\n",
 		time.Now().Format("2006-01-02 15:04:05"),
 		log,
-	)
+	))
 }
 
 func (controller *Controller) saveconfig() {

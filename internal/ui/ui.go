@@ -2,7 +2,6 @@ package ui
 
 import (
 	"fmt"
-	"time"
 
 	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
@@ -143,8 +142,8 @@ func (ui *UI) Start() error {
 	return ui.App.SetRoot(ui.Flex, true).SetFocus(ui.Connections).EnableMouse(false).Run()
 }
 
-func (ui *UI) printLog(logMsg string) {
-	fmt.Fprintf(ui.Logs, "[%v]: %v\n", time.Now().Format("2006-01-02 15:04:05"), logMsg)
+func (ui *UI) PrintLog(logMsg string) {
+	fmt.Fprintf(ui.Logs, "%v", logMsg)
 
 	getAvailableRows := func() int {
 		_, _, _, height := ui.Logs.GetRect()

@@ -32,8 +32,11 @@ func main() {
 			*destination,
 			*message,
 		)
+		controller, err := controller.NewController(
+            configStorage, 
+            messageSender,
+			func(s string) { fmt.Fprintf(os.Stdout, "%v", s) })
 
-		controller, err := controller.NewController(configStorage, messageSender, os.Stdout)
 		if err != nil {
 			fmt.Printf("Failed to start controller: %v\n", err)
 			os.Exit(1)
@@ -45,7 +48,7 @@ func main() {
 		controller.Send()
 	} else {
 		ui := ui.NewUI()
-		controller, err := controller.NewController(configStorage, messageSender, ui.Logs)
+		controller, err := controller.NewController(configStorage, messageSender, ui.PrintLog)
 		if err != nil {
 			fmt.Printf("Failed to start controller: %v\n", err)
 			os.Exit(1)

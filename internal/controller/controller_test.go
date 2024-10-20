@@ -2,6 +2,7 @@ package controller
 
 import (
 	"bytes"
+	"fmt"
 	"io"
 	"strings"
 	"testing"
@@ -31,7 +32,7 @@ func getInMemoryConfig() *config.InMemoryConfigStorage {
 	return &config.InMemoryConfigStorage{
 		Config: config.Config{
 			NConnections: nconnections,
-			NMessages: nmessages,
+			NMessages:    nmessages,
 		},
 	}
 }
@@ -60,7 +61,11 @@ func createTestController() (*Controller, *config.InMemoryConfigStorage, *asb.In
 	var buffer bytes.Buffer
 	var writer io.Writer = &buffer
 
-	controller, _ := NewController(testConfig, testMessageSender, writer)
+	controller, _ := NewController(
+		testConfig,
+		testMessageSender,
+		func(s string) { fmt.Fprintf(writer, "%v", s) },
+	)
 
 	return controller, inMemoryConfig, inMemoryMessageSender, &buffer
 }
@@ -608,7 +613,7 @@ func Test_Controller_Should_Select_New_Connection(t *testing.T) {
 	assert.Equal(t, "new-connection", controller.selectedConnectionName)
 }
 
-func Test_Controller_Should_Write_Error_When_Connection_For_Update_Not_Selected(t *testing.T){
+func Test_Controller_Should_Write_Error_When_Connection_For_Update_Not_Selected(t *testing.T) {
 	controller, _, _, buffer := createTestController()
 	newConn := asb.Connection{
 		Name:      "new-connection",
