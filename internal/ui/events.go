@@ -40,11 +40,13 @@ func (ui *UI) setAfterDrawFunc(screen tcell.Screen) {
 }
 
 func (ui *UI) setInputCapture(event *tcell.EventKey) *tcell.EventKey {
-	if event.Key() == tcell.KeyTab {
+	switch event.Key() {
+	case tcell.KeyTab:
 		ui.cycleFocus(false)
-	} else if event.Key() == tcell.KeyBacktab {
+	case tcell.KeyBacktab:
 		ui.cycleFocus(true)
 	}
+
 	return event
 }
 
