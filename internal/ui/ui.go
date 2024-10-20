@@ -16,7 +16,9 @@ type UI struct {
 	// View components
 	theme        Theme
 	App          *tview.Application
-	Flex         *tview.Flex
+    pages        *tview.Pages
+	sendingFlex     *tview.Flex
+    formFlex     *tview.Flex
 	Connections  *tview.List
 	Destinations *tview.List
 	Messages     *tview.List
@@ -24,6 +26,7 @@ type UI struct {
 	Logs         *tview.TextView
 	Send         *BoxButton
 	Close        *BoxButton
+	form         *tview.Form
 
 	inputs []tview.Primitive
 }
@@ -34,6 +37,11 @@ func NewUI() *UI {
 	// Create UI elements
 	ui.theme = Dark()
 	ui.App = tview.NewApplication()
+    ui.pages = tview.NewPages()
+	ui.sendingFlex = tview.NewFlex()
+    ui.formFlex = tview.NewFlex()
+    ui.form = tview.NewForm()
+
 	ui.Connections = tview.NewList().
 		ShowSecondaryText(false).
 		SetWrapAround(true).
@@ -83,6 +91,9 @@ func NewUI() *UI {
 	ui.Logs.SetTitle(" Logs: ").SetBorder(true)
 	ui.Logs.SetBackgroundColor(ui.theme.backgroundColor)
 
+    ui.form.SetBackgroundColor(ui.theme.backgroundColor)
+    ui.form.SetButtonStyle(ui.theme.style)
+
 	// Set layouts
 	left := tview.NewFlex().SetDirection(tview.FlexRow).
 		AddItem(ui.Connections, 0, 1, true).
@@ -100,10 +111,25 @@ func NewUI() *UI {
 		AddItem(actions, 3, 0, false).
 		AddItem(ui.Logs, 0, 1, false)
 
-	ui.Flex = tview.NewFlex().
+    ui.sendingFlex.
+        SetBorder(true).
+        SetBackgroundColor(ui.theme.backgroundColor).
+        SetTitle("Sending messages")
+
+    ui.sendingFlex.
 		AddItem(left, 0, 1, false).
 		AddItem(right, 0, 3, false)
 
+    ui.formFlex.AddItem(ui.form, 0, 1, false)
+
+    ui.formFlex.
+        SetBorder(true).
+        SetBackgroundColor(ui.theme.backgroundColor)
+
+    ui.pages.
+        AddPage("sending", ui.sendingFlex, true, true).
+        AddPage("form", ui.formFlex, true, false)
+    
 	ui.App.SetAfterDrawFunc(ui.setAfterDrawFunc)
 	ui.App.SetInputCapture(ui.setInputCapture)
 
@@ -139,7 +165,7 @@ func (ui *UI) LoadData(controller *controller.Controller) {
 }
 
 func (ui *UI) Start() error {
-	return ui.App.SetRoot(ui.Flex, true).SetFocus(ui.Connections).EnableMouse(false).Run()
+	return ui.App.SetRoot(ui.pages, true).SetFocus(ui.Connections).EnableMouse(true).Run()
 }
 
 func (ui *UI) PrintLog(logMsg string) {
