@@ -146,25 +146,29 @@ func (ui *UI) refreshDestinations() {
 }
 
 func (ui *UI) LoadData(controller *controller.Controller) {
-
 	ui.controller = controller
 	ui.refreshConnections()
+	ui.refreshMessages()
+}
+
+func (ui *UI) refreshConnections() {
+
+	ui.connections.Clear()
+	for _, conn := range ui.controller.Config.NConnections {
+		ui.connections.AddItem(conn.Name, conn.Namespace, 0, func() {
+			ui.controller.SelectConnectionByName(conn.Name)
+			ui.refreshDestinations()
+		})
+	}
+}
+
+func (ui *UI) refreshMessages() {
+	ui.messages.Clear()
 
 	for _, msg := range ui.controller.Config.NMessages {
 		ui.messages.AddItem(msg.Name, msg.Subject, 0, func() {
 			ui.controller.SelectMessageByName(msg.Name)
 			ui.printContent(msg.Print())
-		})
-	}
-}
-
-func (ui *UI) refreshConnections() {
-
-    ui.connections.Clear()
-	for _, conn := range ui.controller.Config.NConnections {
-		ui.connections.AddItem(conn.Name, conn.Namespace, 0, func() {
-			ui.controller.SelectConnectionByName(conn.Name)
-			ui.refreshDestinations()
 		})
 	}
 }
