@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	"strings"
@@ -214,16 +215,16 @@ func (controller *Controller) RemoveConnection(name string) {
 	}
 }
 
-func (controller *Controller) AddConnection(newConnection *asb.Connection) {
+func (controller *Controller) AddConnection(newConnection *asb.Connection) error {
 
 	_, ok := controller.Config.NConnections[newConnection.Name]
 	if ok {
-		controller.writeError("Connection '" + newConnection.Name + "' exist")
-		return
+		return errors.New("Connection '" + newConnection.Name + "' exist")
 	}
 
 	controller.Config.NConnections[newConnection.Name] = *newConnection
 	controller.saveconfig()
+    return nil
 }
 
 func (controller *Controller) UpdateSelectedConnection(newConnection asb.Connection) {

@@ -2,6 +2,8 @@ package ui
 
 import (
 	"github.com/gdamore/tcell/v2"
+	"github.com/rafalpienkowski/busgopher/internal/asb"
+	"github.com/rivo/tview"
 )
 
 func (ui *UI) queueUpdateDraw(f func()) {
@@ -80,30 +82,6 @@ func (ui *UI) setInputCapture(event *tcell.EventKey) *tcell.EventKey {
 	}
 
 	return event
-}
-
-func (ui *UI) addConnection() {
-	ui.PrintLog("Addding new connection\n")
-
-	ui.form = ui.form.Clear(true)
-	ui.form.
-		AddInputField("Connection name", "", 0, nil, nil).
-        AddInputField("Service Bus namespace", "", 0, nil, nil).
-		AddButton("Add", func() {
-			ui.pages.SwitchToPage("sending")
-			ui.app.SetFocus(ui.connections)
-		}).
-		AddButton("Quit", func() {
-			ui.pages.SwitchToPage("sending")
-			ui.app.SetFocus(ui.connections)
-		}).
-        SetFieldBackgroundColor(ui.theme.foregroundColor).
-        SetFieldTextColor(ui.theme.backgroundColor)
-
-	ui.formFlex.SetTitle("Add new connection")
-	ui.pages.SwitchToPage("form")
-	ui.app.SetFocus(ui.formFlex)
-	ui.app.SetFocus(ui.form)
 }
 
 func (ui *UI) cycleFocus(reverse bool) {

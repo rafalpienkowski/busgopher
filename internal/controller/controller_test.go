@@ -2,6 +2,7 @@ package controller
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"io"
 	"strings"
@@ -560,19 +561,16 @@ func Test_Controller_Should_Not_Add_New_Connection_When_Name_Exist(t *testing.T)
 }
 
 func Test_Controller_Should_Write_Error_When_Add_New_Connection_And_Name_Exist(t *testing.T) {
-	controller, _, _, buffer := createTestController()
+	controller, _, _, _ := createTestController()
 	newConn := asb.Connection{
 		Name:      "test-connection",
 		Namespace: "new.azure.com",
 	}
 
-	controller.AddConnection(&newConn)
+    err := controller.AddConnection(&newConn)
 
-	assert.Equal(
-		t,
-		"[Error] Connection 'test-connection' exist",
-		(trimDatePart(getLastLine(buffer.String()))),
-	)
+    expectedError := errors.New("Connection 'test-connection' exist")
+    assert.Error(t, expectedError, err)
 }
 
 func Test_Controller_Should_Update_Connection(t *testing.T) {
