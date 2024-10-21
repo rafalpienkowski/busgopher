@@ -2,7 +2,6 @@ package ui
 
 import (
 	"github.com/gdamore/tcell/v2"
-	"github.com/rivo/tview"
 )
 
 func (ui *UI) queueUpdateDraw(f func()) {
@@ -97,14 +96,9 @@ func (ui *UI) addConnection() {
 		AddButton("Quit", func() {
 			ui.pages.SwitchToPage("sending")
 			ui.app.SetFocus(ui.connections)
-		})
-
-	for idx := range (ui.form.GetButtonCount() - 1) {
-		ui.form.GetFormItem(idx).(*tview.InputField).
-            SetFieldBackgroundColor(ui.theme.backgroundColor).
-			SetFieldTextColor(ui.theme.backgroundColor).
-			SetLabelColor(ui.theme.foregroundColor)
-	}
+		}).
+        SetFieldBackgroundColor(ui.theme.foregroundColor).
+        SetFieldTextColor(ui.theme.backgroundColor)
 
 	ui.formFlex.SetTitle("Add new connection")
 	ui.pages.SwitchToPage("form")
@@ -115,7 +109,6 @@ func (ui *UI) addConnection() {
 func (ui *UI) cycleFocus(reverse bool) {
 	currentPage, _ := ui.pages.GetFrontPage()
 	if currentPage == "form" {
-		ui.PrintLog("form next")
 		return
 	}
 
