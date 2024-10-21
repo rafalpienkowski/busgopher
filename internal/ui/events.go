@@ -7,19 +7,19 @@ import (
 
 func (ui *UI) queueUpdateDraw(f func()) {
 	go func() {
-		ui.App.QueueUpdateDraw(f)
+		ui.app.QueueUpdateDraw(f)
 	}()
 }
 
 func (ui *UI) setAfterDrawFunc(screen tcell.Screen) {
 	ui.queueUpdateDraw(func() {
-		p := ui.App.GetFocus()
+		p := ui.app.GetFocus()
 
 		ui.connections.SetBorderColor(tcell.ColorWhite)
 		ui.destinations.SetBorderColor(tcell.ColorWhite)
 		ui.messages.SetBorderColor(tcell.ColorWhite)
 		ui.content.SetBorderColor(tcell.ColorWhite)
-		ui.Logs.SetBorderColor(tcell.ColorWhite)
+		ui.logs.SetBorderColor(tcell.ColorWhite)
 		ui.send.SetBorderColor(tcell.ColorWhite)
 		ui.close.SetBorderColor(tcell.ColorWhite)
 
@@ -32,8 +32,8 @@ func (ui *UI) setAfterDrawFunc(screen tcell.Screen) {
 			ui.messages.SetBorderColor(tcell.ColorBlue)
 		case ui.content:
 			ui.content.SetBorderColor(tcell.ColorBlue)
-		case ui.Logs:
-			ui.Logs.SetBorderColor(tcell.ColorBlue)
+		case ui.logs:
+			ui.logs.SetBorderColor(tcell.ColorBlue)
 		case ui.send:
 			ui.send.SetBorderColor(tcell.ColorBlue)
 		case ui.close:
@@ -49,7 +49,7 @@ func (ui *UI) setInputCapture(event *tcell.EventKey) *tcell.EventKey {
 	case tcell.KeyBacktab:
 		ui.cycleFocus(true)
 	case tcell.KeyCtrlN:
-		p := ui.App.GetFocus()
+		p := ui.app.GetFocus()
 		switch p {
 		case ui.connections:
 			ui.addConnection()
@@ -59,7 +59,7 @@ func (ui *UI) setInputCapture(event *tcell.EventKey) *tcell.EventKey {
 			ui.PrintLog("New message")
 		}
 	case tcell.KeyCtrlU:
-		p := ui.App.GetFocus()
+		p := ui.app.GetFocus()
 		switch p {
 		case ui.connections:
 			ui.PrintLog("Update connection")
@@ -69,7 +69,7 @@ func (ui *UI) setInputCapture(event *tcell.EventKey) *tcell.EventKey {
 			ui.PrintLog("Update message")
 		}
 	case tcell.KeyCtrlD:
-		p := ui.App.GetFocus()
+		p := ui.app.GetFocus()
 		switch p {
 		case ui.connections:
 			ui.PrintLog("Delete connection")
@@ -92,11 +92,11 @@ func (ui *UI) addConnection() {
         AddInputField("Service Bus namespace", "", 0, nil, nil).
 		AddButton("Add", func() {
 			ui.pages.SwitchToPage("sending")
-			ui.App.SetFocus(ui.connections)
+			ui.app.SetFocus(ui.connections)
 		}).
 		AddButton("Quit", func() {
 			ui.pages.SwitchToPage("sending")
-			ui.App.SetFocus(ui.connections)
+			ui.app.SetFocus(ui.connections)
 		})
 
 	for idx := range (ui.form.GetButtonCount() - 1) {
@@ -108,8 +108,8 @@ func (ui *UI) addConnection() {
 
 	ui.formFlex.SetTitle("Add new connection")
 	ui.pages.SwitchToPage("form")
-	ui.App.SetFocus(ui.formFlex)
-	ui.App.SetFocus(ui.form)
+	ui.app.SetFocus(ui.formFlex)
+	ui.app.SetFocus(ui.form)
 }
 
 func (ui *UI) cycleFocus(reverse bool) {
@@ -133,7 +133,7 @@ func (ui *UI) cycleFocus(reverse bool) {
 			i = i + 1
 			i = i % len(ui.inputs)
 		}
-		ui.App.SetFocus(ui.inputs[i])
+		ui.app.SetFocus(ui.inputs[i])
 		return
 	}
 }

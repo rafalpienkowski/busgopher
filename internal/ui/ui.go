@@ -15,7 +15,7 @@ type UI struct {
 
 	// View components
 	theme        Theme
-	App          *tview.Application
+	app          *tview.Application
     pages        *tview.Pages
 	sendingFlex     *tview.Flex
     formFlex     *tview.Flex
@@ -23,7 +23,7 @@ type UI struct {
 	destinations *tview.List
 	messages     *tview.List
 	content      *tview.TextView
-	Logs         *tview.TextView
+	logs         *tview.TextView
 	send         *BoxButton
 	close        *BoxButton
 	form         *tview.Form
@@ -36,7 +36,7 @@ func NewUI() *UI {
 
 	// Create UI elements
 	ui.theme = Dark()
-	ui.App = tview.NewApplication()
+	ui.app = tview.NewApplication()
     ui.pages = tview.NewPages()
 	ui.sendingFlex = tview.NewFlex()
     ui.formFlex = tview.NewFlex()
@@ -55,12 +55,12 @@ func NewUI() *UI {
 		SetWrapAround(true).
 		SetHighlightFullLine(true)
 	ui.content = tview.NewTextView()
-	ui.Logs = tview.NewTextView()
+	ui.logs = tview.NewTextView()
 	ui.send = ui.send.NewBoxButton("Send").SetSelectedFunc(func() {
 		ui.controller.Send()
 	})
 	ui.close = ui.close.NewBoxButton("Close").SetSelectedFunc(func() {
-		ui.App.Stop()
+		ui.app.Stop()
 	})
 
 	ui.inputs = []tview.Primitive{
@@ -88,8 +88,8 @@ func NewUI() *UI {
 	ui.content.SetTitle(" Content: ").SetBorder(true)
 	ui.content.SetBackgroundColor(ui.theme.backgroundColor)
 
-	ui.Logs.SetTitle(" Logs: ").SetBorder(true)
-	ui.Logs.SetBackgroundColor(ui.theme.backgroundColor)
+	ui.logs.SetTitle(" Logs: ").SetBorder(true)
+	ui.logs.SetBackgroundColor(ui.theme.backgroundColor)
 
     ui.form.SetBackgroundColor(ui.theme.backgroundColor)
     ui.form.SetButtonStyle(ui.theme.style)
@@ -109,7 +109,7 @@ func NewUI() *UI {
 	right := tview.NewFlex().SetDirection(tview.FlexRow).
 		AddItem(ui.content, 0, 3, false).
 		AddItem(actions, 3, 0, false).
-		AddItem(ui.Logs, 0, 1, false)
+		AddItem(ui.logs, 0, 1, false)
 
     ui.sendingFlex.
         SetBorder(true).
@@ -130,8 +130,8 @@ func NewUI() *UI {
         AddPage("sending", ui.sendingFlex, true, true).
         AddPage("form", ui.formFlex, true, false)
     
-	ui.App.SetAfterDrawFunc(ui.setAfterDrawFunc)
-	ui.App.SetInputCapture(ui.setInputCapture)
+	ui.app.SetAfterDrawFunc(ui.setAfterDrawFunc)
+	ui.app.SetInputCapture(ui.setInputCapture)
 
 	return &ui
 }
@@ -165,19 +165,19 @@ func (ui *UI) LoadData(controller *controller.Controller) {
 }
 
 func (ui *UI) Start() error {
-	return ui.App.SetRoot(ui.pages, true).SetFocus(ui.connections).EnableMouse(true).Run()
+	return ui.app.SetRoot(ui.pages, true).SetFocus(ui.connections).EnableMouse(true).Run()
 }
 
 func (ui *UI) PrintLog(logMsg string) {
-	fmt.Fprintf(ui.Logs, "%v", logMsg)
+	fmt.Fprintf(ui.logs, "%v", logMsg)
 
 	getAvailableRows := func() int {
-		_, _, _, height := ui.Logs.GetRect()
+		_, _, _, height := ui.logs.GetRect()
 
 		return height - 2 // Minus border
 	}
 
-	ui.Logs.SetMaxLines(getAvailableRows())
+	ui.logs.SetMaxLines(getAvailableRows())
 }
 
 func (ui *UI) printContent(content string) {
