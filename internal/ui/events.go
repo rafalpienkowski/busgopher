@@ -2,8 +2,6 @@ package ui
 
 import (
 	"github.com/gdamore/tcell/v2"
-	"github.com/rafalpienkowski/busgopher/internal/asb"
-	"github.com/rivo/tview"
 )
 
 func (ui *UI) queueUpdateDraw(f func()) {

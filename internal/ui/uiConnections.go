@@ -16,6 +16,7 @@ func (ui *UI) addConnection() {
             newConnection := asb.Connection{
                 Name: ui.form.GetFormItem(0).(*tview.InputField).GetText(),
                 Namespace: ui.form.GetFormItem(1).(*tview.InputField).GetText(),
+                Destinations: []string{},
             }
 
             err := ui.controller.AddConnection(&newConnection)
@@ -24,6 +25,7 @@ func (ui *UI) addConnection() {
                 ui.PrintLog(err.Error())
             }
 
+            ui.refreshConnections()
 			ui.pages.SwitchToPage("sending")
 			ui.app.SetFocus(ui.connections)
 		}).

@@ -16,9 +16,9 @@ type UI struct {
 	// View components
 	theme        Theme
 	app          *tview.Application
-    pages        *tview.Pages
-	sendingFlex     *tview.Flex
-    formFlex     *tview.Flex
+	pages        *tview.Pages
+	sendingFlex  *tview.Flex
+	formFlex     *tview.Flex
 	connections  *tview.List
 	destinations *tview.List
 	messages     *tview.List
@@ -37,10 +37,10 @@ func NewUI() *UI {
 	// Create UI elements
 	ui.theme = Dark()
 	ui.app = tview.NewApplication()
-    ui.pages = tview.NewPages()
+	ui.pages = tview.NewPages()
 	ui.sendingFlex = tview.NewFlex()
-    ui.formFlex = tview.NewFlex()
-    ui.form = tview.NewForm()
+	ui.formFlex = tview.NewFlex()
+	ui.form = tview.NewForm()
 
 	ui.connections = tview.NewList().
 		ShowSecondaryText(false).
@@ -91,8 +91,8 @@ func NewUI() *UI {
 	ui.logs.SetTitle(" Logs: ").SetBorder(true)
 	ui.logs.SetBackgroundColor(ui.theme.backgroundColor)
 
-    ui.form.SetBackgroundColor(ui.theme.backgroundColor)
-    ui.form.SetButtonStyle(ui.theme.style)
+	ui.form.SetBackgroundColor(ui.theme.backgroundColor)
+	ui.form.SetButtonStyle(ui.theme.style)
 
 	// Set layouts
 	left := tview.NewFlex().SetDirection(tview.FlexRow).
@@ -111,25 +111,25 @@ func NewUI() *UI {
 		AddItem(actions, 3, 0, false).
 		AddItem(ui.logs, 0, 1, false)
 
-    ui.sendingFlex.
-        SetBorder(true).
-        SetBackgroundColor(ui.theme.backgroundColor).
-        SetTitle("Sending messages")
+	ui.sendingFlex.
+		SetBorder(true).
+		SetBackgroundColor(ui.theme.backgroundColor).
+		SetTitle("Sending messages")
 
-    ui.sendingFlex.
+	ui.sendingFlex.
 		AddItem(left, 0, 1, false).
 		AddItem(right, 0, 3, false)
 
-    ui.formFlex.AddItem(ui.form, 0, 1, false)
+	ui.formFlex.AddItem(ui.form, 0, 1, false)
 
-    ui.formFlex.
-        SetBorder(true).
-        SetBackgroundColor(ui.theme.backgroundColor)
+	ui.formFlex.
+		SetBorder(true).
+		SetBackgroundColor(ui.theme.backgroundColor)
 
-    ui.pages.
-        AddPage("sending", ui.sendingFlex, true, true).
-        AddPage("form", ui.formFlex, true, false)
-    
+	ui.pages.
+		AddPage("sending", ui.sendingFlex, true, true).
+		AddPage("form", ui.formFlex, true, false)
+
 	ui.app.SetAfterDrawFunc(ui.setAfterDrawFunc)
 	ui.app.SetInputCapture(ui.setInputCapture)
 
@@ -148,18 +148,23 @@ func (ui *UI) refreshDestinations() {
 func (ui *UI) LoadData(controller *controller.Controller) {
 
 	ui.controller = controller
-
-	for _, conn := range ui.controller.Config.NConnections {
-		ui.connections.AddItem(conn.Name, conn.Namespace, 0, func() {
-			ui.controller.SelectConnectionByName(conn.Name)
-			ui.refreshDestinations()
-		})
-	}
+	ui.refreshConnections()
 
 	for _, msg := range ui.controller.Config.NMessages {
 		ui.messages.AddItem(msg.Name, msg.Subject, 0, func() {
 			ui.controller.SelectMessageByName(msg.Name)
 			ui.printContent(msg.Print())
+		})
+	}
+}
+
+func (ui *UI) refreshConnections() {
+
+    ui.connections.Clear()
+	for _, conn := range ui.controller.Config.NConnections {
+		ui.connections.AddItem(conn.Name, conn.Namespace, 0, func() {
+			ui.controller.SelectConnectionByName(conn.Name)
+			ui.refreshDestinations()
 		})
 	}
 }
