@@ -15,29 +15,29 @@ func (ui *UI) setAfterDrawFunc(screen tcell.Screen) {
 	ui.queueUpdateDraw(func() {
 		p := ui.App.GetFocus()
 
-		ui.Connections.SetBorderColor(tcell.ColorWhite)
-		ui.Destinations.SetBorderColor(tcell.ColorWhite)
-		ui.Messages.SetBorderColor(tcell.ColorWhite)
-		ui.Content.SetBorderColor(tcell.ColorWhite)
+		ui.connections.SetBorderColor(tcell.ColorWhite)
+		ui.destinations.SetBorderColor(tcell.ColorWhite)
+		ui.messages.SetBorderColor(tcell.ColorWhite)
+		ui.content.SetBorderColor(tcell.ColorWhite)
 		ui.Logs.SetBorderColor(tcell.ColorWhite)
-		ui.Send.SetBorderColor(tcell.ColorWhite)
-		ui.Close.SetBorderColor(tcell.ColorWhite)
+		ui.send.SetBorderColor(tcell.ColorWhite)
+		ui.close.SetBorderColor(tcell.ColorWhite)
 
 		switch p {
-		case ui.Connections:
-			ui.Connections.SetBorderColor(tcell.ColorBlue)
-		case ui.Destinations:
-			ui.Destinations.SetBorderColor(tcell.ColorBlue)
-		case ui.Messages:
-			ui.Messages.SetBorderColor(tcell.ColorBlue)
-		case ui.Content:
-			ui.Content.SetBorderColor(tcell.ColorBlue)
+		case ui.connections:
+			ui.connections.SetBorderColor(tcell.ColorBlue)
+		case ui.destinations:
+			ui.destinations.SetBorderColor(tcell.ColorBlue)
+		case ui.messages:
+			ui.messages.SetBorderColor(tcell.ColorBlue)
+		case ui.content:
+			ui.content.SetBorderColor(tcell.ColorBlue)
 		case ui.Logs:
 			ui.Logs.SetBorderColor(tcell.ColorBlue)
-		case ui.Send:
-			ui.Send.SetBorderColor(tcell.ColorBlue)
-		case ui.Close:
-			ui.Close.SetBorderColor(tcell.ColorBlue)
+		case ui.send:
+			ui.send.SetBorderColor(tcell.ColorBlue)
+		case ui.close:
+			ui.close.SetBorderColor(tcell.ColorBlue)
 		}
 	})
 }
@@ -51,31 +51,31 @@ func (ui *UI) setInputCapture(event *tcell.EventKey) *tcell.EventKey {
 	case tcell.KeyCtrlN:
 		p := ui.App.GetFocus()
 		switch p {
-		case ui.Connections:
+		case ui.connections:
 			ui.addConnection()
-		case ui.Destinations:
+		case ui.destinations:
 			ui.PrintLog("New destination")
-		case ui.Messages:
+		case ui.messages:
 			ui.PrintLog("New message")
 		}
 	case tcell.KeyCtrlU:
 		p := ui.App.GetFocus()
 		switch p {
-		case ui.Connections:
+		case ui.connections:
 			ui.PrintLog("Update connection")
-		case ui.Destinations:
+		case ui.destinations:
 			ui.PrintLog("Update destination")
-		case ui.Messages:
+		case ui.messages:
 			ui.PrintLog("Update message")
 		}
 	case tcell.KeyCtrlD:
 		p := ui.App.GetFocus()
 		switch p {
-		case ui.Connections:
+		case ui.connections:
 			ui.PrintLog("Delete connection")
-		case ui.Destinations:
+		case ui.destinations:
 			ui.PrintLog("Delete destination")
-		case ui.Messages:
+		case ui.messages:
 			ui.PrintLog("Delete message")
 		}
 	}
@@ -92,11 +92,11 @@ func (ui *UI) addConnection() {
         AddInputField("Service Bus namespace", "", 0, nil, nil).
 		AddButton("Add", func() {
 			ui.pages.SwitchToPage("sending")
-			ui.App.SetFocus(ui.Connections)
+			ui.App.SetFocus(ui.connections)
 		}).
 		AddButton("Quit", func() {
 			ui.pages.SwitchToPage("sending")
-			ui.App.SetFocus(ui.Connections)
+			ui.App.SetFocus(ui.connections)
 		})
 
 	for idx := range (ui.form.GetButtonCount() - 1) {
