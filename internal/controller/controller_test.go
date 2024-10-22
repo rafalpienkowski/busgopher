@@ -483,22 +483,20 @@ func Test_Controller_Should_Write_Error_When_Update_Non_Existing_Message(t *test
 func Test_Controller_Should_Remove_Connection(t *testing.T) {
 	controller, inMemoryConfig, _, _ := createTestController()
 
-	controller.RemoveConnection("test-connection")
+    err := controller.RemoveConnection("test-connection")
 
+    assert.NoError(t, err)
 	nconnections := make(map[string]asb.Connection)
 	assert.Equal(t, nconnections, inMemoryConfig.Config.NConnections)
 }
 
 func Test_Controller_Should_Not_Remove_Non_Existing_Connection(t *testing.T) {
-	controller, _, _, buffer := createTestController()
+	controller, _, _, _ := createTestController()
 
-	controller.RemoveConnection("non-existing-connection")
+    err := controller.RemoveConnection("non-existing-connection")
 
-	assert.Equal(
-		t,
-		"[Error] Connection not found",
-		(trimDatePart(getLastLine(buffer.String()))),
-	)
+    expectedError := errors.New("Connection not found")
+    assert.Error(t, expectedError, err)
 }
 
 func Test_Controller_Should_Clear_Selected_Connection_Name_When_Connection_Was_Removed(
@@ -508,8 +506,9 @@ func Test_Controller_Should_Clear_Selected_Connection_Name_When_Connection_Was_R
 	controller.SelectConnectionByName("test-connection")
 	assert.Equal(t, "test-connection", controller.selectedConnectionName)
 
-	controller.RemoveConnection("test-connection")
+    err := controller.RemoveConnection("test-connection")
 
+    assert.NoError(t, err)
 	assert.Equal(t, "", controller.selectedConnectionName)
 }
 
@@ -520,8 +519,9 @@ func Test_Controller_Should_Add_Connection(t *testing.T) {
 		Namespace: "new.azure.com",
 	}
 
-	controller.AddConnection(&newConn)
+    err := controller.AddConnection(&newConn)
 
+    assert.NoError(t, err)
 	nconnections := make(map[string]asb.Connection)
 	nconnections["test-connection"] = asb.Connection{
 		Name:      "test-connection",
@@ -546,8 +546,9 @@ func Test_Controller_Should_Not_Add_New_Connection_When_Name_Exist(t *testing.T)
 		Namespace: "test.azure.com",
 	}
 
-	controller.AddConnection(&newConn)
+    err := controller.AddConnection(&newConn)
 
+    assert.NoError(t, err)
 	nconnections := make(map[string]asb.Connection)
 	nconnections["test-connection"] = asb.Connection{
 		Name:      "test-connection",

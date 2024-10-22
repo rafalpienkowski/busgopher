@@ -48,9 +48,9 @@ func (ui *UI) removeConnection() {
 	ui.advancedForm.setMessage("Please select connection to remove")
 	ui.advancedForm.form.
 		AddDropDown(
-			"Connections",
+			"Connection to remove",
 			slices.Collect(maps.Keys(ui.controller.Config.NConnections)),
-			0,
+			-1,
 			nil,
 		).
 		AddButton("Remove", func() {
