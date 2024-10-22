@@ -71,7 +71,7 @@ func (ui *UI) setInputCapture(event *tcell.EventKey) *tcell.EventKey {
 		p := ui.app.GetFocus()
 		switch p {
 		case ui.connections:
-			ui.PrintLog("Delete connection")
+            ui.removeConnection()
 		case ui.destinations:
 			ui.PrintLog("Delete destination")
 		case ui.messages:

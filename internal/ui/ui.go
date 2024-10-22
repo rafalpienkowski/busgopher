@@ -38,7 +38,7 @@ func NewUI() *UI {
 	ui.app = tview.NewApplication()
 	ui.pages = tview.NewPages()
 	ui.sendingFlex = tview.NewFlex()
-	ui.advancedForm = NewAdvancedForm(ui.theme)
+	ui.advancedForm = newAdvancedForm(ui.theme)
 
 	ui.connections = tview.NewList().
 		ShowSecondaryText(false).
@@ -181,4 +181,11 @@ func (ui *UI) PrintLog(logMsg string) {
 func (ui *UI) printContent(content string) {
 	ui.content.Clear()
 	fmt.Fprintf(ui.content, "%v", content)
+}
+
+func (ui *UI) switchToForm(title string){
+	ui.advancedForm.flex.SetTitle(title)
+	ui.pages.SwitchToPage("form")
+	ui.app.SetFocus(ui.advancedForm.flex)
+	ui.app.SetFocus(ui.advancedForm.form)
 }

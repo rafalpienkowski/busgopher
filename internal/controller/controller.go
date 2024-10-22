@@ -3,7 +3,6 @@ package controller
 import (
 	"errors"
 	"fmt"
-	"io"
 	"strings"
 	"time"
 
@@ -20,7 +19,6 @@ type Controller struct {
 	selectedDestination    string
 
 	messageSender asb.MessageSender
-	logsWriter    io.Writer
 	print         Print
 }
 
@@ -199,12 +197,12 @@ func (controller *Controller) UpdateMessage(message asb.Message) {
 	controller.saveconfig()
 }
 
-func (controller *Controller) RemoveConnection(name string) {
+func (controller *Controller) RemoveConnection(name string) error {
 
 	_, ok := controller.Config.NConnections[name]
 	if !ok {
 		controller.writeError("Connection not found")
-		return
+		return errors.New("Connection not found")
 	}
 
 	delete(controller.Config.NConnections, name)
@@ -213,6 +211,7 @@ func (controller *Controller) RemoveConnection(name string) {
 	if controller.selectedConnectionName == name {
 		controller.selectedConnectionName = ""
 	}
+    return nil
 }
 
 func (controller *Controller) AddConnection(newConnection *asb.Connection) error {

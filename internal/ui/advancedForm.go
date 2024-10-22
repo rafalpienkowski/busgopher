@@ -12,11 +12,13 @@ type AdvancedForm struct {
 	flex  *tview.Flex
 }
 
-func NewAdvancedForm(theme Theme) *AdvancedForm {
+func newAdvancedForm(theme Theme) *AdvancedForm {
 
 	form := tview.NewForm()
 	form.SetBackgroundColor(theme.backgroundColor)
 	form.SetButtonStyle(theme.style)
+    form.SetFieldBackgroundColor(theme.foregroundColor).
+        SetFieldTextColor(theme.backgroundColor)
 
 	message := tview.NewTextView()
 	message.SetTextStyle(theme.error).
@@ -40,11 +42,11 @@ func NewAdvancedForm(theme Theme) *AdvancedForm {
 	}
 }
 
-func (advancedForm *AdvancedForm) Clear() {
+func (advancedForm *AdvancedForm) clear() {
 	advancedForm.form.Clear(true)
 }
 
-func (advancedForm *AdvancedForm) SetMessage(msg string) {
+func (advancedForm *AdvancedForm) setMessage(msg string) {
 	advancedForm.message.Clear()
 	advancedForm.message.SetTextStyle(advancedForm.theme.error)
 
