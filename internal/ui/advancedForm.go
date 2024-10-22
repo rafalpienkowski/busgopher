@@ -44,8 +44,9 @@ func (advancedForm *AdvancedForm) Clear() {
 	advancedForm.form.Clear(true)
 }
 
-func (advancedForm *AdvancedForm) SetError(msg string) {
+func (advancedForm *AdvancedForm) SetMessage(msg string) {
 	advancedForm.message.Clear()
+	advancedForm.message.SetTextStyle(advancedForm.theme.error)
 
 	advancedForm.message.SetText("\t" + msg)
 }

@@ -22,7 +22,7 @@ func (ui *UI) addConnection() {
 
             err := ui.controller.AddConnection(&newConnection)
             if err != nil {
-                ui.advancedForm.SetError(err.Error())
+                ui.advancedForm.SetMessage(err.Error())
                 return
             }
 
