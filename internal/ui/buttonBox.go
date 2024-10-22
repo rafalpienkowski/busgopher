@@ -33,7 +33,7 @@ func (b *BoxButton) SetSelectedFunc(handler func()) *BoxButton {
 }
 
 func (b *BoxButton) Draw(screen tcell.Screen) {
-	b.Box.DrawForSubclass(screen, b)
+	b.DrawForSubclass(screen, b)
 
 	x, y, width, height := b.GetInnerRect()
 

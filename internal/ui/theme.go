@@ -6,6 +6,7 @@ type Theme struct {
 	backgroundColor tcell.Color
 	foregroundColor tcell.Color
 	style           tcell.Style
+	error           tcell.Style
 }
 
 func Dark() Theme {
@@ -14,5 +15,7 @@ func Dark() Theme {
 		foregroundColor: tcell.ColorWhite,
 		style: tcell.StyleDefault.Background(tcell.ColorGray).
 			Foreground(tcell.ColorWhite),
+		error: tcell.StyleDefault.Background(tcell.ColorGray).
+			Foreground(tcell.ColorRed),
 	}
 }

@@ -18,7 +18,6 @@ type UI struct {
 	app          *tview.Application
 	pages        *tview.Pages
 	sendingFlex  *tview.Flex
-	formFlex     *tview.Flex
 	connections  *tview.List
 	destinations *tview.List
 	messages     *tview.List
@@ -26,7 +25,7 @@ type UI struct {
 	logs         *tview.TextView
 	send         *BoxButton
 	close        *BoxButton
-	form         *tview.Form
+	advancedForm *AdvancedForm
 
 	inputs []tview.Primitive
 }
@@ -39,8 +38,7 @@ func NewUI() *UI {
 	ui.app = tview.NewApplication()
 	ui.pages = tview.NewPages()
 	ui.sendingFlex = tview.NewFlex()
-	ui.formFlex = tview.NewFlex()
-	ui.form = tview.NewForm()
+	ui.advancedForm = NewAdvancedForm(ui.theme)
 
 	ui.connections = tview.NewList().
 		ShowSecondaryText(false).
@@ -91,9 +89,6 @@ func NewUI() *UI {
 	ui.logs.SetTitle(" Logs: ").SetBorder(true)
 	ui.logs.SetBackgroundColor(ui.theme.backgroundColor)
 
-	ui.form.SetBackgroundColor(ui.theme.backgroundColor)
-	ui.form.SetButtonStyle(ui.theme.style)
-
 	// Set layouts
 	left := tview.NewFlex().SetDirection(tview.FlexRow).
 		AddItem(ui.connections, 0, 1, true).
@@ -120,15 +115,9 @@ func NewUI() *UI {
 		AddItem(left, 0, 1, false).
 		AddItem(right, 0, 3, false)
 
-	ui.formFlex.AddItem(ui.form, 0, 1, false)
-
-	ui.formFlex.
-		SetBorder(true).
-		SetBackgroundColor(ui.theme.backgroundColor)
-
 	ui.pages.
 		AddPage("sending", ui.sendingFlex, true, true).
-		AddPage("form", ui.formFlex, true, false)
+		AddPage("form", ui.advancedForm.flex, true, false)
 
 	ui.app.SetAfterDrawFunc(ui.setAfterDrawFunc)
 	ui.app.SetInputCapture(ui.setInputCapture)

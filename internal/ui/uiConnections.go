@@ -8,21 +8,22 @@ import (
 func (ui *UI) addConnection() {
 	ui.PrintLog("Addding new connection\n")
 
-	ui.form = ui.form.Clear(true)
-	ui.form.
+	ui.advancedForm.Clear()
+	ui.advancedForm.form.
 		AddInputField("Connection name", "", 0, nil, nil).
         AddInputField("Service Bus namespace", "", 0, nil, nil).
 		AddButton("Add", func() {
+            ui.advancedForm.message.Clear()
             newConnection := asb.Connection{
-                Name: ui.form.GetFormItem(0).(*tview.InputField).GetText(),
-                Namespace: ui.form.GetFormItem(1).(*tview.InputField).GetText(),
+                Name: ui.advancedForm.form.GetFormItem(0).(*tview.InputField).GetText(),
+                Namespace: ui.advancedForm.form.GetFormItem(1).(*tview.InputField).GetText(),
                 Destinations: []string{},
             }
 
             err := ui.controller.AddConnection(&newConnection)
             if err != nil {
-                ui.PrintLog("new error")
-                ui.PrintLog(err.Error())
+                ui.advancedForm.SetError(err.Error())
+                return
             }
 
             ui.refreshConnections()
@@ -33,11 +34,12 @@ func (ui *UI) addConnection() {
 			ui.pages.SwitchToPage("sending")
 			ui.app.SetFocus(ui.connections)
 		}).
+        //add errors
         SetFieldBackgroundColor(ui.theme.foregroundColor).
         SetFieldTextColor(ui.theme.backgroundColor)
 
-	ui.formFlex.SetTitle("Add new connection")
+	ui.advancedForm.flex.SetTitle("Add new connection")
 	ui.pages.SwitchToPage("form")
-	ui.app.SetFocus(ui.formFlex)
-	ui.app.SetFocus(ui.form)
+	ui.app.SetFocus(ui.advancedForm.flex)
+	ui.app.SetFocus(ui.advancedForm.form)
 }
