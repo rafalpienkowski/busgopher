@@ -19,9 +19,9 @@ func (storage *FileConfigStorage) Load() (Config, error) {
 	}
 
 	if len(bytes) == 0 {
-		json, err := json.Marshal(config.Default())
-		if err != nil {
-			return Config{}, err
+		json, jerr := json.Marshal(config.Default())
+		if jerr != nil {
+			return Config{}, jerr
 		}
 
 		err = writeFile(configName, string(json))
@@ -69,7 +69,7 @@ func readFile(filePath string) ([]byte, error) {
 }
 
 func writeFile(filePath string, content string) error {
-	file, err := os.OpenFile(filePath, os.O_RDWR, 0644)
+	file, err := os.OpenFile(filePath, os.O_RDWR | os.O_TRUNC, 0644)
 	if err != nil {
 		return err
 	}
