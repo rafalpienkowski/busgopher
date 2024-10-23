@@ -167,7 +167,7 @@ func (ui *UI) Start() error {
 }
 
 func (ui *UI) PrintLog(logMsg string) {
-	fmt.Fprintf(ui.logs, "%v", logMsg)
+	fmt.Fprintf(ui.logs, "%v\n", logMsg)
 
 	getAvailableRows := func() int {
 		_, _, _, height := ui.logs.GetRect()

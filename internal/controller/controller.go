@@ -44,8 +44,16 @@ func NewController(
 	return &controller, nil
 }
 
-func (controller *Controller) GetSelectedConnectionName() string {
-    return controller.selectedConnectionName
+func (controller *Controller) GetSelectedConnection() *asb.Connection {
+    if len(controller.selectedConnectionName) == 0 {
+        return nil
+    }
+	conn, ok := controller.Config.NConnections[controller.selectedConnectionName]
+    if ok {
+        return &conn
+    }
+
+    return nil
 }
 
 func (controller *Controller) SelectConnectionByName(name string) {
@@ -234,23 +242,24 @@ func (controller *Controller) AddConnection(newConnection *asb.Connection) error
 	return nil
 }
 
-func (controller *Controller) UpdateSelectedConnection(newConnection asb.Connection) {
+func (controller *Controller) UpdateSelectedConnection(newConnection *asb.Connection) error {
 
 	if len(controller.selectedConnectionName) == 0 {
 		controller.writeError("Connection not selected")
-		return
+		return errors.New("Connection not selected!")
 	}
 
 	_, ok := controller.Config.NConnections[controller.selectedConnectionName]
 	if !ok {
 		controller.writeError("Connection '" + controller.selectedConnectionName + "' not exist")
-		return
+		return errors.New("Connection '" + controller.selectedConnectionName + "' not exist")
 	}
 	delete(controller.Config.NConnections, controller.selectedConnectionName)
 
-	controller.Config.NConnections[newConnection.Name] = newConnection
+	controller.Config.NConnections[newConnection.Name] = *newConnection
 	controller.saveconfig()
 	controller.SelectConnectionByName(newConnection.Name)
+    return nil
 }
 
 func (controller *Controller) Send() {

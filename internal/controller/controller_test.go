@@ -559,7 +559,7 @@ func Test_Controller_Should_Not_Add_New_Connection_When_Name_Exist(t *testing.T)
 
     err := controller.AddConnection(&newConn)
 
-    assert.NoError(t, err)
+    assert.Error(t, err)
 	nconnections := make(map[string]asb.Connection)
 	nconnections["test-connection"] = asb.Connection{
 		Name:      "test-connection",
@@ -595,8 +595,9 @@ func Test_Controller_Should_Update_Connection(t *testing.T) {
 		},
 	}
 	controller.SelectConnectionByName("test-connection")
-	controller.UpdateSelectedConnection(newConn)
+    err := controller.UpdateSelectedConnection(&newConn)
 
+    assert.NoError(t, err)
 	nconnections := make(map[string]asb.Connection)
 	nconnections["new-connection"] = asb.Connection{
 		Name:      "new-connection",
@@ -618,8 +619,9 @@ func Test_Controller_Should_Select_New_Connection(t *testing.T) {
 		},
 	}
 	controller.SelectConnectionByName("test-connection")
-	controller.UpdateSelectedConnection(newConn)
+    err := controller.UpdateSelectedConnection(&newConn)
 
+    assert.NoError(t, err)
 	assert.Equal(t, "new-connection", controller.selectedConnectionName)
 }
 
@@ -633,11 +635,28 @@ func Test_Controller_Should_Write_Error_When_Connection_For_Update_Not_Selected(
 		},
 	}
 
-	controller.UpdateSelectedConnection(newConn)
+    err := controller.UpdateSelectedConnection(&newConn)
 
+    assert.Error(t, err)
 	assert.Equal(
 		t,
 		"[Error] Connection not selected",
 		(trimDatePart(getLastLine(buffer.String()))),
 	)
+}
+
+func Test_Controller_Should_Return_Error_When_Connection_For_Update_Not_Selected(t *testing.T) {
+	controller, _, _, _ := createTestController()
+	newConn := asb.Connection{
+		Name:      "new-connection",
+		Namespace: "newtest.azure.com",
+		Destinations: []string{
+			"new-queue",
+		},
+	}
+
+    err := controller.UpdateSelectedConnection(&newConn)
+
+    expectedErr := errors.New("Connection not selected!")
+    assert.Equal(t, expectedErr, err)
 }

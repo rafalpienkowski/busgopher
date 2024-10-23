@@ -24,8 +24,8 @@ func (ui *UI) addConnection() {
 				ui.advancedForm.setMessage(err.Error())
 				return
 			}
-            
-            ui.PrintLog("Connection '" + newConnection.Name + "' added")
+
+			ui.PrintLog("Connection '" + newConnection.Name + "' added")
 			ui.refreshConnections()
 			ui.pages.SwitchToPage("sending")
 			ui.app.SetFocus(ui.connections)
@@ -40,12 +40,14 @@ func (ui *UI) addConnection() {
 
 func (ui *UI) removeConnection() {
 	ui.advancedForm.clear()
-    if len(ui.controller.GetSelectedConnectionName()) == 0 {
-        ui.PrintLog("Please select connection to remove!")
-        return 
-    }
+	if ui.controller.GetSelectedConnection() == nil {
+		ui.PrintLog("Please select connection to remove!")
+		return
+	}
 
-    ui.advancedForm.setMessage("Do you want to remove connection '" + ui.controller.GetSelectedConnectionName() + "'?")
+	ui.advancedForm.setMessage(
+		"Do you want to remove connection '" + ui.controller.GetSelectedConnection().Name + "'?",
+	)
 	ui.advancedForm.form.
 		AddButton("Yes", func() {
 			removed, err := ui.controller.RemoveSelectedConnection()
@@ -53,7 +55,7 @@ func (ui *UI) removeConnection() {
 				ui.advancedForm.setMessage(err.Error())
 				return
 			}
-            ui.PrintLog("Removed connection '" + removed + "'")
+			ui.PrintLog("Removed connection '" + removed + "'")
 			ui.refreshConnections()
 			ui.pages.SwitchToPage("sending")
 			ui.app.SetFocus(ui.connections)
@@ -67,10 +69,35 @@ func (ui *UI) removeConnection() {
 }
 
 func (ui *UI) updateSelectedConnection() {
-    if len("ui.controller.SelectedConnectionName") == 0 {
-        ui.PrintLog("Please select connection to update")
-        return
-    }
+	ui.advancedForm.clear()
+	newConnection := ui.controller.GetSelectedConnection()
+	if newConnection == nil {
+		ui.PrintLog("Please select connection to update!")
+		return
+	}
+	ui.advancedForm.form.
+		AddInputField("Connection name", newConnection.Name, 0, nil, nil).
+		AddInputField("Service Bus namespace", newConnection.Namespace, 0, nil, nil).
+		AddButton("Update", func() {
+			ui.advancedForm.message.Clear()
+			newConnection.Name = ui.advancedForm.form.GetFormItem(0).(*tview.InputField).GetText()
+			newConnection.Namespace = ui.advancedForm.form.GetFormItem(1).(*tview.InputField).GetText()
+
+			err := ui.controller.UpdateSelectedConnection(newConnection)
+			if err != nil {
+				ui.advancedForm.setMessage(err.Error())
+				return
+			}
+
+			ui.PrintLog("Connection updated")
+			ui.refreshConnections()
+			ui.pages.SwitchToPage("sending")
+			ui.app.SetFocus(ui.connections)
+		}).
+		AddButton("Cancel", func() {
+			ui.pages.SwitchToPage("sending")
+			ui.app.SetFocus(ui.connections)
+		})
 
 	ui.switchToForm("Update connection")
 }
