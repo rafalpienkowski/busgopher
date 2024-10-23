@@ -211,6 +211,7 @@ func (controller *Controller) RemoveConnection(name string) error {
 	if controller.selectedConnectionName == name {
 		controller.selectedConnectionName = ""
 	}
+
     return nil
 }
 

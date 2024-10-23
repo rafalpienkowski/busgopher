@@ -50,7 +50,7 @@ func (ui *UI) removeConnection() {
 		AddDropDown(
 			"Connection to remove",
 			slices.Collect(maps.Keys(ui.controller.Config.NConnections)),
-			-1,
+			0,
 			nil,
 		).
 		AddButton("Remove", func() {
