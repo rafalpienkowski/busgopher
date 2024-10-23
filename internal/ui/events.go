@@ -61,7 +61,7 @@ func (ui *UI) setInputCapture(event *tcell.EventKey) *tcell.EventKey {
 		p := ui.app.GetFocus()
 		switch p {
 		case ui.connections:
-			ui.PrintLog("Update connection")
+			ui.updateSelectedConnection()
 		case ui.destinations:
 			ui.PrintLog("Update destination")
 		case ui.messages:
@@ -71,7 +71,7 @@ func (ui *UI) setInputCapture(event *tcell.EventKey) *tcell.EventKey {
 		p := ui.app.GetFocus()
 		switch p {
 		case ui.connections:
-            ui.removeConnection()
+			ui.removeConnection()
 		case ui.destinations:
 			ui.PrintLog("Delete destination")
 		case ui.messages:

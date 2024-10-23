@@ -163,7 +163,7 @@ func (ui *UI) refreshMessages() {
 }
 
 func (ui *UI) Start() error {
-	return ui.app.SetRoot(ui.pages, true).SetFocus(ui.connections).EnableMouse(true).Run()
+	return ui.app.SetRoot(ui.pages, true).SetFocus(ui.connections).EnableMouse(false).Run()
 }
 
 func (ui *UI) PrintLog(logMsg string) {

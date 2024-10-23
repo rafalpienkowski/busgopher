@@ -482,18 +482,30 @@ func Test_Controller_Should_Write_Error_When_Update_Non_Existing_Message(t *test
 
 func Test_Controller_Should_Remove_Connection(t *testing.T) {
 	controller, inMemoryConfig, _, _ := createTestController()
+    controller.SelectConnectionByName("test-connection")
 
-    err := controller.RemoveConnection("test-connection")
+    _, err := controller.RemoveSelectedConnection()
 
     assert.NoError(t, err)
 	nconnections := make(map[string]asb.Connection)
 	assert.Equal(t, nconnections, inMemoryConfig.Config.NConnections)
 }
 
+func Test_Controller_Should_Return_Removed_Connection_Name(t *testing.T) {
+	controller, _, _, _ := createTestController()
+    controller.SelectConnectionByName("test-connection")
+
+    removed, err := controller.RemoveSelectedConnection()
+
+    assert.NoError(t, err)
+    assert.Equal(t, "test-connection", removed)
+}
+
 func Test_Controller_Should_Not_Remove_Non_Existing_Connection(t *testing.T) {
 	controller, _, _, _ := createTestController()
+    controller.SelectConnectionByName("test-connection")
 
-    err := controller.RemoveConnection("non-existing-connection")
+    _, err := controller.RemoveSelectedConnection()
 
     expectedError := errors.New("Connection not found")
     assert.Error(t, expectedError, err)
@@ -504,9 +516,8 @@ func Test_Controller_Should_Clear_Selected_Connection_Name_When_Connection_Was_R
 ) {
 	controller, _, _, _ := createTestController()
 	controller.SelectConnectionByName("test-connection")
-	assert.Equal(t, "test-connection", controller.selectedConnectionName)
 
-    err := controller.RemoveConnection("test-connection")
+    _, err := controller.RemoveSelectedConnection()
 
     assert.NoError(t, err)
 	assert.Equal(t, "", controller.selectedConnectionName)

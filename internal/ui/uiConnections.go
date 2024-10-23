@@ -1,17 +1,12 @@
 package ui
 
 import (
-	"maps"
-	"slices"
-
 	"github.com/rivo/tview"
 
 	"github.com/rafalpienkowski/busgopher/internal/asb"
 )
 
 func (ui *UI) addConnection() {
-	ui.PrintLog("Addding new connection\n")
-
 	ui.advancedForm.clear()
 	ui.advancedForm.form.
 		AddInputField("Connection name", "", 0, nil, nil).
@@ -29,12 +24,13 @@ func (ui *UI) addConnection() {
 				ui.advancedForm.setMessage(err.Error())
 				return
 			}
-
+            
+            ui.PrintLog("Connection '" + newConnection.Name + "' added")
 			ui.refreshConnections()
 			ui.pages.SwitchToPage("sending")
 			ui.app.SetFocus(ui.connections)
 		}).
-		AddButton("Quit", func() {
+		AddButton("Cancel", func() {
 			ui.pages.SwitchToPage("sending")
 			ui.app.SetFocus(ui.connections)
 		})
@@ -43,38 +39,38 @@ func (ui *UI) addConnection() {
 }
 
 func (ui *UI) removeConnection() {
-	ui.PrintLog("Removing connection\n")
 	ui.advancedForm.clear()
-	ui.advancedForm.setMessage("Please select connection to remove")
+    if len(ui.controller.GetSelectedConnectionName()) == 0 {
+        ui.PrintLog("Please select connection to remove!")
+        return 
+    }
+
+    ui.advancedForm.setMessage("Do you want to remove connection '" + ui.controller.GetSelectedConnectionName() + "'?")
 	ui.advancedForm.form.
-		AddDropDown(
-			"Connection to remove",
-			slices.Collect(maps.Keys(ui.controller.Config.NConnections)),
-			0,
-			nil,
-		).
-		AddButton("Remove", func() {
-
-			idx, option := ui.advancedForm.form.GetFormItem(0).(*tview.DropDown).GetCurrentOption()
-			if idx < 0 {
-				ui.advancedForm.setMessage("Please select connection to remove")
-				return
-			}
-
-			err := ui.controller.RemoveConnection(option)
+		AddButton("Yes", func() {
+			removed, err := ui.controller.RemoveSelectedConnection()
 			if err != nil {
 				ui.advancedForm.setMessage(err.Error())
 				return
 			}
-            ui.PrintLog("Removed connection: " + option)
+            ui.PrintLog("Removed connection '" + removed + "'")
 			ui.refreshConnections()
 			ui.pages.SwitchToPage("sending")
 			ui.app.SetFocus(ui.connections)
 		}).
-		AddButton("Quit", func() {
+		AddButton("No", func() {
 			ui.pages.SwitchToPage("sending")
 			ui.app.SetFocus(ui.connections)
 		})
 
 	ui.switchToForm("Remove connection")
+}
+
+func (ui *UI) updateSelectedConnection() {
+    if len("ui.controller.SelectedConnectionName") == 0 {
+        ui.PrintLog("Please select connection to update")
+        return
+    }
+
+	ui.switchToForm("Update connection")
 }

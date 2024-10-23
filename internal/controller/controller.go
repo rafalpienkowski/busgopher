@@ -44,6 +44,10 @@ func NewController(
 	return &controller, nil
 }
 
+func (controller *Controller) GetSelectedConnectionName() string {
+    return controller.selectedConnectionName
+}
+
 func (controller *Controller) SelectConnectionByName(name string) {
 
 	conn, ok := controller.Config.NConnections[name]
@@ -197,22 +201,25 @@ func (controller *Controller) UpdateMessage(message asb.Message) {
 	controller.saveconfig()
 }
 
-func (controller *Controller) RemoveConnection(name string) error {
+func (controller *Controller) RemoveSelectedConnection() (string, error) {
+
+	name := controller.selectedConnectionName
+
+	if len(name) == 0 {
+		return "", errors.New("Select connection first!")
+	}
 
 	_, ok := controller.Config.NConnections[name]
 	if !ok {
-		controller.writeError("Connection not found")
-		return errors.New("Connection not found")
+		return "", errors.New("Connection not found")
 	}
 
 	delete(controller.Config.NConnections, name)
 
 	controller.saveconfig()
-	if controller.selectedConnectionName == name {
-		controller.selectedConnectionName = ""
-	}
+	controller.selectedConnectionName = ""
 
-    return nil
+	return name, nil
 }
 
 func (controller *Controller) AddConnection(newConnection *asb.Connection) error {
@@ -224,7 +231,7 @@ func (controller *Controller) AddConnection(newConnection *asb.Connection) error
 
 	controller.Config.NConnections[newConnection.Name] = *newConnection
 	controller.saveconfig()
-    return nil
+	return nil
 }
 
 func (controller *Controller) UpdateSelectedConnection(newConnection asb.Connection) {
