@@ -25,7 +25,7 @@ func (ui *UI) addConnection() {
 				return
 			}
 
-			ui.PrintLog("Connection '" + newConnection.Name + "' added")
+			ui.PrintLog("Connection '" + newConnection.Name + "' added\n")
 			ui.refreshConnections()
 			ui.pages.SwitchToPage("sending")
 			ui.app.SetFocus(ui.connections)
@@ -41,7 +41,7 @@ func (ui *UI) addConnection() {
 func (ui *UI) removeConnection() {
 	ui.advancedForm.clear()
 	if ui.controller.GetSelectedConnection() == nil {
-		ui.PrintLog("Please select connection to remove!")
+		ui.PrintLog("Please select connection to remove!\n")
 		return
 	}
 
@@ -55,7 +55,7 @@ func (ui *UI) removeConnection() {
 				ui.advancedForm.setMessage(err.Error())
 				return
 			}
-			ui.PrintLog("Removed connection '" + removed + "'")
+			ui.PrintLog("Removed connection '" + removed + "'\n")
 			ui.refreshConnections()
 			ui.pages.SwitchToPage("sending")
 			ui.app.SetFocus(ui.connections)
@@ -72,7 +72,7 @@ func (ui *UI) updateSelectedConnection() {
 	ui.advancedForm.clear()
 	newConnection := ui.controller.GetSelectedConnection()
 	if newConnection == nil {
-		ui.PrintLog("Please select connection to update!")
+		ui.PrintLog("Please select connection to update!\n")
 		return
 	}
 	ui.advancedForm.form.
@@ -89,7 +89,7 @@ func (ui *UI) updateSelectedConnection() {
 				return
 			}
 
-			ui.PrintLog("Connection updated")
+			ui.PrintLog("Connection updated\n")
 			ui.refreshConnections()
 			ui.pages.SwitchToPage("sending")
 			ui.app.SetFocus(ui.connections)
