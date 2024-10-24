@@ -21,7 +21,7 @@ func (storage *FileConfigStorage) Load() (Config, error) {
 	}
 
 	if len(bytes) == 0 {
-		json, jerr := json.Marshal(config.Default())
+		json, jerr := json.Marshal(Default())
 		if jerr != nil {
 			return Config{}, jerr
 		}

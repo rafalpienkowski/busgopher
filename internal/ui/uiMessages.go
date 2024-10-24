@@ -36,11 +36,11 @@ func (ui *UI) addMessage() {
 			ui.PrintLog("Message '" + newMessage.Name + "' added\n")
 			ui.refreshMessages()
 			ui.pages.SwitchToPage("sending")
-			ui.app.SetFocus(ui.connections)
+			ui.app.SetFocus(ui.messages)
 		}).
 		AddButton("Cancel", func() {
 			ui.pages.SwitchToPage("sending")
-			ui.app.SetFocus(ui.connections)
+			ui.app.SetFocus(ui.messages)
 		})
 
 	ui.switchToForm("Add new message")
