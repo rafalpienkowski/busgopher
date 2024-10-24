@@ -56,7 +56,10 @@ func NewUI() *UI {
 	ui.content = tview.NewTextView()
 	ui.logs = tview.NewTextView()
 	ui.send = ui.send.NewBoxButton("Send").SetSelectedFunc(func() {
-		ui.controller.Send()
+        err := ui.controller.Send()
+        if err != nil {
+            ui.printError(err)
+        }
 	})
 	ui.close = ui.close.NewBoxButton("Close").SetSelectedFunc(func() {
 		ui.app.Stop()
