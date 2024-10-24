@@ -9,7 +9,7 @@ type Config struct {
 	Messages    map[string]asb.Message    `json:"messages"`
 }
 
-func (config Config) Default() *Config {
+func Default() *Config {
 	return &Config{
 		Connections: make(map[string]asb.Connection),
 		Messages:    make(map[string]asb.Message),

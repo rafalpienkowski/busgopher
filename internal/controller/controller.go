@@ -10,6 +10,16 @@ import (
 	"github.com/rafalpienkowski/busgopher/internal/config"
 )
 
+type Connection struct {
+	Name      string
+	Namespace string
+}
+
+type Message struct {
+	Name    string
+	Message asb.Message
+}
+
 type Controller struct {
 	Config        config.Config
 	configStorage config.ConfigStorage
@@ -45,52 +55,69 @@ func NewController(
 }
 
 func (controller *Controller) GetSelectedConnection() *asb.Connection {
-    if len(controller.selectedConnectionName) == 0 {
-        return nil
-    }
+	if len(controller.selectedConnectionName) == 0 {
+		return nil
+	}
 	conn, ok := controller.Config.Connections[controller.selectedConnectionName]
-    if ok {
-        return &conn
-    }
+	if ok {
+		return &conn
+	}
 
-    return nil
+	return nil
 }
 
-func (controller *Controller) SelectConnectionByName(name string) {
+func (controller *Controller) GetConnections() []Connection {
+	var connections = []Connection{}
+	for key := range controller.Config.Connections {
+		connections = append(
+			connections,
+			Connection{Name: key, Namespace: controller.Config.Connections[key].Namespace},
+		)
+	}
+	return connections
+}
 
-	conn, ok := controller.Config.Connections[name]
+func (controller *Controller) GetMessages() []Message {
+	var messages = []Message{}
+	for key := range controller.Config.Messages {
+		messages = append(messages, Message{Name: key, Message: controller.Config.Messages[key]})
+	}
+
+	return messages
+}
+
+func (controller *Controller) SelectConnectionByName(name string) error {
+
+	_, ok := controller.Config.Connections[name]
 	if ok {
 		controller.selectedConnectionName = name
 		controller.selectedDestination = ""
-		controller.writeLog("Selected connection: " + conn.Name + " (" + conn.Namespace + ")")
-		return
+		return nil
 	}
 
-	controller.writeError("Can't find connection with name: " + name)
+	return errors.New("Can't find connection with name: " + name)
 }
 
-func (controller *Controller) SelectDestinationByName(name string) {
+func (controller *Controller) SelectDestinationByName(name string) error {
 	conn, ok := controller.Config.Connections[controller.selectedConnectionName]
 	if ok {
 		for _, dest := range conn.Destinations {
 			if strings.EqualFold(dest, name) {
 				controller.selectedDestination = dest
-				controller.writeLog("Selected destination: " + name)
-				return
+				return nil
 			}
 		}
 	}
-	controller.writeError("Can't find destination with name: " + name)
+	return errors.New("Can't find destination with name: " + name)
 }
 
-func (controller *Controller) SelectMessageByName(name string) {
+func (controller *Controller) SelectMessageByName(name string) error {
 	_, ok := controller.Config.Messages[name]
 	if ok {
 		controller.selectedMessageName = name
-		controller.writeLog("Selected message: " + name)
-		return
+		return nil
 	}
-	controller.writeError("Can't find message with name: " + name)
+	return errors.New("Can't find message with name: " + name)
 }
 
 func (controller *Controller) GetDestiationNamesForSelectedConnection() []string {
@@ -101,183 +128,18 @@ func (controller *Controller) GetDestiationNamesForSelectedConnection() []string
 	return controller.Config.Connections[controller.selectedConnectionName].Destinations
 }
 
-func (controller *Controller) AddDestination(newDestination string) {
-	if len(controller.selectedConnectionName) == 0 {
-		controller.writeError("Connection not selected!")
-		return
-	}
-
-	conn, ok := controller.Config.Connections[controller.selectedConnectionName]
-	if ok {
-
-		conn.Destinations = append(
-			conn.Destinations,
-			newDestination,
-		)
-
-		controller.Config.Connections[controller.selectedConnectionName] = conn
-		controller.saveconfig()
-		return
-	}
-
-	controller.writeError("Can't find selected connection" + controller.selectedConnectionName)
-}
-
-func (controller *Controller) RemoveDestination(destination string) {
-	if len(controller.selectedConnectionName) == 0 {
-		controller.writeError("Connection not selected!")
-		return
-	}
-
-	conn, ok := controller.Config.Connections[controller.selectedConnectionName]
-	if !ok {
-		controller.writeError("Connection not found!")
-		return
-	}
-
-	newDestinations := []string{}
-	for _, d := range conn.Destinations {
-		if d != destination {
-			newDestinations = append(newDestinations, d)
-		}
-	}
-
-	if len(newDestinations) == len(conn.Destinations) {
-		controller.writeError("Nothing to remove!")
-		return
-	}
-
-	controller.Config.Connections[controller.selectedConnectionName] = conn
-
-	controller.saveconfig()
-}
-
-func (controller *Controller) UpdateDestination(oldDestination string, newDestination string) {
-	if len(controller.selectedConnectionName) == 0 {
-		controller.writeError("Connection not selected!")
-		return
-	}
-
-	conn, ok := controller.Config.Connections[controller.selectedConnectionName]
-	if !ok {
-		controller.writeError("Connection not found!")
-		return
-	}
-
-	newDestinations := []string{}
-	for _, d := range conn.Destinations {
-		if d == oldDestination {
-			newDestinations = append(newDestinations, newDestination)
-		} else {
-			newDestinations = append(newDestinations, d)
-		}
-	}
-	conn.Destinations = newDestinations
-
-	controller.Config.Connections[controller.selectedConnectionName] = conn
-
-	controller.saveconfig()
-}
-
-func (controller *Controller) AddMessage(message asb.Message) error {
-	_, ok := controller.Config.Messages[message.Name]
-	if ok {
-		controller.writeError("Message with name " + message.Name + " already exist")
-		return errors.New("Message with name " + message.Name + " already exist") 
-	}
-	controller.Config.Messages[message.Name] = message
-
-	controller.saveconfig()
-    return nil
-}
-
-func (controller *Controller) RemoveMessage(name string) {
-	delete(controller.Config.Messages, name)
-
-	controller.selectedMessageName = ""
-
-	controller.saveconfig()
-}
-
-func (controller *Controller) UpdateMessage(message asb.Message) {
-	_, ok := controller.Config.Messages[message.Name]
-	if !ok {
-		controller.writeError("Message with name " + message.Name + " not found")
-		return
-	}
-	controller.Config.Messages[message.Name] = message
-
-	controller.saveconfig()
-}
-
-func (controller *Controller) RemoveSelectedConnection() (string, error) {
-
-	name := controller.selectedConnectionName
-
-	if len(name) == 0 {
-		return "", errors.New("Select connection first!")
-	}
-
-	_, ok := controller.Config.Connections[name]
-	if !ok {
-		return "", errors.New("Connection not found")
-	}
-
-	delete(controller.Config.Connections, name)
-
-	controller.saveconfig()
-	controller.selectedConnectionName = ""
-
-	return name, nil
-}
-
-func (controller *Controller) AddConnection(newConnection *asb.Connection) error {
-
-	_, ok := controller.Config.Connections[newConnection.Name]
-	if ok {
-		return errors.New("Connection '" + newConnection.Name + "' exist")
-	}
-
-	controller.Config.Connections[newConnection.Name] = *newConnection
-	controller.saveconfig()
-	return nil
-}
-
-func (controller *Controller) UpdateSelectedConnection(newConnection *asb.Connection) error {
+func (controller *Controller) Send() error {
 
 	if len(controller.selectedConnectionName) == 0 {
-		controller.writeError("Connection not selected")
 		return errors.New("Connection not selected!")
 	}
 
-	_, ok := controller.Config.Connections[controller.selectedConnectionName]
-	if !ok {
-		controller.writeError("Connection '" + controller.selectedConnectionName + "' not exist")
-		return errors.New("Connection '" + controller.selectedConnectionName + "' not exist")
-	}
-	delete(controller.Config.Connections, controller.selectedConnectionName)
-
-	controller.Config.Connections[newConnection.Name] = *newConnection
-	controller.saveconfig()
-	controller.SelectConnectionByName(newConnection.Name)
-    return nil
-}
-
-func (controller *Controller) Send() {
-
-	if len(controller.selectedConnectionName) == 0 {
-		controller.writeError("Connection not selected!")
-		return
-	}
-
 	if len(controller.selectedMessageName) == 0 {
-		controller.writeError("Message not selected!")
-		return
+		return errors.New("Message not selected!")
 	}
 
 	if len(controller.selectedDestination) == 0 {
-		controller.writeError("Destination not selected!")
-		return
+		return errors.New("Destination not selected!")
 	}
 
 	controller.writeLog("Sending message to: " + controller.selectedDestination)
@@ -292,9 +154,10 @@ func (controller *Controller) Send() {
 	)
 
 	if err != nil {
-		controller.writeError(err.Error())
+		return err
 	}
 	controller.writeLog("Message send")
+	return nil
 }
 
 func (controller *Controller) writeLog(log string) {
@@ -305,17 +168,6 @@ func (controller *Controller) writeLog(log string) {
 	))
 }
 
-func (controller *Controller) writeError(log string) {
-	controller.print(fmt.Sprintf(
-		"[%v]: [Error] %v\n",
-		time.Now().Format("2006-01-02 15:04:05"),
-		log,
-	))
-}
-
-func (controller *Controller) saveconfig() {
-	err := controller.configStorage.Save(controller.Config)
-	if err != nil {
-		controller.writeError("Can't save config changes: " + err.Error())
-	}
+func (controller *Controller) saveconfig() error {
+	return controller.configStorage.Save(controller.Config)
 }

@@ -47,36 +47,6 @@ func (ui *UI) setInputCapture(event *tcell.EventKey) *tcell.EventKey {
 		ui.cycleFocus(false)
 	case tcell.KeyBacktab:
 		ui.cycleFocus(true)
-	case tcell.KeyCtrlN:
-		p := ui.app.GetFocus()
-		switch p {
-		case ui.connections:
-			ui.addConnection()
-		case ui.destinations:
-			ui.PrintLog("New destination")
-		case ui.messages:
-            ui.addMessage()
-		}
-	case tcell.KeyCtrlU:
-		p := ui.app.GetFocus()
-		switch p {
-		case ui.connections:
-			ui.updateSelectedConnection()
-		case ui.destinations:
-			ui.PrintLog("Update destination")
-		case ui.messages:
-            ui.updateSelectedMessage()
-		}
-	case tcell.KeyCtrlD:
-		p := ui.app.GetFocus()
-		switch p {
-		case ui.connections:
-			ui.removeSelectedConnection()
-		case ui.destinations:
-			ui.PrintLog("Delete destination")
-		case ui.messages:
-            ui.removeSelectedMessage()
-		}
 	}
 
 	return event

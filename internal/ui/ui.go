@@ -2,6 +2,7 @@ package ui
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
@@ -129,7 +130,10 @@ func (ui *UI) refreshDestinations() {
 	ui.destinations.Clear()
 	for _, name := range ui.controller.GetDestiationNamesForSelectedConnection() {
 		ui.destinations.AddItem(name, name, 0, func() {
-			ui.controller.SelectDestinationByName(name)
+			err := ui.controller.SelectDestinationByName(name)
+			if err != nil {
+				ui.printError(err)
+			}
 		})
 	}
 }
@@ -143,9 +147,13 @@ func (ui *UI) LoadData(controller *controller.Controller) {
 func (ui *UI) refreshConnections() {
 
 	ui.connections.Clear()
-	for _, conn := range ui.controller.Config.Connections {
+	for _, conn := range ui.controller.GetConnections() {
 		ui.connections.AddItem(conn.Name, conn.Namespace, 0, func() {
-			ui.controller.SelectConnectionByName(conn.Name)
+			err := ui.controller.SelectConnectionByName(conn.Name)
+			if err != nil {
+				ui.printError(err)
+                return
+			}
 			ui.refreshDestinations()
 		})
 	}
@@ -154,16 +162,28 @@ func (ui *UI) refreshConnections() {
 func (ui *UI) refreshMessages() {
 	ui.messages.Clear()
 
-	for _, msg := range ui.controller.Config.Messages {
-		ui.messages.AddItem(msg.Name, msg.Subject, 0, func() {
-			ui.controller.SelectMessageByName(msg.Name)
-			ui.printContent(msg.Print())
+	for _, msg := range ui.controller.GetMessages() {
+		ui.messages.AddItem(msg.Name, msg.Message.Subject, 0, func() {
+            err := ui.controller.SelectMessageByName(msg.Name)
+			if err != nil {
+				ui.printError(err)
+                return
+			}
+			ui.printContent(msg.Message.Print())
 		})
 	}
 }
 
 func (ui *UI) Start() error {
 	return ui.app.SetRoot(ui.pages, true).SetFocus(ui.connections).EnableMouse(false).Run()
+}
+
+func (ui *UI) printError(err error) {
+	ui.PrintLog(fmt.Sprintf(
+		"[%v]: [Error] %v\n",
+		time.Now().Format("2006-01-02 15:04:05"),
+		err.Error(),
+	))
 }
 
 func (ui *UI) PrintLog(logMsg string) {
@@ -183,7 +203,7 @@ func (ui *UI) printContent(content string) {
 	fmt.Fprintf(ui.content, "%v", content)
 }
 
-func (ui *UI) switchToForm(title string){
+func (ui *UI) switchToForm(title string) {
 	ui.advancedForm.flex.SetTitle(title)
 	ui.pages.SwitchToPage("form")
 	ui.app.SetFocus(ui.advancedForm.flex)
