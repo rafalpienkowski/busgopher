@@ -7,10 +7,11 @@ import (
 )
 
 func (ui *UI) addConnection() {
+
 	ui.advancedForm.clear()
 	ui.advancedForm.form.
 		AddInputField("Connection name", "", 0, nil, nil).
-		AddInputField("Service Bus namespace", "", 0, nil, nil).
+        AddInputField("Service Bus namespace", "", 0, nil, nil).
 		AddButton("Add", func() {
 			ui.advancedForm.message.Clear()
 			newConnection := asb.Connection{
