@@ -55,7 +55,7 @@ func (ui *UI) setInputCapture(event *tcell.EventKey) *tcell.EventKey {
 		case ui.destinations:
 			ui.PrintLog("New destination")
 		case ui.messages:
-			ui.PrintLog("New message")
+            ui.addMessage()
 		}
 	case tcell.KeyCtrlU:
 		p := ui.app.GetFocus()
@@ -65,17 +65,17 @@ func (ui *UI) setInputCapture(event *tcell.EventKey) *tcell.EventKey {
 		case ui.destinations:
 			ui.PrintLog("Update destination")
 		case ui.messages:
-			ui.PrintLog("Update message")
+            ui.updateSelectedMessage()
 		}
 	case tcell.KeyCtrlD:
 		p := ui.app.GetFocus()
 		switch p {
 		case ui.connections:
-			ui.removeConnection()
+			ui.removeSelectedConnection()
 		case ui.destinations:
 			ui.PrintLog("Delete destination")
 		case ui.messages:
-			ui.PrintLog("Delete message")
+            ui.removeSelectedMessage()
 		}
 	}
 

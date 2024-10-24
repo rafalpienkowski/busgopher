@@ -5,14 +5,14 @@ import (
 )
 
 type Config struct {
-	NConnections map[string]asb.Connection `json:"connections"`
-	NMessages    map[string]asb.Message    `json:"messages"`
+	Connections map[string]asb.Connection `json:"connections"`
+	Messages    map[string]asb.Message    `json:"messages"`
 }
 
 func (config Config) Default() *Config {
 	return &Config{
-		NConnections: make(map[string]asb.Connection),
-		NMessages:    make(map[string]asb.Message),
+		Connections: make(map[string]asb.Connection),
+		Messages:    make(map[string]asb.Message),
 	}
 }
 

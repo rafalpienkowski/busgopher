@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"io"
 	"os"
+
+	"github.com/rafalpienkowski/busgopher/internal/asb"
 )
 
 const configName = "config.json"
@@ -34,7 +36,10 @@ func (storage *FileConfigStorage) Load() (Config, error) {
 
 	err = json.Unmarshal(bytes, &config)
 	if err != nil {
-		return Config{}, err
+		return Config{
+			Messages:    make(map[string]asb.Message),
+			Connections: make(map[string]asb.Connection),
+		}, err
 	}
 
 	return *config, nil
@@ -69,7 +74,7 @@ func readFile(filePath string) ([]byte, error) {
 }
 
 func writeFile(filePath string, content string) error {
-	file, err := os.OpenFile(filePath, os.O_RDWR | os.O_TRUNC, 0644)
+	file, err := os.OpenFile(filePath, os.O_RDWR|os.O_TRUNC, 0644)
 	if err != nil {
 		return err
 	}

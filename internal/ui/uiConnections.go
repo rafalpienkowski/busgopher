@@ -39,7 +39,7 @@ func (ui *UI) addConnection() {
 	ui.switchToForm("Add new connection")
 }
 
-func (ui *UI) removeConnection() {
+func (ui *UI) removeSelectedConnection() {
 	ui.advancedForm.clear()
 	if ui.controller.GetSelectedConnection() == nil {
 		ui.PrintLog("Please select connection to remove!\n")

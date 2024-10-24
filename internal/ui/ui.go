@@ -143,7 +143,7 @@ func (ui *UI) LoadData(controller *controller.Controller) {
 func (ui *UI) refreshConnections() {
 
 	ui.connections.Clear()
-	for _, conn := range ui.controller.Config.NConnections {
+	for _, conn := range ui.controller.Config.Connections {
 		ui.connections.AddItem(conn.Name, conn.Namespace, 0, func() {
 			ui.controller.SelectConnectionByName(conn.Name)
 			ui.refreshDestinations()
@@ -154,7 +154,7 @@ func (ui *UI) refreshConnections() {
 func (ui *UI) refreshMessages() {
 	ui.messages.Clear()
 
-	for _, msg := range ui.controller.Config.NMessages {
+	for _, msg := range ui.controller.Config.Messages {
 		ui.messages.AddItem(msg.Name, msg.Subject, 0, func() {
 			ui.controller.SelectMessageByName(msg.Name)
 			ui.printContent(msg.Print())

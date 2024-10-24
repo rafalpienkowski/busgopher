@@ -48,7 +48,7 @@ func (controller *Controller) GetSelectedConnection() *asb.Connection {
     if len(controller.selectedConnectionName) == 0 {
         return nil
     }
-	conn, ok := controller.Config.NConnections[controller.selectedConnectionName]
+	conn, ok := controller.Config.Connections[controller.selectedConnectionName]
     if ok {
         return &conn
     }
@@ -58,7 +58,7 @@ func (controller *Controller) GetSelectedConnection() *asb.Connection {
 
 func (controller *Controller) SelectConnectionByName(name string) {
 
-	conn, ok := controller.Config.NConnections[name]
+	conn, ok := controller.Config.Connections[name]
 	if ok {
 		controller.selectedConnectionName = name
 		controller.selectedDestination = ""
@@ -70,7 +70,7 @@ func (controller *Controller) SelectConnectionByName(name string) {
 }
 
 func (controller *Controller) SelectDestinationByName(name string) {
-	conn, ok := controller.Config.NConnections[controller.selectedConnectionName]
+	conn, ok := controller.Config.Connections[controller.selectedConnectionName]
 	if ok {
 		for _, dest := range conn.Destinations {
 			if strings.EqualFold(dest, name) {
@@ -84,7 +84,7 @@ func (controller *Controller) SelectDestinationByName(name string) {
 }
 
 func (controller *Controller) SelectMessageByName(name string) {
-	_, ok := controller.Config.NMessages[name]
+	_, ok := controller.Config.Messages[name]
 	if ok {
 		controller.selectedMessageName = name
 		controller.writeLog("Selected message: " + name)
@@ -98,7 +98,7 @@ func (controller *Controller) GetDestiationNamesForSelectedConnection() []string
 		return []string{}
 	}
 
-	return controller.Config.NConnections[controller.selectedConnectionName].Destinations
+	return controller.Config.Connections[controller.selectedConnectionName].Destinations
 }
 
 func (controller *Controller) AddDestination(newDestination string) {
@@ -107,7 +107,7 @@ func (controller *Controller) AddDestination(newDestination string) {
 		return
 	}
 
-	conn, ok := controller.Config.NConnections[controller.selectedConnectionName]
+	conn, ok := controller.Config.Connections[controller.selectedConnectionName]
 	if ok {
 
 		conn.Destinations = append(
@@ -115,7 +115,7 @@ func (controller *Controller) AddDestination(newDestination string) {
 			newDestination,
 		)
 
-		controller.Config.NConnections[controller.selectedConnectionName] = conn
+		controller.Config.Connections[controller.selectedConnectionName] = conn
 		controller.saveconfig()
 		return
 	}
@@ -129,7 +129,7 @@ func (controller *Controller) RemoveDestination(destination string) {
 		return
 	}
 
-	conn, ok := controller.Config.NConnections[controller.selectedConnectionName]
+	conn, ok := controller.Config.Connections[controller.selectedConnectionName]
 	if !ok {
 		controller.writeError("Connection not found!")
 		return
@@ -147,7 +147,7 @@ func (controller *Controller) RemoveDestination(destination string) {
 		return
 	}
 
-	controller.Config.NConnections[controller.selectedConnectionName] = conn
+	controller.Config.Connections[controller.selectedConnectionName] = conn
 
 	controller.saveconfig()
 }
@@ -158,7 +158,7 @@ func (controller *Controller) UpdateDestination(oldDestination string, newDestin
 		return
 	}
 
-	conn, ok := controller.Config.NConnections[controller.selectedConnectionName]
+	conn, ok := controller.Config.Connections[controller.selectedConnectionName]
 	if !ok {
 		controller.writeError("Connection not found!")
 		return
@@ -174,24 +174,25 @@ func (controller *Controller) UpdateDestination(oldDestination string, newDestin
 	}
 	conn.Destinations = newDestinations
 
-	controller.Config.NConnections[controller.selectedConnectionName] = conn
+	controller.Config.Connections[controller.selectedConnectionName] = conn
 
 	controller.saveconfig()
 }
 
-func (controller *Controller) AddMessage(message asb.Message) {
-	_, ok := controller.Config.NMessages[message.Name]
+func (controller *Controller) AddMessage(message asb.Message) error {
+	_, ok := controller.Config.Messages[message.Name]
 	if ok {
 		controller.writeError("Message with name " + message.Name + " already exist")
-		return
+		return errors.New("Message with name " + message.Name + " already exist") 
 	}
-	controller.Config.NMessages[message.Name] = message
+	controller.Config.Messages[message.Name] = message
 
 	controller.saveconfig()
+    return nil
 }
 
 func (controller *Controller) RemoveMessage(name string) {
-	delete(controller.Config.NMessages, name)
+	delete(controller.Config.Messages, name)
 
 	controller.selectedMessageName = ""
 
@@ -199,12 +200,12 @@ func (controller *Controller) RemoveMessage(name string) {
 }
 
 func (controller *Controller) UpdateMessage(message asb.Message) {
-	_, ok := controller.Config.NMessages[message.Name]
+	_, ok := controller.Config.Messages[message.Name]
 	if !ok {
 		controller.writeError("Message with name " + message.Name + " not found")
 		return
 	}
-	controller.Config.NMessages[message.Name] = message
+	controller.Config.Messages[message.Name] = message
 
 	controller.saveconfig()
 }
@@ -217,12 +218,12 @@ func (controller *Controller) RemoveSelectedConnection() (string, error) {
 		return "", errors.New("Select connection first!")
 	}
 
-	_, ok := controller.Config.NConnections[name]
+	_, ok := controller.Config.Connections[name]
 	if !ok {
 		return "", errors.New("Connection not found")
 	}
 
-	delete(controller.Config.NConnections, name)
+	delete(controller.Config.Connections, name)
 
 	controller.saveconfig()
 	controller.selectedConnectionName = ""
@@ -232,12 +233,12 @@ func (controller *Controller) RemoveSelectedConnection() (string, error) {
 
 func (controller *Controller) AddConnection(newConnection *asb.Connection) error {
 
-	_, ok := controller.Config.NConnections[newConnection.Name]
+	_, ok := controller.Config.Connections[newConnection.Name]
 	if ok {
 		return errors.New("Connection '" + newConnection.Name + "' exist")
 	}
 
-	controller.Config.NConnections[newConnection.Name] = *newConnection
+	controller.Config.Connections[newConnection.Name] = *newConnection
 	controller.saveconfig()
 	return nil
 }
@@ -249,14 +250,14 @@ func (controller *Controller) UpdateSelectedConnection(newConnection *asb.Connec
 		return errors.New("Connection not selected!")
 	}
 
-	_, ok := controller.Config.NConnections[controller.selectedConnectionName]
+	_, ok := controller.Config.Connections[controller.selectedConnectionName]
 	if !ok {
 		controller.writeError("Connection '" + controller.selectedConnectionName + "' not exist")
 		return errors.New("Connection '" + controller.selectedConnectionName + "' not exist")
 	}
-	delete(controller.Config.NConnections, controller.selectedConnectionName)
+	delete(controller.Config.Connections, controller.selectedConnectionName)
 
-	controller.Config.NConnections[newConnection.Name] = *newConnection
+	controller.Config.Connections[newConnection.Name] = *newConnection
 	controller.saveconfig()
 	controller.SelectConnectionByName(newConnection.Name)
     return nil
@@ -281,13 +282,13 @@ func (controller *Controller) Send() {
 
 	controller.writeLog("Sending message to: " + controller.selectedDestination)
 	controller.writeLog(
-		"Sending message to: " + controller.Config.NConnections[controller.selectedConnectionName].Namespace,
+		"Sending message to: " + controller.Config.Connections[controller.selectedConnectionName].Namespace,
 	)
 
 	err := controller.messageSender.Send(
-		controller.Config.NConnections[controller.selectedConnectionName].Namespace,
+		controller.Config.Connections[controller.selectedConnectionName].Namespace,
 		controller.selectedDestination,
-		controller.Config.NMessages[controller.selectedMessageName],
+		controller.Config.Messages[controller.selectedMessageName],
 	)
 
 	if err != nil {

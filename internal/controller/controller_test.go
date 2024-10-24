@@ -32,8 +32,8 @@ func getInMemoryConfig() *config.InMemoryConfigStorage {
 
 	return &config.InMemoryConfigStorage{
 		Config: config.Config{
-			NConnections: nconnections,
-			NMessages:    nmessages,
+			Connections: nconnections,
+			Messages:    nmessages,
 		},
 	}
 }
@@ -203,7 +203,7 @@ func Test_Controller_Should_Send_Message(t *testing.T) {
 
 	assert.Equal(t, "test.azure.com", messageSender.Namespace)
 	assert.Equal(t, "queue", messageSender.Destination)
-	assert.Equal(t, inMemoryConfig.Config.NMessages["test-message"], messageSender.Message)
+	assert.Equal(t, inMemoryConfig.Config.Messages["test-message"], messageSender.Message)
 }
 
 func Test_Controller_Should_Not_Add_Destination_When_Connection_Not_Selected(t *testing.T) {
@@ -227,7 +227,7 @@ func Test_Controller_Should_Add_Destination_When_Connection_Selected(t *testing.
 	assert.Equal(
 		t,
 		[]string{"queue", "topic", "newDestination"},
-		controller.Config.NConnections["test-connection"].Destinations,
+		controller.Config.Connections["test-connection"].Destinations,
 	)
 }
 
@@ -247,7 +247,7 @@ func Test_Controller_Should_Save_Config_After_Adding_Destination(t *testing.T) {
 			"newDestination",
 		},
 	}
-	assert.Equal(t, nconnections, inMemoryConfig.Config.NConnections)
+	assert.Equal(t, nconnections, inMemoryConfig.Config.Connections)
 }
 
 func Test_Controller_Should_Not_Remove_Destination_When_Connection_Not_Selected(t *testing.T) {
@@ -265,7 +265,7 @@ func Test_Controller_Should_Not_Remove_Destination_When_Connection_Not_Selected(
 		},
 	}
 
-	assert.Equal(t, nconnections, inMemoryConfig.Config.NConnections)
+	assert.Equal(t, nconnections, inMemoryConfig.Config.Connections)
 }
 
 func Test_Controller_Should_Return_Error_When_Removing_Destination_Without_Selected_Connection(
@@ -298,7 +298,7 @@ func Test_Controller_Should_Not_Remove_Destination_When_Destination_NotFound(t *
 			"topic",
 		},
 	}
-	assert.Equal(t, nconnections, inMemoryConfig.Config.NConnections)
+	assert.Equal(t, nconnections, inMemoryConfig.Config.Connections)
 }
 
 func Test_Controller_Should_Write_Error_When_Remove_Non_Existing_Destination(t *testing.T) {
@@ -329,7 +329,7 @@ func Test_Controller_Should_Remove_Destination(t *testing.T) {
 			"topic",
 		},
 	}
-	assert.Equal(t, nconnections, inMemoryConfig.Config.NConnections)
+	assert.Equal(t, nconnections, inMemoryConfig.Config.Connections)
 }
 
 func Test_Controller_Should_Not_Update_Destination_When_Connection_Not_Selected(t *testing.T) {
@@ -359,7 +359,7 @@ func Test_Controller_Should_Not_Update_Destination_When_Destination_Not_Found(t 
 			"topic",
 		},
 	}
-	assert.Equal(t, nconnections, inMemoryConfig.Config.NConnections)
+	assert.Equal(t, nconnections, inMemoryConfig.Config.Connections)
 }
 
 func Test_Controller_Should_Update_Destination(t *testing.T) {
@@ -377,7 +377,7 @@ func Test_Controller_Should_Update_Destination(t *testing.T) {
 			"topic",
 		},
 	}
-	assert.Equal(t, nconnections, inMemoryConfig.Config.NConnections)
+	assert.Equal(t, nconnections, inMemoryConfig.Config.Connections)
 }
 
 func Test_Controller_Should_Remove_Message(t *testing.T) {
@@ -387,7 +387,7 @@ func Test_Controller_Should_Remove_Message(t *testing.T) {
 
 	nmessages := make(map[string]asb.Message)
 
-	assert.Equal(t, nmessages, inMemoryConfig.Config.NMessages)
+	assert.Equal(t, nmessages, inMemoryConfig.Config.Messages)
 }
 
 func TestControllerShouldNotRemoveMessageWithUnknownName(t *testing.T) {
@@ -400,25 +400,26 @@ func TestControllerShouldNotRemoveMessageWithUnknownName(t *testing.T) {
 		Name: "test-message",
 		Body: "test msg body",
 	}
-	assert.Equal(t, nmessages, inMemoryConfig.Config.NMessages)
+	assert.Equal(t, nmessages, inMemoryConfig.Config.Messages)
 }
 
-func TestControllerShouldAddNewMessage(t *testing.T) {
+func Test_Controller_Should_Add_New_Message(t *testing.T) {
 	controller, inMemoryConfig, _, _ := createTestController()
 	newMsg := asb.Message{
 		Name: "new-message",
 		Body: "new msg body",
 	}
 
-	controller.AddMessage(newMsg)
+    err := controller.AddMessage(newMsg)
 
+    assert.NoError(t, err)
 	nmessages := make(map[string]asb.Message)
 	nmessages["test-message"] = asb.Message{
 		Name: "test-message",
 		Body: "test msg body",
 	}
 	nmessages["new-message"] = newMsg
-	assert.Equal(t, nmessages, inMemoryConfig.Config.NMessages)
+	assert.Equal(t, nmessages, inMemoryConfig.Config.Messages)
 }
 
 func Test_Controller_Should_Not_Add_New_Message_When_Name_Is_Not_Unique(t *testing.T) {
@@ -427,13 +428,25 @@ func Test_Controller_Should_Not_Add_New_Message_When_Name_Is_Not_Unique(t *testi
 		Name: "test-message",
 	}
 
-	controller.AddMessage(newMsg)
-
+    err := controller.AddMessage(newMsg)
+    
+    assert.Error(t, err)
 	assert.Equal(
 		t,
 		"[Error] Message with name test-message already exist",
 		(trimDatePart(getLastLine(buffer.String()))),
 	)
+}
+
+func Test_Controller_Should_Return_Error_When_New_Message_Name_Is_Not_Unique(t *testing.T) {
+	controller, _, _, _ := createTestController()
+	newMsg := asb.Message{
+		Name: "test-message",
+	}
+
+    err := controller.AddMessage(newMsg)
+    
+    assert.Error(t, err, "Message with name test-message already exist")
 }
 
 func Test_Controller_Should_Update_Message(t *testing.T) {
@@ -447,7 +460,7 @@ func Test_Controller_Should_Update_Message(t *testing.T) {
 
 	nmessages := make(map[string]asb.Message)
 	nmessages["test-message"] = newMsg
-	assert.Equal(t, nmessages, inMemoryConfig.Config.NMessages)
+	assert.Equal(t, nmessages, inMemoryConfig.Config.Messages)
 }
 
 func Test_Controller_Should_Not_Update_Message_When_Message_Not_Found(t *testing.T) {
@@ -461,7 +474,7 @@ func Test_Controller_Should_Not_Update_Message_When_Message_Not_Found(t *testing
 
 	nmessages := make(map[string]asb.Message)
 	nmessages["test-message"] = newMsg
-	assert.Equal(t, nmessages, inMemoryConfig.Config.NMessages)
+	assert.Equal(t, nmessages, inMemoryConfig.Config.Messages)
 }
 
 func Test_Controller_Should_Write_Error_When_Update_Non_Existing_Message(t *testing.T) {
@@ -488,7 +501,7 @@ func Test_Controller_Should_Remove_Connection(t *testing.T) {
 
     assert.NoError(t, err)
 	nconnections := make(map[string]asb.Connection)
-	assert.Equal(t, nconnections, inMemoryConfig.Config.NConnections)
+	assert.Equal(t, nconnections, inMemoryConfig.Config.Connections)
 }
 
 func Test_Controller_Should_Return_Removed_Connection_Name(t *testing.T) {
@@ -547,7 +560,7 @@ func Test_Controller_Should_Add_Connection(t *testing.T) {
 		Namespace: "new.azure.com",
 	}
 
-	assert.Equal(t, nconnections, inMemoryConfig.Config.NConnections)
+	assert.Equal(t, nconnections, inMemoryConfig.Config.Connections)
 }
 
 func Test_Controller_Should_Not_Add_New_Connection_When_Name_Exist(t *testing.T) {
@@ -569,7 +582,7 @@ func Test_Controller_Should_Not_Add_New_Connection_When_Name_Exist(t *testing.T)
 			"topic",
 		},
 	}
-	assert.Equal(t, nconnections, inMemoryConfig.Config.NConnections)
+	assert.Equal(t, nconnections, inMemoryConfig.Config.Connections)
 }
 
 func Test_Controller_Should_Write_Error_When_Add_New_Connection_And_Name_Exist(t *testing.T) {
@@ -606,7 +619,7 @@ func Test_Controller_Should_Update_Connection(t *testing.T) {
 			"new-queue",
 		},
 	}
-	assert.Equal(t, nconnections, inMemoryConfig.Config.NConnections)
+	assert.Equal(t, nconnections, inMemoryConfig.Config.Connections)
 }
 
 func Test_Controller_Should_Select_New_Connection(t *testing.T) {

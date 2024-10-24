@@ -6,7 +6,11 @@ import (
 
 	"github.com/rivo/tview"
 )
+/*
 
+    Use this in the future to add destination to connecitons
+
+*/
 type ListForm struct {
 	list        []string
 	listView    *tview.TextView
