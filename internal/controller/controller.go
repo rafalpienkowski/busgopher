@@ -163,6 +163,10 @@ func (controller *Controller) writeLog(log string) {
     */
 }
 
-func (controller *Controller) saveconfig() error {
+func (controller *Controller) Saveconfig() error {
 	return controller.configStorage.Save(controller.Config)
+}
+
+func (controller *Controller) ValidateConfig() error {
+    return nil
 }

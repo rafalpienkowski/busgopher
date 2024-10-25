@@ -14,6 +14,7 @@ type SendingPage struct {
 	theme      Theme
 	controller *controller.Controller
 	closeApp   closeAppFunc
+	switchPage switchPageFunc
 
 	flex         *tview.Flex
 	connections  *tview.List
@@ -21,13 +22,17 @@ type SendingPage struct {
 	messages     *tview.List
 	content      *tview.TextView
 	logs         *tview.TextView
+	config       *BoxButton
 	send         *BoxButton
 	close        *BoxButton
+
+	inputs []tview.Primitive
 }
 
 func newSendingPage(
 	theme Theme,
 	closeApp closeAppFunc,
+	switchPage switchPageFunc,
 ) *SendingPage {
 
 	flex := tview.NewFlex()
@@ -37,10 +42,22 @@ func newSendingPage(
 	content := tview.NewTextView()
 	logs := tview.NewTextView()
 	send := newBoxButton("Send")
+	config := newBoxButton("Configuration")
 	close := newBoxButton("Close")
+
+	inputs := []tview.Primitive{
+		connections,
+		destinations,
+		messages,
+		content,
+		send,
+		config,
+		close,
+	}
 
 	sendingPage := SendingPage{
 		theme:        theme,
+		switchPage:   switchPage,
 		closeApp:     closeApp,
 		flex:         flex,
 		connections:  connections,
@@ -49,7 +66,9 @@ func newSendingPage(
 		content:      content,
 		logs:         logs,
 		send:         send,
+		config:       config,
 		close:        close,
+		inputs:       inputs,
 	}
 	sendingPage.configureAppearence()
 	sendingPage.setLayout()
@@ -95,6 +114,11 @@ func (sendingPage *SendingPage) configureAppearence() {
 		SetTitle(" Logs: ").
 		SetBorder(true).
 		SetBackgroundColor(sendingPage.theme.backgroundColor)
+
+	sendingPage.flex.
+		SetBorder(true).
+		SetBackgroundColor(sendingPage.theme.backgroundColor).
+		SetTitle("Sending messages")
 }
 
 func (sendingPage *SendingPage) setLayout() {
@@ -107,17 +131,13 @@ func (sendingPage *SendingPage) setLayout() {
 	actions.
 		AddItem(tview.NewBox().SetBackgroundColor(sendingPage.theme.backgroundColor), 0, 1, false).
 		AddItem(sendingPage.send, sendingPage.send.GetWidth(), 0, false).
+		AddItem(sendingPage.config, sendingPage.config.GetWidth(), 0, false).
 		AddItem(sendingPage.close, sendingPage.close.GetWidth(), 0, false)
 
 	right := tview.NewFlex().SetDirection(tview.FlexRow).
 		AddItem(sendingPage.content, 0, 3, false).
 		AddItem(actions, 3, 0, false).
 		AddItem(sendingPage.logs, 0, 1, false)
-
-	sendingPage.flex.
-		SetBorder(true).
-		SetBackgroundColor(sendingPage.theme.backgroundColor).
-		SetTitle("Sending messages")
 
 	sendingPage.flex.
 		AddItem(left, 0, 1, false).
@@ -138,6 +158,9 @@ func (sendingPage *SendingPage) setActions() {
 			sendingPage.printError(err)
 		}
 	})
+    sendingPage.config.SetSelectedFunc(func (){
+        sendingPage.switchPage("config")
+    })
 	sendingPage.close.SetSelectedFunc(func() {
 		sendingPage.closeApp()
 	})
@@ -217,6 +240,7 @@ func (sendingPage *SendingPage) setAfterDrawFunc(focusedElement tview.Primitive)
 	sendingPage.content.SetBorderColor(tcell.ColorWhite)
 	sendingPage.logs.SetBorderColor(tcell.ColorWhite)
 	sendingPage.send.SetBorderColor(tcell.ColorWhite)
+	sendingPage.config.SetBorderColor(tcell.ColorWhite)
 	sendingPage.close.SetBorderColor(tcell.ColorWhite)
 
 	switch focusedElement {
@@ -232,6 +256,8 @@ func (sendingPage *SendingPage) setAfterDrawFunc(focusedElement tview.Primitive)
 		sendingPage.logs.SetBorderColor(tcell.ColorBlue)
 	case sendingPage.send:
 		sendingPage.send.SetBorderColor(tcell.ColorBlue)
+	case sendingPage.config:
+		sendingPage.config.SetBorderColor(tcell.ColorBlue)
 	case sendingPage.close:
 		sendingPage.close.SetBorderColor(tcell.ColorBlue)
 	}

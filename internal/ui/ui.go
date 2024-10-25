@@ -1,12 +1,12 @@
 package ui
 
 import (
+	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
 
 	"github.com/rafalpienkowski/busgopher/internal/controller"
 )
 
-// UI implement terminal user interface features.
 type UI struct {
 	controller *controller.Controller
 
@@ -17,40 +17,24 @@ type UI struct {
 	// Pages
 	pages   *tview.Pages
 	sending *SendingPage
-
-	// Config
-	configFlex   *tview.Flex
-	advancedForm *AdvancedForm
-
-	inputs []tview.Primitive
+	config  *ConfigPage
 }
 
 type closeAppFunc func()
+type switchPageFunc func(string)
 
 func NewUI() *UI {
 	ui := UI{}
 
-	// Create UI elements
 	ui.theme = Dark()
 	ui.app = tview.NewApplication()
 	ui.pages = tview.NewPages()
-	ui.sending = newSendingPage(ui.theme, closeAppFunc(func() { ui.app.Stop() }))
-
-	ui.configFlex = tview.NewFlex()
-	ui.advancedForm = newAdvancedForm(ui.theme)
-
-	ui.inputs = []tview.Primitive{
-		ui.sending.connections,
-		ui.sending.destinations,
-		ui.sending.messages,
-		ui.sending.content,
-		ui.sending.send,
-		ui.sending.close,
-	}
+	ui.sending = newSendingPage(ui.theme, ui.app.Stop, ui.switchToPage)
+	ui.config = newConfigPage(ui.theme, ui.app.Stop, ui.switchToPage)
 
 	ui.pages.
 		AddPage("sending", ui.sending.flex, true, true).
-		AddPage("form", ui.advancedForm.flex, true, false)
+		AddPage("config", ui.config.flex, true, false)
 
 	ui.app.SetAfterDrawFunc(ui.setAfterDrawFunc)
 	ui.app.SetInputCapture(ui.setInputCapture)
@@ -60,7 +44,8 @@ func NewUI() *UI {
 
 func (ui *UI) LoadData(controller *controller.Controller) {
 	ui.controller = controller
-    ui.sending.loadData(ui.controller)
+	ui.sending.loadData(ui.controller)
+	ui.config.loadData(ui.controller)
 }
 
 func (ui *UI) Start() error {
@@ -70,9 +55,70 @@ func (ui *UI) Start() error {
 		Run()
 }
 
-func (ui *UI) switchToPage(title string, page string) {
-	ui.advancedForm.flex.SetTitle(title)
+func (ui *UI) switchToPage(page string) {
 	ui.pages.SwitchToPage(page)
-	ui.app.SetFocus(ui.advancedForm.flex)
-	ui.app.SetFocus(ui.advancedForm.form)
+}
+
+func (ui *UI) queueUpdateDraw(f func()) {
+	go func() {
+		ui.app.QueueUpdateDraw(f)
+	}()
+}
+
+func (ui *UI) setAfterDrawFunc(screen tcell.Screen) {
+	ui.queueUpdateDraw(func() {
+		currentPage, _ := ui.pages.GetFrontPage()
+		focusedElement := ui.app.GetFocus()
+		switch currentPage {
+		case "sending":
+			ui.sending.setAfterDrawFunc(focusedElement)
+		case "config":
+			ui.config.setAfterDrawFunc(focusedElement)
+		}
+	})
+}
+
+func (ui *UI) setInputCapture(event *tcell.EventKey) *tcell.EventKey {
+	switch event.Key() {
+	case tcell.KeyTab:
+		ui.cycleFocus(false)
+	case tcell.KeyBacktab:
+		ui.cycleFocus(true)
+	}
+
+	return event
+}
+
+func (ui *UI) getNextFocusInput(inputs []tview.Primitive, reverse bool) tview.Primitive {
+	for i, el := range inputs {
+		if !el.HasFocus() {
+			continue
+		}
+
+		if reverse {
+			i = i - 1
+			if i < 0 {
+				i = len(inputs) - 1
+			}
+		} else {
+			i = i + 1
+			i = i % len(inputs)
+		}
+		return inputs[i]
+	}
+	return inputs[0]
+}
+
+func (ui *UI) cycleFocus(reverse bool) {
+	currentPage, _ := ui.pages.GetFrontPage()
+
+	var input tview.Primitive
+	switch currentPage {
+	case "sending":
+		input = ui.getNextFocusInput(ui.sending.inputs, reverse)
+	case "config":
+		input = ui.getNextFocusInput(ui.config.inputs, reverse)
+	}
+
+	ui.app.SetFocus(input)
 }
