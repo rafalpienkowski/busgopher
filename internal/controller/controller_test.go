@@ -2,8 +2,6 @@ package controller
 
 import (
 	"bytes"
-	"fmt"
-	"io"
 	"strings"
 	"testing"
 
@@ -56,16 +54,17 @@ func createTestController() (*Controller, *config.InMemoryConfigStorage, *asb.In
 	var testConfig config.ConfigStorage = inMemoryConfig
 	inMemoryMessageSender := &asb.InMemoryMessageSender{}
 	var testMessageSender asb.MessageSender = inMemoryMessageSender
-	var buffer bytes.Buffer
-	var writer io.Writer = &buffer
+	//var buffer bytes.Buffer
+	//var writer io.Writer = &buffer
 
 	controller, _ := NewController(
 		testConfig,
 		testMessageSender,
-		func(s string) { fmt.Fprintf(writer, "%v", s) },
+		//func(s string) { fmt.Fprintf(writer, "%v", s) },
 	)
 
-	return controller, inMemoryConfig, inMemoryMessageSender, &buffer
+	return controller, inMemoryConfig, inMemoryMessageSender, nil
+	//return controller, inMemoryConfig, inMemoryMessageSender, &buffer
 }
 
 func Test_Controller_Should_Load_Config(t *testing.T) {

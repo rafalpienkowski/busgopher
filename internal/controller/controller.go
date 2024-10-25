@@ -2,9 +2,7 @@ package controller
 
 import (
 	"errors"
-	"fmt"
 	"strings"
-	"time"
 
 	"github.com/rafalpienkowski/busgopher/internal/asb"
 	"github.com/rafalpienkowski/busgopher/internal/config"
@@ -29,15 +27,11 @@ type Controller struct {
 	selectedDestination    string
 
 	messageSender asb.MessageSender
-	print         Print
 }
-
-type Print func(string)
 
 func NewController(
 	configStorage config.ConfigStorage,
 	messageSender asb.MessageSender,
-	print Print,
 ) (*Controller, error) {
 
 	config, err := configStorage.Load()
@@ -49,7 +43,6 @@ func NewController(
 	controller.Config = config
 	controller.messageSender = messageSender
 	controller.configStorage = configStorage
-	controller.print = print
 
 	return &controller, nil
 }
@@ -161,11 +154,13 @@ func (controller *Controller) Send() error {
 }
 
 func (controller *Controller) writeLog(log string) {
+    /*
 	controller.print(fmt.Sprintf(
 		"[%v]: [Info] %v\n",
 		time.Now().Format("2006-01-02 15:04:05"),
 		log,
 	))
+    */
 }
 
 func (controller *Controller) saveconfig() error {

@@ -12,31 +12,11 @@ func (ui *UI) queueUpdateDraw(f func()) {
 
 func (ui *UI) setAfterDrawFunc(screen tcell.Screen) {
 	ui.queueUpdateDraw(func() {
-		p := ui.app.GetFocus()
-
-		ui.connections.SetBorderColor(tcell.ColorWhite)
-		ui.destinations.SetBorderColor(tcell.ColorWhite)
-		ui.messages.SetBorderColor(tcell.ColorWhite)
-		ui.content.SetBorderColor(tcell.ColorWhite)
-		ui.logs.SetBorderColor(tcell.ColorWhite)
-		ui.send.SetBorderColor(tcell.ColorWhite)
-		ui.close.SetBorderColor(tcell.ColorWhite)
-
-		switch p {
-		case ui.connections:
-			ui.connections.SetBorderColor(tcell.ColorBlue)
-		case ui.destinations:
-			ui.destinations.SetBorderColor(tcell.ColorBlue)
-		case ui.messages:
-			ui.messages.SetBorderColor(tcell.ColorBlue)
-		case ui.content:
-			ui.content.SetBorderColor(tcell.ColorBlue)
-		case ui.logs:
-			ui.logs.SetBorderColor(tcell.ColorBlue)
-		case ui.send:
-			ui.send.SetBorderColor(tcell.ColorBlue)
-		case ui.close:
-			ui.close.SetBorderColor(tcell.ColorBlue)
+		currentPage, _ := ui.pages.GetFrontPage()
+		focusedElement := ui.app.GetFocus()
+		switch currentPage {
+		case "sending":
+			ui.sending.setAfterDrawFunc(focusedElement)
 		}
 	})
 }
@@ -54,7 +34,7 @@ func (ui *UI) setInputCapture(event *tcell.EventKey) *tcell.EventKey {
 
 func (ui *UI) cycleFocus(reverse bool) {
 	currentPage, _ := ui.pages.GetFrontPage()
-	if currentPage == "form" {
+	if currentPage == "sending" {
 		return
 	}
 

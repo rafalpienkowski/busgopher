@@ -12,7 +12,7 @@ type BoxButton struct {
 	selected func()
 }
 
-func (bb *BoxButton) NewBoxButton(label string) *BoxButton {
+func newBoxButton(label string) *BoxButton {
 	box := tview.NewBox().
 		SetBorder(true).
 		SetTitleAlign(tview.AlignCenter).
