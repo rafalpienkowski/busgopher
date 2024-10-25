@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"encoding/json"
 	"errors"
 	"strings"
 
@@ -154,19 +155,27 @@ func (controller *Controller) Send() error {
 }
 
 func (controller *Controller) writeLog(log string) {
-    /*
-	controller.print(fmt.Sprintf(
-		"[%v]: [Info] %v\n",
-		time.Now().Format("2006-01-02 15:04:05"),
-		log,
-	))
-    */
+	/*
+		controller.print(fmt.Sprintf(
+			"[%v]: [Info] %v\n",
+			time.Now().Format("2006-01-02 15:04:05"),
+			log,
+		))
+	*/
 }
 
 func (controller *Controller) Saveconfig() error {
 	return controller.configStorage.Save(controller.Config)
 }
 
+func (controller *Controller) GetConfigString() (string, error) {
+	json, err := json.Marshal(controller.Config)
+    if err != nil {
+        return "", err
+    }
+    return string(json), err
+}
+
 func (controller *Controller) ValidateConfig() error {
-    return nil
+	return nil
 }

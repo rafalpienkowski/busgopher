@@ -108,8 +108,9 @@ func (configPage *ConfigPage) setLayout() {
 
 func (configPage *ConfigPage) loadData(controller *controller.Controller) {
 	configPage.controller = controller
-
 	configPage.setActions()
+    json, _ := configPage.controller.GetConfigString()
+    configPage.printConfig(json)
 }
 
 func (configPage *ConfigPage) setActions() {
