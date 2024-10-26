@@ -117,14 +117,16 @@ func (configPage *ConfigPage) setActions() {
 	configPage.sending.SetSelectedFunc(func() {
         configPage.switchPage("sending")
 	})
+
 	configPage.validate.SetSelectedFunc(func() {
 		err := configPage.controller.ValidateConfig()
 		if err != nil {
 			configPage.printError(err)
 		}
 	})
+
 	configPage.save.SetSelectedFunc(func() {
-		err := configPage.controller.Saveconfig()
+		err := configPage.controller.SaveConfigJson(configPage.config.GetText())
 		if err != nil {
 			configPage.printError(err)
 		}

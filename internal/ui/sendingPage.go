@@ -1,6 +1,8 @@
 package ui
 
 import (
+	"bytes"
+	"encoding/json"
 	"fmt"
 	"time"
 
@@ -110,6 +112,8 @@ func (sendingPage *SendingPage) configureAppearence() {
 		SetBorder(true).
 		SetBackgroundColor(sendingPage.theme.backgroundColor)
 
+    sendingPage.content.SetDynamicColors(true)
+
 	sendingPage.logs.
 		SetTitle(" Logs: ").
 		SetBorder(true).
@@ -203,7 +207,11 @@ func (sendingPage *SendingPage) refreshMessages() {
 				sendingPage.printError(err)
 				return
 			}
-			sendingPage.printContent(msg.Message.Print())
+            colorized, err := colorizeJSON(msg.Message.Print())
+            if err != nil {
+                sendingPage.printError(err)
+            }
+			sendingPage.printContent(colorized)
 		})
 	}
 }
@@ -260,5 +268,47 @@ func (sendingPage *SendingPage) setAfterDrawFunc(focusedElement tview.Primitive)
 		sendingPage.config.SetBorderColor(tcell.ColorBlue)
 	case sendingPage.close:
 		sendingPage.close.SetBorderColor(tcell.ColorBlue)
+	}
+}
+
+func colorizeJSON(data string) (string, error) {
+	var jsonData interface{}
+	if err := json.Unmarshal([]byte(data), &jsonData); err != nil {
+		return "", err
+	}
+	var buf bytes.Buffer
+	formatJSON(jsonData, &buf, "")
+	return buf.String(), nil
+}
+
+func formatJSON(value interface{}, buf *bytes.Buffer, indent string) {
+	switch v := value.(type) {
+	case map[string]interface{}:
+		buf.WriteString("{\n")
+		for key, val := range v {
+			buf.WriteString(indent + "  ")
+			buf.WriteString(fmt.Sprintf(`[yellow]"%s":[-] `, key))
+			formatJSON(val, buf, indent+"  ")
+			buf.WriteString(",\n")
+		}
+		buf.WriteString(indent + "}")
+	case []interface{}:
+		buf.WriteString("[\n")
+		for _, val := range v {
+			buf.WriteString(indent + "  ")
+			formatJSON(val, buf, indent+"  ")
+			buf.WriteString(",\n")
+		}
+		buf.WriteString(indent + "]")
+	case string:
+		buf.WriteString(fmt.Sprintf(`[green]"%s"[-]`, v))
+	case float64:
+		buf.WriteString(fmt.Sprintf(`[cyan]%v[-]`, v))
+	case bool:
+		buf.WriteString(fmt.Sprintf(`[magenta]%v[-]`, v))
+	case nil:
+		buf.WriteString(`[gray]null[-]`)
+	default:
+		buf.WriteString(fmt.Sprintf(`%v`, v))
 	}
 }

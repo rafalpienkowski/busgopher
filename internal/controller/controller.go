@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"bytes"
 	"encoding/json"
 	"errors"
 	"strings"
@@ -164,16 +165,21 @@ func (controller *Controller) writeLog(log string) {
 	*/
 }
 
-func (controller *Controller) Saveconfig() error {
+func (controller *Controller) SaveConfigJson(configJson string) error {
+    config := config.Config{}
+    _ = json.Unmarshal([]byte(configJson), &config)
+    controller.Config = config
 	return controller.configStorage.Save(controller.Config)
 }
 
 func (controller *Controller) GetConfigString() (string, error) {
-	json, err := json.Marshal(controller.Config)
+	decoded, err := json.Marshal(controller.Config)
     if err != nil {
         return "", err
     }
-    return string(json), err
+    var out bytes.Buffer
+    errIndent := json.Indent(&out, decoded,"", "\t")
+    return out.String(), errIndent
 }
 
 func (controller *Controller) ValidateConfig() error {
