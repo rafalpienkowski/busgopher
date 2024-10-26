@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
 
 	"github.com/rafalpienkowski/busgopher/internal/controller"
@@ -161,6 +162,23 @@ func (configPage *ConfigPage) printLog(logMsg string) {
 }
 
 func (configPage *ConfigPage) setAfterDrawFunc(focusedElement tview.Primitive) {
+
+	configPage.config.SetBorderColor(tcell.ColorWhite)
+	configPage.sending.SetBorderColor(tcell.ColorWhite)
+	configPage.validate.SetBorderColor(tcell.ColorWhite)
+	configPage.save.SetBorderColor(tcell.ColorWhite)
+	configPage.close.SetBorderColor(tcell.ColorWhite)
+
 	switch focusedElement {
+	case configPage.config:
+		configPage.config.SetBorderColor(tcell.ColorBlue)
+	case configPage.sending:
+		configPage.sending.SetBorderColor(tcell.ColorBlue)
+	case configPage.validate:
+		configPage.validate.SetBorderColor(tcell.ColorBlue)
+	case configPage.save:
+		configPage.save.SetBorderColor(tcell.ColorBlue)
+	case configPage.close:
+		configPage.close.SetBorderColor(tcell.ColorBlue)
 	}
 }
