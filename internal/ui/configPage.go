@@ -128,10 +128,12 @@ func (configPage *ConfigPage) setActions() {
 	})
 
 	configPage.defaultConfig.SetSelectedFunc(func() {
+        /*
 		err := configPage.controller.ValidateConfig()
 		if err != nil {
 			configPage.printError(err)
 		}
+        */
 	})
 
 	configPage.save.SetSelectedFunc(func() {

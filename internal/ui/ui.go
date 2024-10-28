@@ -1,6 +1,9 @@
 package ui
 
 import (
+	"fmt"
+	"time"
+
 	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
 
@@ -59,11 +62,27 @@ func (ui *UI) switchToPage(page string) {
 	ui.pages.SwitchToPage(page)
 	switch page {
 	case "sending":
-        ui.sending.refresh()
-        ui.app.SetFocus(ui.sending.connections)
+		ui.sending.refresh()
+		ui.app.SetFocus(ui.sending.connections)
 	case "config":
-        ui.config.refresh()
-        ui.app.SetFocus(ui.config.config)
+		ui.config.refresh()
+		ui.app.SetFocus(ui.config.config)
+	}
+}
+
+func (ui *UI) WriteLog(log string) {
+	page, _ := ui.pages.GetFrontPage()
+	switch page {
+	case "sending":
+		ui.sending.printLog(fmt.Sprintf(
+			"[%v]: [Info] %v\n",
+			time.Now().Format("2006-01-02 15:04:05"),
+			log))
+	case "config":
+		ui.config.printLog(fmt.Sprintf(
+			"[%v]: [Info] %v\n",
+			time.Now().Format("2006-01-02 15:04:05"),
+			log))
 	}
 }
 

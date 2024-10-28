@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"time"
 
 	"github.com/rafalpienkowski/busgopher/internal/asb"
 	"github.com/rafalpienkowski/busgopher/internal/config"
@@ -13,7 +14,6 @@ import (
 
 func main() {
 
-	// Define flags
 	connection := flag.String("conn", "", "Saved connection name")
 	destination := flag.String("dest", "", "Destination")
 	message := flag.String("msg", "", "Message")
@@ -23,7 +23,6 @@ func main() {
 	configStorage := &config.FileConfigStorage{}
 	messageSender := &asb.AsbMessageSender{}
 
-	// Check if used with params
 	if len(*connection) > 0 || len(*destination) > 0 || len(*message) > 0 {
 
 		fmt.Printf(
@@ -33,9 +32,17 @@ func main() {
 			*message,
 		)
 		controller, err := controller.NewController(
-            configStorage, 
-            messageSender)
-			//func(s string) { fmt.Fprintf(os.Stdout, "%v", s) })
+			configStorage,
+			messageSender,
+			func(log string) {
+				fmt.Fprintf(
+					os.Stdout,
+					"[%v]: [Info] %v\n",
+					time.Now().Format("2006-01-02 15:04:05"),
+					log,
+				)
+			},
+		)
 
 		if err != nil {
 			fmt.Printf("Failed to start controller: %v\n", err)
@@ -48,7 +55,7 @@ func main() {
 		controller.Send()
 	} else {
 		ui := ui.NewUI()
-		controller, err := controller.NewController(configStorage, messageSender)
+		controller, err := controller.NewController(configStorage, messageSender, ui.WriteLog)
 		if err != nil {
 			fmt.Printf("Failed to start controller: %v\n", err)
 			os.Exit(1)

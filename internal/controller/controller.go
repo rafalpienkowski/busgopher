@@ -20,6 +20,8 @@ type Message struct {
 	Message asb.Message
 }
 
+type WriteLog func(log string)
+
 type Controller struct {
 	Config        config.Config
 	configStorage config.ConfigStorage
@@ -29,11 +31,13 @@ type Controller struct {
 	selectedDestination    string
 
 	messageSender asb.MessageSender
+	writeLog      WriteLog
 }
 
 func NewController(
 	configStorage config.ConfigStorage,
 	messageSender asb.MessageSender,
+	writeLog WriteLog,
 ) (*Controller, error) {
 
 	config, err := configStorage.Load()
@@ -45,6 +49,7 @@ func NewController(
 	controller.Config = config
 	controller.messageSender = messageSender
 	controller.configStorage = configStorage
+    controller.writeLog = writeLog
 
 	return &controller, nil
 }
@@ -87,6 +92,8 @@ func (controller *Controller) SelectConnectionByName(name string) error {
 	if ok {
 		controller.selectedConnectionName = name
 		controller.selectedDestination = ""
+        controller.writeLog("Connection '" + name + "' selected")
+
 		return nil
 	}
 
@@ -99,6 +106,8 @@ func (controller *Controller) SelectDestinationByName(name string) error {
 		for _, dest := range conn.Destinations {
 			if strings.EqualFold(dest, name) {
 				controller.selectedDestination = dest
+                controller.writeLog("Destination '" + name + "' selected")
+
 				return nil
 			}
 		}
@@ -110,6 +119,8 @@ func (controller *Controller) SelectMessageByName(name string) error {
 	_, ok := controller.Config.Messages[name]
 	if ok {
 		controller.selectedMessageName = name
+        controller.writeLog("Message '" + name + "' selected")
+
 		return nil
 	}
 	return errors.New("Can't find message with name: " + name)
@@ -155,38 +166,25 @@ func (controller *Controller) Send() error {
 	return nil
 }
 
-func (controller *Controller) writeLog(log string) {
-	/*
-		controller.print(fmt.Sprintf(
-			"[%v]: [Info] %v\n",
-			time.Now().Format("2006-01-02 15:04:05"),
-			log,
-		))
-	*/
-}
-
 func (controller *Controller) SaveConfigJson(configJson string) error {
-    config := config.Config{}
-    _ = json.Unmarshal([]byte(configJson), &config)
-    controller.Config = config
+	config := config.Config{}
+	_ = json.Unmarshal([]byte(configJson), &config)
+	controller.Config = config
 
-    controller.selectedConnectionName = ""
-    controller.selectedDestination = ""
-    controller.selectedMessageName = ""
+	controller.selectedConnectionName = ""
+	controller.selectedDestination = ""
+	controller.selectedMessageName = ""
+    controller.writeLog("Config saved")
 
 	return controller.configStorage.Save(controller.Config)
 }
 
 func (controller *Controller) GetConfigString() (string, error) {
 	decoded, err := json.Marshal(controller.Config)
-    if err != nil {
-        return "", err
-    }
-    var out bytes.Buffer
-    errIndent := json.Indent(&out, decoded,"", "\t")
-    return out.String(), errIndent
-}
-
-func (controller *Controller) ValidateConfig() error {
-	return nil
+	if err != nil {
+		return "", err
+	}
+	var out bytes.Buffer
+	errIndent := json.Indent(&out, decoded, "", "\t")
+	return out.String(), errIndent
 }
