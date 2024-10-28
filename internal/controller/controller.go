@@ -169,6 +169,11 @@ func (controller *Controller) SaveConfigJson(configJson string) error {
     config := config.Config{}
     _ = json.Unmarshal([]byte(configJson), &config)
     controller.Config = config
+
+    controller.selectedConnectionName = ""
+    controller.selectedDestination = ""
+    controller.selectedMessageName = ""
+
 	return controller.configStorage.Save(controller.Config)
 }
 

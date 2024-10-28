@@ -57,6 +57,14 @@ func (ui *UI) Start() error {
 
 func (ui *UI) switchToPage(page string) {
 	ui.pages.SwitchToPage(page)
+	switch page {
+	case "sending":
+        ui.sending.refresh()
+        ui.app.SetFocus(ui.sending.connections)
+	case "config":
+        ui.config.refresh()
+        ui.app.SetFocus(ui.config.config)
+	}
 }
 
 func (ui *UI) queueUpdateDraw(f func()) {

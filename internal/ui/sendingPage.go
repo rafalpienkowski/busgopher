@@ -44,7 +44,7 @@ func newSendingPage(
 	content := tview.NewTextView()
 	logs := tview.NewTextView()
 	send := newBoxButton("Send")
-	config := newBoxButton("Configuration")
+	config := newBoxButton("To Configuration")
 	close := newBoxButton("Close")
 
 	inputs := []tview.Primitive{
@@ -151,8 +151,20 @@ func (sendingPage *SendingPage) setLayout() {
 func (sendingPage *SendingPage) loadData(controller *controller.Controller) {
 	sendingPage.controller = controller
 	sendingPage.setActions()
+    sendingPage.refresh()
+}
+
+func (sendingPage *SendingPage) refresh(){
+
+    sendingPage.connections.Clear()
+    sendingPage.destinations.Clear()
+    sendingPage.messages.Clear()
+    sendingPage.content.Clear()
+    sendingPage.logs.Clear()
+
 	sendingPage.refreshConnections()
 	sendingPage.refreshMessages()
+
 }
 
 func (sendingPage *SendingPage) setActions() {

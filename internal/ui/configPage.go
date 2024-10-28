@@ -20,10 +20,10 @@ type ConfigPage struct {
 	config *tview.TextArea
 	logs   *tview.TextView
 
-	sending  *BoxButton
-	validate *BoxButton
-	save     *BoxButton
-	close    *BoxButton
+	sending       *BoxButton
+	defaultConfig *BoxButton
+	save          *BoxButton
+	close         *BoxButton
 
 	inputs []tview.Primitive
 }
@@ -35,15 +35,15 @@ func newConfigPage(theme Theme, closeApp closeAppFunc, switchPage switchPageFunc
 	config := tview.NewTextArea()
 	logs := tview.NewTextView()
 	sending := newBoxButton("To Sending Page")
-	validate := newBoxButton("Validate")
+	defaultConfig := newBoxButton("Default config")
 	save := newBoxButton("Save")
 	close := newBoxButton("Close")
 
 	inputs := []tview.Primitive{
 		config,
-		sending,
-		validate,
 		save,
+		defaultConfig,
+		sending,
 		close,
 	}
 
@@ -56,10 +56,10 @@ func newConfigPage(theme Theme, closeApp closeAppFunc, switchPage switchPageFunc
 		config: config,
 		logs:   logs,
 
-		sending:  sending,
-		validate: validate,
-		save:     save,
-		close:    close,
+		sending:       sending,
+		defaultConfig: defaultConfig,
+		save:          save,
+		close:         close,
 
 		inputs: inputs,
 	}
@@ -93,9 +93,9 @@ func (configPage *ConfigPage) setLayout() {
 	actions := tview.NewFlex()
 	actions.
 		AddItem(tview.NewBox().SetBackgroundColor(configPage.theme.backgroundColor), 0, 1, false).
-		AddItem(configPage.sending, configPage.sending.GetWidth(), 0, false).
-		AddItem(configPage.validate, configPage.validate.GetWidth(), 0, false).
 		AddItem(configPage.save, configPage.save.GetWidth(), 0, false).
+		AddItem(configPage.defaultConfig, configPage.defaultConfig.GetWidth(), 0, false).
+		AddItem(configPage.sending, configPage.sending.GetWidth(), 0, false).
 		AddItem(configPage.close, configPage.close.GetWidth(), 0, false)
 
 	main := tview.NewFlex().SetDirection(tview.FlexRow).
@@ -110,16 +110,20 @@ func (configPage *ConfigPage) setLayout() {
 func (configPage *ConfigPage) loadData(controller *controller.Controller) {
 	configPage.controller = controller
 	configPage.setActions()
-    json, _ := configPage.controller.GetConfigString()
-    configPage.printConfig(json)
+    configPage.refresh()
+}
+
+func (configPage *ConfigPage) refresh(){
+	json, _ := configPage.controller.GetConfigString()
+	configPage.printConfig(json)
 }
 
 func (configPage *ConfigPage) setActions() {
 	configPage.sending.SetSelectedFunc(func() {
-        configPage.switchPage("sending")
+		configPage.switchPage("sending")
 	})
 
-	configPage.validate.SetSelectedFunc(func() {
+	configPage.defaultConfig.SetSelectedFunc(func() {
 		err := configPage.controller.ValidateConfig()
 		if err != nil {
 			configPage.printError(err)
@@ -165,7 +169,7 @@ func (configPage *ConfigPage) setAfterDrawFunc(focusedElement tview.Primitive) {
 
 	configPage.config.SetBorderColor(tcell.ColorWhite)
 	configPage.sending.SetBorderColor(tcell.ColorWhite)
-	configPage.validate.SetBorderColor(tcell.ColorWhite)
+	configPage.defaultConfig.SetBorderColor(tcell.ColorWhite)
 	configPage.save.SetBorderColor(tcell.ColorWhite)
 	configPage.close.SetBorderColor(tcell.ColorWhite)
 
@@ -174,8 +178,8 @@ func (configPage *ConfigPage) setAfterDrawFunc(focusedElement tview.Primitive) {
 		configPage.config.SetBorderColor(tcell.ColorBlue)
 	case configPage.sending:
 		configPage.sending.SetBorderColor(tcell.ColorBlue)
-	case configPage.validate:
-		configPage.validate.SetBorderColor(tcell.ColorBlue)
+	case configPage.defaultConfig:
+		configPage.defaultConfig.SetBorderColor(tcell.ColorBlue)
 	case configPage.save:
 		configPage.save.SetBorderColor(tcell.ColorBlue)
 	case configPage.close:
