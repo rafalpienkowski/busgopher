@@ -72,20 +72,24 @@ func newConfigPage(theme Theme, closeApp closeAppFunc, switchPage switchPageFunc
 
 func (configPage *ConfigPage) configureAppearence() {
 
-	configPage.config.
-		SetTitle(" Current config: ").
-		SetBorder(true).
+    configPage.config.
+        SetBorder(true).
 		SetBackgroundColor(configPage.theme.backgroundColor)
+    configPage.config.
+        SetTextStyle(configPage.theme.style)
 
 	configPage.logs.
 		SetTitle(" Logs: ").
-		SetBorder(true).
+		SetBorder(true)
+
+	configPage.logs.
 		SetBackgroundColor(configPage.theme.backgroundColor)
 
 	configPage.flex.
 		SetBorder(true).
-		SetBackgroundColor(configPage.theme.backgroundColor).
 		SetTitle("Configuration")
+	configPage.flex.
+		SetBackgroundColor(configPage.theme.backgroundColor)
 }
 
 func (configPage *ConfigPage) setLayout() {

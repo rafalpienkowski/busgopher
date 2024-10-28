@@ -79,7 +79,7 @@ func newSendingPage(
 }
 
 func (sendingPage *SendingPage) configureAppearence() {
-
+    
 	sendingPage.connections.
 		ShowSecondaryText(false).
 		SetWrapAround(true).
@@ -109,15 +109,17 @@ func (sendingPage *SendingPage) configureAppearence() {
 
 	sendingPage.content.
 		SetTitle(" Content: ").
-		SetBorder(true).
-		SetBackgroundColor(sendingPage.theme.backgroundColor)
-
+		SetBorder(true)
+	
+    sendingPage.content.SetBackgroundColor(sendingPage.theme.backgroundColor)
     sendingPage.content.SetDynamicColors(true)
 
 	sendingPage.logs.
 		SetTitle(" Logs: ").
 		SetBorder(true).
 		SetBackgroundColor(sendingPage.theme.backgroundColor)
+
+    sendingPage.logs.SetBackgroundColor(sendingPage.theme.backgroundColor)
 
 	sendingPage.flex.
 		SetBorder(true).
