@@ -299,12 +299,12 @@ func colorizeJSON(data string) (string, error) {
 func formatJSON(value interface{}, buf *bytes.Buffer, indent string) {
 	switch v := value.(type) {
 	case map[string]interface{}:
-		buf.WriteString("{\n")
+        fmt.Fprint(buf, "{\n")
 		for key, val := range v {
-			buf.WriteString(indent + "  ")
-			buf.WriteString(fmt.Sprintf(`[yellow]"%s":[-] `, key))
+            fmt.Fprint(buf, indent + "  ")
+            fmt.Fprintf(buf, `[yellow]"%s":[-] `, key)
 			formatJSON(val, buf, indent+"  ")
-			buf.WriteString(",\n")
+            fmt.Fprint(buf, ",\n")
 		}
 		buf.WriteString(indent + "}")
 	case []interface{}:
@@ -316,14 +316,14 @@ func formatJSON(value interface{}, buf *bytes.Buffer, indent string) {
 		}
 		buf.WriteString(indent + "]")
 	case string:
-		buf.WriteString(fmt.Sprintf(`[green]"%s"[-]`, v))
+        fmt.Fprintf(buf, `[green]"%s"[-]`, v)
 	case float64:
-		buf.WriteString(fmt.Sprintf(`[cyan]%v[-]`, v))
+        fmt.Fprintf(buf, `[cyan]%v[-]`, v)
 	case bool:
-		buf.WriteString(fmt.Sprintf(`[magenta]%v[-]`, v))
+        fmt.Fprintf(buf, `[magenta]%v[-]`, v)
 	case nil:
-		buf.WriteString(`[gray]null[-]`)
+        fmt.Fprint(buf, `[gray]null[-]`)
 	default:
-		buf.WriteString(fmt.Sprintf(`%v`, v))
+        fmt.Fprintf(buf, `%v`, v)
 	}
 }
