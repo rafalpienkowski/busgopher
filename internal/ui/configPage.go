@@ -7,6 +7,7 @@ import (
 	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
 
+	"github.com/rafalpienkowski/busgopher/internal/config"
 	"github.com/rafalpienkowski/busgopher/internal/controller"
 )
 
@@ -128,12 +129,9 @@ func (configPage *ConfigPage) setActions() {
 	})
 
 	configPage.defaultConfig.SetSelectedFunc(func() {
-        /*
-		err := configPage.controller.ValidateConfig()
-		if err != nil {
-			configPage.printError(err)
-		}
-        */
+        testConfig := config.GetTestConfig()
+        configPage.controller.Config = testConfig
+        configPage.refresh()
 	})
 
 	configPage.save.SetSelectedFunc(func() {

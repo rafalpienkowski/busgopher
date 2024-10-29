@@ -16,6 +16,26 @@ func Default() *Config {
 	}
 }
 
+func GetTestConfig() Config {
+	connections := make(map[string]asb.Connection)
+	connections["test-connection"] = asb.Connection{
+		Namespace: "test.azure.com",
+		Destinations: []string{
+			"queue",
+			"topic",
+		},
+	}
+	messages := make(map[string]asb.Message)
+	messages["test-message"] = asb.Message{
+		Body: "{ test msg body }",
+	}
+
+	return Config{
+		Connections: connections,
+		Messages:    messages,
+	}
+}
+
 type ConfigStorage interface {
 	Load() (Config, error)
 	Save(Config) error
