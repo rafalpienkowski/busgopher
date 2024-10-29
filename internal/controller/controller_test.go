@@ -180,9 +180,9 @@ func Test_Controller_Should_Return_Connections(t *testing.T) {
 	connections := controller.GetConnections()
 
 	assert.Equal(t, []Connection{{
-        Name: "test-connection",
-        Namespace: "test.azure.com",
-    }}, connections)
+		Name:      "test-connection",
+		Namespace: "test.azure.com",
+	}}, connections)
 }
 
 func Test_Controller_Should_Return_Messages(t *testing.T) {
@@ -196,20 +196,111 @@ func Test_Controller_Should_Return_Messages(t *testing.T) {
 	}}, messages)
 }
 
-func Test_Controller_Should_Return_No_Destinations_When_Connection_Not_Selected(t *testing.T){
+func Test_Controller_Should_Return_No_Destinations_When_Connection_Not_Selected(t *testing.T) {
 	controller, _, _ := createTestController()
 
-    destinations := controller.GetDestiationNamesForSelectedConnection()
+	destinations := controller.GetDestiationNamesForSelectedConnection()
 
-    assert.Equal(t, []string{}, destinations)
+	assert.Equal(t, []string{}, destinations)
 }
 
-func Test_Controller_Should_Return_Destinations_For_Selected_Connection(t *testing.T){
+func Test_Controller_Should_Return_Destinations_For_Selected_Connection(t *testing.T) {
 	controller, _, _ := createTestController()
-    err := controller.SelectConnectionByName("test-connection")
-    assert.NoError(t, err)
+	err := controller.SelectConnectionByName("test-connection")
+	assert.NoError(t, err)
 
-    destinations := controller.GetDestiationNamesForSelectedConnection()
+	destinations := controller.GetDestiationNamesForSelectedConnection()
 
-    assert.Equal(t, []string{ "queue", "topic" }, destinations)
+	assert.Equal(t, []string{"queue", "topic"}, destinations)
+}
+
+func Test_Controller_Save_Config_Json_Should_Clear_Selections(t *testing.T) {
+	controller, _, _ := createTestController()
+	err := controller.SelectConnectionByName("test-connection")
+	assert.NoError(t, err)
+	err = controller.SelectDestinationByName("queue")
+	assert.NoError(t, err)
+	err = controller.SelectMessageByName("test-message")
+	assert.NoError(t, err)
+
+	err = controller.SaveConfigJson("{}")
+
+	assert.NoError(t, err)
+	assert.Equal(t, "", controller.selectedConnectionName)
+	assert.Equal(t, "", controller.selectedDestination)
+	assert.Equal(t, "", controller.selectedMessageName)
+}
+
+func Test_Controller_Save_Config_Json_Should_Save_Config(t *testing.T) {
+	controller, inMemoryConfig, _ := createTestController()
+
+	err := controller.SaveConfigJson("{}")
+
+	assert.NoError(t, err)
+	assert.Equal(t, config.Config{}, inMemoryConfig.Config)
+}
+
+func Test_Controller_Save_Config_Json_Should_Set_Controller_Config(t *testing.T) {
+	controller, _, _ := createTestController()
+
+	err := controller.SaveConfigJson("{}")
+
+	assert.NoError(t, err)
+	assert.Equal(t, config.Config{}, controller.Config)
+}
+
+func Test_Controller_Save_Config_Json_Should_Save_Something_More_Sophisticated(t *testing.T) {
+	controller, _, _ := createTestController()
+
+	err := controller.SaveConfigJson(`{
+        "connections": {
+            "another-connection": {
+                "namespace": "another.azure.com",
+                "destinations": [ "some-queue", "some-topic" ]
+            }
+        },
+        "messages": {
+            "another-message": {
+                "messageID": "131",
+                "correlationID": "22",
+                "body": "{ another msg body }",
+                "replyTo": "Please not",
+                "subject": "Another",
+                "customProperties": {
+                    "first": "second",
+                    "another": false
+                }
+            }
+        }
+    }`)
+
+	assert.NoError(t, err)
+
+	connections := make(map[string]asb.Connection)
+	connections["another-connection"] = asb.Connection{
+		Namespace: "another.azure.com",
+		Destinations: []string{
+			"some-queue",
+			"some-topic",
+		},
+	}
+	customProperties := make(map[string]any)
+	customProperties["first"] = "second"
+	customProperties["another"] = false
+
+	messages := make(map[string]asb.Message)
+	messages["another-message"] = asb.Message{
+		Body:             "{ another msg body }",
+		MessageID:        "131",
+		CorrelationID:    "22",
+		ReplayTo:         "Please not",
+		Subject:          "Another",
+		CustomProperties: customProperties,
+	}
+
+	expected := config.Config{
+		Connections: connections,
+		Messages:    messages,
+	}
+	assert.Equal(t, expected, controller.Config)
 }

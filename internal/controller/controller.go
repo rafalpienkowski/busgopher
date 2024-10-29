@@ -168,7 +168,10 @@ func (controller *Controller) Send() error {
 
 func (controller *Controller) SaveConfigJson(configJson string) error {
 	config := config.Config{}
-	_ = json.Unmarshal([]byte(configJson), &config)
+    err := json.Unmarshal([]byte(configJson), &config)
+    if (err != nil){
+        return err
+    }
 	controller.Config = config
 
 	controller.selectedConnectionName = ""
