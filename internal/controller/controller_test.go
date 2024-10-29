@@ -304,3 +304,11 @@ func Test_Controller_Save_Config_Json_Should_Save_Something_More_Sophisticated(t
 	}
 	assert.Equal(t, expected, controller.Config)
 }
+
+func Test_Controller_Save_Config_Json_Should_Return_Error_On_Invalid_Json(t *testing.T){
+	controller, _, _ := createTestController()
+
+	err := controller.SaveConfigJson("invalid json")
+    
+    assert.Equal(t, "invalid character 'i' looking for beginning of value", err.Error())
+}
