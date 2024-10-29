@@ -83,6 +83,7 @@ func (configPage *ConfigPage) configureAppearence() {
 		SetTitle(" Logs: ").
 		SetBorder(true)
 
+    configPage.logs.SetDynamicColors(true)
 	configPage.logs.
 		SetBackgroundColor(configPage.theme.backgroundColor)
 
@@ -151,7 +152,7 @@ func (configPage *ConfigPage) printConfig(currentConfig string) {
 
 func (configPage *ConfigPage) printError(err error) {
 	configPage.printLog(fmt.Sprintf(
-		"[%v]: [Error] %v\n",
+        "[red][%v]: [red]Error - [red]%v[-]\n",
 		time.Now().Format("2006-01-02 15:04:05"),
 		err.Error(),
 	))

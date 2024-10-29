@@ -118,7 +118,8 @@ func (sendingPage *SendingPage) configureAppearence() {
 		SetTitle(" Logs: ").
 		SetBorder(true).
 		SetBackgroundColor(sendingPage.theme.backgroundColor)
-
+    
+    sendingPage.logs.SetDynamicColors(true)
     sendingPage.logs.SetBackgroundColor(sendingPage.theme.backgroundColor)
 
 	sendingPage.flex.
@@ -237,7 +238,7 @@ func (sendingPage *SendingPage) printContent(content string) {
 
 func (sendingPage *SendingPage) printError(err error) {
 	sendingPage.printLog(fmt.Sprintf(
-		"[%v]: [Error] %v\n",
+		"[red][%v]: [red] Error - [red]%v[-]\n",
 		time.Now().Format("2006-01-02 15:04:05"),
 		err.Error(),
 	))

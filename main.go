@@ -48,11 +48,27 @@ func main() {
 			fmt.Printf("Failed to start controller: %v\n", err)
 			os.Exit(1)
 		}
-		controller.SelectConnectionByName(*connection)
-		controller.SelectDestinationByName(*destination)
-		controller.SelectMessageByName(*message)
+		err = controller.SelectConnectionByName(*connection)
+		if err != nil {
+			fmt.Printf("Fail to select connection: %v\n", err)
+			os.Exit(1)
+		}
+		err = controller.SelectDestinationByName(*destination)
+		if err != nil {
+			fmt.Printf("Fail to select destination: %v\n", err)
+			os.Exit(1)
+		}
+		err = controller.SelectMessageByName(*message)
+		if err != nil {
+			fmt.Printf("Fail to select message: %v\n", err)
+			os.Exit(1)
+		}
 
-		controller.Send()
+		err = controller.Send()
+		if err != nil {
+			fmt.Printf("Fail to send message: %v\n", err)
+			os.Exit(1)
+		}
 	} else {
 		ui := ui.NewUI()
 		controller, err := controller.NewController(configStorage, messageSender, ui.WriteLog)

@@ -75,12 +75,12 @@ func (ui *UI) WriteLog(log string) {
 	switch page {
 	case "sending":
 		ui.sending.printLog(fmt.Sprintf(
-			"[%v]: [Info] %v\n",
+			"[%v]: Info - %v\n",
 			time.Now().Format("2006-01-02 15:04:05"),
 			log))
 	case "config":
 		ui.config.printLog(fmt.Sprintf(
-			"[%v]: [Info] %v\n",
+			"[%v]: Info - %v\n",
 			time.Now().Format("2006-01-02 15:04:05"),
 			log))
 	}
