@@ -93,8 +93,9 @@ func Test_Controller_Should_Write_Error_When_Selecting_Queue_Without_Connection(
 func Test_Controller_Should_Select_Message(t *testing.T) {
 	controller, _, _ := createTestController()
 
-	controller.SelectMessageByName("test-message")
+	err := controller.SelectMessageByName("test-message")
 
+	assert.NoError(t, err)
 	assert.Equal(t, "test-message", controller.selectedMessageName)
 }
 
@@ -153,4 +154,62 @@ func Test_Controller_Should_Send_Message(t *testing.T) {
 	assert.Equal(t, "test.azure.com", messageSender.Namespace)
 	assert.Equal(t, "queue", messageSender.Destination)
 	assert.Equal(t, inMemoryConfig.Config.Messages["test-message"], messageSender.Message)
+}
+
+func Test_Controller_Should_Get_Selected_Connection(t *testing.T) {
+	controller, inMemoryConfig, _ := createTestController()
+	err := controller.SelectConnectionByName("test-connection")
+	assert.NoError(t, err)
+
+	conn := controller.GetSelectedConnection()
+
+	assert.Equal(t, inMemoryConfig.Config.Connections["test-connection"], *conn)
+}
+
+func Test_Controller_Should_Return_Nil_When_Connection_Not_Selected(t *testing.T) {
+	controller, _, _ := createTestController()
+
+	conn := controller.GetSelectedConnection()
+
+	assert.Nil(t, conn)
+}
+
+func Test_Controller_Should_Return_Connections(t *testing.T) {
+	controller, _, _ := createTestController()
+
+	connections := controller.GetConnections()
+
+	assert.Equal(t, []Connection{{
+        Name: "test-connection",
+        Namespace: "test.azure.com",
+    }}, connections)
+}
+
+func Test_Controller_Should_Return_Messages(t *testing.T) {
+	controller, inMemoryConfig, _ := createTestController()
+
+	messages := controller.GetMessages()
+
+	assert.Equal(t, []Message{{
+		Name:    "test-message",
+		Message: inMemoryConfig.Config.Messages["test-message"],
+	}}, messages)
+}
+
+func Test_Controller_Should_Return_No_Destinations_When_Connection_Not_Selected(t *testing.T){
+	controller, _, _ := createTestController()
+
+    destinations := controller.GetDestiationNamesForSelectedConnection()
+
+    assert.Equal(t, []string{}, destinations)
+}
+
+func Test_Controller_Should_Return_Destinations_For_Selected_Connection(t *testing.T){
+	controller, _, _ := createTestController()
+    err := controller.SelectConnectionByName("test-connection")
+    assert.NoError(t, err)
+
+    destinations := controller.GetDestiationNamesForSelectedConnection()
+
+    assert.Equal(t, []string{ "queue", "topic" }, destinations)
 }
