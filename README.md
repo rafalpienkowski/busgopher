@@ -41,7 +41,9 @@ Started headless mode with connection: demo, destination: test-queue, message: u
 
 The GUI mode provides a graphical interface for interacting with Busgohper. At the moment, it allows you to select from a config file configuration. You can navigate between panels via TAB, select options by arrows, and select them by ENTER.
 
-You can preview the selected message body in the Preview section. The logs section provides diagnostic logs.
+At the moment, GUI mode provides two pages:
+- sending - which allows to select connection, destination, and message
+- configuration - which allows to create a default config, validate and save entered configuration
 
 ![demo](./docs/demo.gif)
 
