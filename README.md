@@ -1,4 +1,4 @@
-# BusGopher
+# BusGophe
 
 ![logo](./docs/logo.png)
 
