@@ -43,13 +43,19 @@ jobs:
 
       - name: Build binary
         run: |
-          go build -o busgopher-${{ matrix.os }}-amd64
+          if [[ "${{ matrix.os }}" == "windows-latest" ]]; then
+            go build -o busgopher-${{ matrix.os }}.exe
+          else
+            go build -o busgopher-${{ matrix.os }}
+          fi
 
+          
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: busgopher-${{ matrix.os }}-amd64
-          path: busgopher-${{ matrix.os }}-amd64
+          name: busgopher-${{ matrix.os }}
+          path: |
+            busgopher-${{ matrix.os }}${{ matrix.os == 'windows-latest' && '.exe' || '' }}
 
   release:
     needs: build
