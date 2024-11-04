@@ -46,7 +46,7 @@ func (storage *FileConfigStorage) Load() (Config, error) {
 }
 
 func (storage *FileConfigStorage) Save(config Config) error {
-	json, err := json.Marshal(config)
+	json, err := json.MarshalIndent(config, "", "   ")
 	if err != nil {
 		return err
 	}
