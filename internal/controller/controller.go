@@ -148,7 +148,6 @@ func (controller *Controller) Send() error {
 		return errors.New("Destination not selected!")
 	}
 
-	controller.writeLog("Sending message to: " + controller.selectedDestination)
 	controller.writeLog(
 		"Sending message to: " + controller.Config.Connections[controller.selectedConnectionName].Namespace,
 	)
